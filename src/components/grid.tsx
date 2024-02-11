@@ -6,7 +6,7 @@ import Day from "./day";
 
 interface Props {
 	gridRef: React.RefObject<HTMLDivElement>;
-	scrollToCurrentDate: (behavior: "smooth" | "instant") => void;
+	scrollToCurrentDate: () => void;
 }
 
 export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
@@ -15,7 +15,7 @@ export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
 	const [selection, setSelection] = useState();
 
 	useEffect(() => {
-		scrollToCurrentDate("instant");
+		scrollToCurrentDate();
 	}, [scrollToCurrentDate]);
 
 	return (

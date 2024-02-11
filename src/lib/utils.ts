@@ -54,3 +54,4 @@ export function isToday(dateToCompare: Date): boolean {
 
 	return today.isSame(otherDate);
 }
+

@@ -3,21 +3,28 @@
 import Grid from "@/components/grid";
 import Header from "@/components/header";
 import TimeBlock from "@/components/timeblock";
-import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { cn, getDayWithDate } from "@/lib/utils";
+import { useCallback, useRef } from "react";
 
 export default function Dashboard() {
 	const gridRef = useRef<HTMLDivElement>(null);
 
-	const scrollToCurrentDate = (behavior: "smooth" | "instant") => {
+	const scrollToCurrentDate = useCallback(() => {
 		if (gridRef.current) {
-			gridRef.current.children[7].scrollIntoView({
-				behavior,
-				inline: "start",
-				block: "start",
-			});
+			const children = gridRef.current.children;
+			for (let i = 0; i < children.length; i++) {
+				const child = children[i] as HTMLElement;
+				const date = getDayWithDate(new Date());
+
+				if (child.textContent?.includes(`${date.day}${date.date}`)) {
+					gridRef.current.scrollTo(
+						gridRef.current.children[i].clientWidth * 7,
+						0,
+					);
+				}
+			}
 		}
-	};
+	}, []);
 
 	return (
 		<main className="flex min-h-screen w-full flex-col items-center justify-between bg-background">
@@ -25,7 +32,7 @@ export default function Dashboard() {
 			<div
 				className={cn(
 					"flex items-center justify-between",
-					"py-8 text-sm",
+					"my-10 text-sm",
 					"w-full",
 				)}>
 				<div className={cn("flex flex-col", "h-full w-fit pt-6")}>

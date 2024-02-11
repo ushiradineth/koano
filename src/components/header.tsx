@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "./ui/button";
 
 interface Props {
-	scrollToCurrentDate: (behavior: "smooth" | "instant") => void;
+	scrollToCurrentDate: () => void;
 }
 
 export default function Header({ scrollToCurrentDate }: Props) {
@@ -11,7 +11,7 @@ export default function Header({ scrollToCurrentDate }: Props) {
 			<p className="flex text-2xl font-semibold">CRON</p>
 			<Button
 				className="ml-auto font-semibold"
-				onClick={() => scrollToCurrentDate("smooth")}>
+				onClick={() => scrollToCurrentDate()}>
 				Today
 			</Button>
 		</nav>
