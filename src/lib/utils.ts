@@ -98,7 +98,6 @@ export function getDateAndTimeFromSelection(
 		.add(quartersToAdd, "minute")
 		.toDate();
 
-	console.log(selectedDateTime);
 	return selectedDateTime;
 }
 
