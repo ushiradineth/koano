@@ -26,7 +26,7 @@ export default function Quarter({
 			className={cn(
 				"flex items-center justify-center",
 				border && "border-t border-white",
-				"h-4 w-full",
+				"h-[10px] w-full",
 				highlight && "border-opacity-50 bg-red-300 bg-opacity-75",
 			)}
 			onMouseDown={() => {
