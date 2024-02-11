@@ -1,6 +1,7 @@
 "use client";
 
 import Quarter from "@/components/Quarter";
+import Time from "@/components/Time";
 import {
 	cn,
 	getDateTimePairFromSelection,
@@ -22,6 +23,7 @@ export default function Day({ day, reset }: Props) {
 	const [start, setStart] = useState<number>(-1);
 	const [end, setEnd] = useState<number>(-1);
 	const date = getDayWithDate(day);
+	const today = isToday(day);
 
 	useEffect(() => {
 		if (!selecting) {
@@ -38,7 +40,7 @@ export default function Day({ day, reset }: Props) {
 			const url = new URL(window.location.href);
 			url.searchParams.set("start", selection.startDateTime.toISOString());
 			url.searchParams.set("end", selection.endDateTime.toISOString());
-			router.push(url.toString());
+			router.push(url.toString(), { scroll: false });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selecting]);
@@ -52,7 +54,7 @@ export default function Day({ day, reset }: Props) {
 			)}>
 			<span className="flex h-5 gap-2 font-bold">
 				<p>{date.day}</p>
-				<p className={cn(isToday(day) && "rounded-sm bg-[#EF4B46] px-[6px]")}>
+				<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>
 					{date.date}
 				</p>
 			</span>
@@ -60,8 +62,9 @@ export default function Day({ day, reset }: Props) {
 				className={cn(
 					"flex flex-col items-center justify-between",
 					"border",
-					"h-full w-full",
+					"h-full w-full relative",
 				)}>
+				<Time today={today} />
 				{new Array(24 * 1 * 4).fill(0).map((_, index) => (
 					<Quarter
 						key={index}

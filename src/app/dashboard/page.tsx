@@ -45,11 +45,11 @@ export default function Dashboard() {
 
 			<div
 				className={cn(
-					"flex items-center justify-between",
+					"flex justify-between",
 					"my-10 text-sm",
 					"w-full",
 				)}>
-				<div className={cn("flex flex-col", "h-full w-fit pt-6")}>
+				<div className={cn("flex flex-col", "h-full w-20 mt-7")}>
 					{new Array(23 * 1).fill(0).map((_, index) => (
 						<TimeBlock key={index} hour={index + 1} />
 					))}

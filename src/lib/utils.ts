@@ -114,3 +114,13 @@ export function queryParams(
 
 	return pathname + (url.toString() ? "?" + url.toString() : "");
 }
+
+export function getCurrentHourTime(valueHour: number) {
+	const hour = dayjs().hour();
+	const minutes = dayjs().minute();
+	const time = dayjs().format("h:mm A");
+	const isCurrentHour = valueHour === hour;
+	const isPreviousHour = valueHour === hour - 1;
+
+	return { hour, minutes, time, isCurrentHour, isPreviousHour };
+}
