@@ -40,6 +40,7 @@ export default function Day({ day, reset }: Props) {
 			url.searchParams.set("end", selection.endDateTime.toISOString());
 			router.push(url.toString());
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selecting]);
 
 	return (
