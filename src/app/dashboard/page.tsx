@@ -43,12 +43,7 @@ export default function Dashboard() {
 			<Header scrollToCurrentDate={scrollToCurrentDate} />
 			<AddEvent open={addEvent} setOpen={setAddEvent} />
 
-			<div
-				className={cn(
-					"flex justify-between",
-					"my-10 text-sm",
-					"w-full",
-				)}>
+			<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
 				<div className={cn("flex flex-col", "h-full w-20 mt-7")}>
 					{new Array(23 * 1).fill(0).map((_, index) => (
 						<TimeBlock key={index} hour={index + 1} />
