@@ -1,5 +1,4 @@
 import { getHour } from "@/lib/utils";
-import React from "react";
 
 interface Props {
 	hour: number;

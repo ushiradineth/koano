@@ -1,6 +1,13 @@
-import { type ClassValue, clsx } from "clsx";
+import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
+import "dayjs/plugin/duration";
+import "dayjs/plugin/relativeTime";
+import "dayjs/plugin/utc";
 import { twMerge } from "tailwind-merge";
+
+dayjs.extend(require("dayjs/plugin/utc"));
+dayjs.extend(require("dayjs/plugin/duration"));
+dayjs.extend(require("dayjs/plugin/relativeTime"));
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
