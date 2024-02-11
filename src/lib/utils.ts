@@ -62,3 +62,55 @@ export function isToday(dateToCompare: Date): boolean {
 	return today.isSame(otherDate);
 }
 
+interface DateTimePair {
+	startDateTime: Date;
+	endDateTime: Date;
+}
+
+export function getDateTimePairFromSelection(
+	startSelection: number,
+	endSelection: number,
+	startDate: Date,
+): DateTimePair {
+	const startDateTime = dayjs(
+		getDateAndTimeFromSelection(startSelection, startDate),
+	)
+		.utc()
+		.toDate();
+	const endDateTime = dayjs(
+		getDateAndTimeFromSelection(endSelection + 1, startDate),
+	)
+		.utc()
+		.toDate();
+	return { startDateTime, endDateTime };
+}
+
+export function getDateAndTimeFromSelection(
+	selection: number,
+	startDate: Date,
+): Date {
+	const startDateTime = dayjs(startDate);
+	const hoursToAdd = Math.floor(selection / 4);
+	const quartersToAdd = (selection % 4) * 15;
+
+	const selectedDateTime = startDateTime
+		.add(hoursToAdd, "hour")
+		.add(quartersToAdd, "minute")
+		.toDate();
+
+	console.log(selectedDateTime);
+	return selectedDateTime;
+}
+
+export function queryParams(
+	removeKeys: string[],
+	addKeys: string[][],
+	params: any,
+	pathname: string,
+) {
+	const url = new URLSearchParams(params);
+	removeKeys.map((key) => url.delete(key));
+	addKeys.map((key) => url.set(key[0], key[1]));
+
+	return pathname + (url.toString() ? "?" + url.toString() : "");
+}
