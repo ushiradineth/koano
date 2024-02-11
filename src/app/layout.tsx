@@ -1,3 +1,4 @@
+import "@/app/globals.css";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
@@ -5,7 +6,6 @@ import "dayjs/plugin/relativeTime";
 import "dayjs/plugin/utc";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 
 dayjs.extend(require("dayjs/plugin/utc"));
 dayjs.extend(require("dayjs/plugin/duration"));

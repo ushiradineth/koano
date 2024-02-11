@@ -1,10 +1,10 @@
 "use client";
 
+import Day from "@/components/Day";
 import { getDateRange, queryParams } from "@/lib/utils";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import Day from "./Day";
 
 interface Props {
 	gridRef: React.RefObject<HTMLDivElement>;
