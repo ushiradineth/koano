@@ -29,7 +29,7 @@ export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
 			setReset(!reset);
 			const url = queryParams(["clear"], [], params.entries(), pathname);
 
-			router.replace(url);
+			router.replace(url, { scroll: false });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [params]);

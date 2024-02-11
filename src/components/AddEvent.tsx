@@ -39,7 +39,7 @@ export default function AddEvent({ open, setOpen }: Props) {
 						pathname,
 					);
 
-					router.replace(url);
+					router.replace(url, { scroll: false });
 				}
 
 				setOpen(value);
