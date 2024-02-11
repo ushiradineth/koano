@@ -1,7 +1,7 @@
 "use client";
 
 import { getDateRange } from "@/lib/utils";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Day from "./day";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
-	const [init, setInit] = useState(true);
+	const [reset, setReset] = useState(true);
 	const [days, setDays] = useState(getDateRange(new Date()));
 	const [selection, setSelection] = useState();
 
@@ -22,9 +22,9 @@ export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
 		<div
 			className="grid-col-3 grid w-full snap-x snap-mandatory grid-flow-col overflow-scroll"
 			ref={gridRef}
-			onMouseDown={() => setInit(!init)}>
+			onMouseDown={() => setReset(!reset)}>
 			{days.map((day, index) => (
-				<Day key={index} day={new Date(day)} init={init} />
+				<Day key={index} day={new Date(day)} reset={reset} />
 			))}
 		</div>
 	);

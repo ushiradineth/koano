@@ -6,10 +6,11 @@ import { cn, getDayWithDate, isToday } from "@/lib/utils";
 
 interface Props {
 	day: Date;
-	init: boolean;
+	reset: boolean;
+
 }
 
-export default function Day({ day, init }: Props) {
+export default function Day({ day, reset }: Props) {
 	const [selecting, setSelecting] = useState(false);
 	const [done, setDone] = useState(true);
 	const [start, setStart] = useState<number>(-1);
@@ -23,7 +24,7 @@ export default function Day({ day, init }: Props) {
 			setDone(true);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [init]);
+	}, [reset]);
 
 	useEffect(() => {
 		if (!selecting) {
