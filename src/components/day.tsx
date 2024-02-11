@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Quarter from "./quarter";
-import { cn, getDayWithDate, isToday } from "@/lib/utils";
+import Quarter from "@/components/Quarter";
+import {
+	cn,
+	getDateTimePairFromSelection,
+	getDayWithDate,
+	isToday,
+} from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Props {
 	day: Date;
 	reset: boolean;
-
 }
 
 export default function Day({ day, reset }: Props) {
+	const router = useRouter();
 	const [selecting, setSelecting] = useState(false);
 	const [done, setDone] = useState(true);
 	const [start, setStart] = useState<number>(-1);
@@ -27,10 +33,13 @@ export default function Day({ day, reset }: Props) {
 	}, [reset]);
 
 	useEffect(() => {
-		if (!selecting) {
-			console.log(start, end);
+		if (!selecting && start !== -1 && end !== -1) {
+			const selection = getDateTimePairFromSelection(start, end, day);
+			const url = new URL(window.location.href);
+			url.searchParams.set("start", selection.startDateTime.toISOString());
+			url.searchParams.set("end", selection.endDateTime.toISOString());
+			router.push(url.toString());
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selecting]);
 
 	return (
@@ -59,7 +68,7 @@ export default function Day({ day, reset }: Props) {
 						border={index !== 0 && index % 4 === 0}
 						selecting={selecting}
 						setSelecting={setSelecting}
-						highlight={!done && index > start && index < end}
+						highlight={!done && index >= start && index <= end}
 						setDone={setDone}
 						setStart={setStart}
 						setEnd={setEnd}

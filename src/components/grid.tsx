@@ -1,8 +1,10 @@
 "use client";
 
-import { getDateRange } from "@/lib/utils";
+import { getDateRange, queryParams } from "@/lib/utils";
+import dayjs from "dayjs";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import Day from "./day";
+import Day from "./Day";
 
 interface Props {
 	gridRef: React.RefObject<HTMLDivElement>;
@@ -10,13 +12,27 @@ interface Props {
 }
 
 export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
+	const router = useRouter();
+	const params = useSearchParams();
+	const pathname = usePathname();
 	const [reset, setReset] = useState(true);
-	const [days, setDays] = useState(getDateRange(new Date()));
-	const [selection, setSelection] = useState();
+	const [days, setDays] = useState(
+		getDateRange(dayjs().startOf("day").toDate()),
+	);
 
 	useEffect(() => {
 		scrollToCurrentDate();
 	}, [scrollToCurrentDate]);
+
+	useEffect(() => {
+		if (params.get("clear")) {
+			setReset(!reset);
+			const url = queryParams(["clear"], [], params.entries(), pathname);
+
+			router.replace(url);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [params]);
 
 	return (
 		<div
@@ -24,7 +40,11 @@ export default function Grid({ gridRef, scrollToCurrentDate }: Props) {
 			ref={gridRef}
 			onMouseDown={() => setReset(!reset)}>
 			{days.map((day, index) => (
-				<Day key={index} day={new Date(day)} reset={reset} />
+				<Day
+					key={index}
+					day={dayjs(day).startOf("day").toDate()}
+					reset={reset}
+				/>
 			))}
 		</div>
 	);

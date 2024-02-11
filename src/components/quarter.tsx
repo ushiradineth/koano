@@ -26,7 +26,7 @@ export default function Quarter({
 			className={cn(
 				"flex items-center justify-center",
 				border && "border-t border-white",
-				"h-[10px] w-full",
+				"h-[15px] w-full",
 				highlight && "border-opacity-50 bg-red-300 bg-opacity-75",
 			)}
 			onMouseDown={() => {
@@ -39,18 +39,13 @@ export default function Quarter({
 				setDone(false);
 
 				// Start selecting from the current quarter
-				setStart(quarter - 1);
+				setStart(quarter);
 			}}
 			onMouseUp={() => {
 				setSelecting(false);
 				setEnd(quarter);
 			}}
 			onMouseOver={() => selecting && setEnd(quarter)}
-			onDoubleClick={() => {
-				// Select one quarter
-				setStart(quarter - 1);
-				setEnd(quarter + 1);
-			}}
 		/>
 	);
 }
