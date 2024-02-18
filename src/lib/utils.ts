@@ -124,3 +124,35 @@ export function getCurrentHourTime(valueHour: number) {
 
 	return { hour, minutes, time, isCurrentHour, isPreviousHour };
 }
+
+export function convertISOToTime(isoString: string): {
+	label: string;
+	value: string;
+} {
+	const dateTime = dayjs(isoString);
+	const value = dateTime.format("HH:mm");
+
+	return { label: value, value };
+}
+
+export const generateTimeArray = () => {
+	const time = [];
+	for (let hours = 0; hours < 24; hours++) {
+		for (let minutes = 0; minutes < 60; minutes += 15) {
+			const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+			time.push({ value: formattedTime, label: formattedTime });
+		}
+	}
+	return time;
+};
+
+const timeStringToMinutes = (timeString: string): number => {
+	const [hours, minutes] = timeString.split(":").map(Number);
+	return hours * 60 + minutes;
+};
+
+export const isStartBeforeEnd = (start: string, end: string): boolean => {
+	const startTime = timeStringToMinutes(start);
+	const endTime = timeStringToMinutes(end);
+	return startTime < endTime;
+};

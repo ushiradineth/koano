@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
@@ -32,6 +33,7 @@ export default function RootLayout({
 					inter.variable,
 				)}>
 				{children}
+				<Toaster />
 			</body>
 		</html>
 	);
