@@ -50,7 +50,7 @@ export default function Day({ day, reset }: Props) {
 			className={cn(
 				"flex flex-col items-center justify-between gap-2",
 				"snap-start",
-				"h-full w-[calc(100vw-96px)] xs:w-[calc(100vw-106px)] sm:w-[400px]",
+				"h-full w-[calc(100vw-60px)] xs:w-[calc(100vw-64px)] sm:w-[400px]",
 			)}>
 			<span className="flex h-5 gap-2 font-bold">
 				<p>{date.day}</p>
