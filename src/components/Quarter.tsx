@@ -25,9 +25,9 @@ export default function Quarter({
 		<span
 			className={cn(
 				"flex items-center justify-center",
-				border && "border-t border-white",
+				border && "border-t",
 				"h-[15px] w-full",
-				highlight && "border-opacity-50 bg-red-300 bg-opacity-75",
+				highlight && "border-opacity-50 bg-red-300 bg-opacity-75 border-none",
 			)}
 			onMouseDown={() => {
 				if (!highlight) {
