@@ -8,6 +8,7 @@ import { twMerge } from "tailwind-merge";
 dayjs.extend(require("dayjs/plugin/utc"));
 dayjs.extend(require("dayjs/plugin/duration"));
 dayjs.extend(require("dayjs/plugin/relativeTime"));
+dayjs.extend(require("dayjs/plugin/weekOfYear"));
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
