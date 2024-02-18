@@ -10,6 +10,7 @@ import { Inter } from "next/font/google";
 dayjs.extend(require("dayjs/plugin/utc"));
 dayjs.extend(require("dayjs/plugin/duration"));
 dayjs.extend(require("dayjs/plugin/relativeTime"));
+dayjs.extend(require("dayjs/plugin/weekOfYear"));
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 

@@ -44,10 +44,15 @@ export default function Dashboard() {
 			<AddEvent open={addEvent} setOpen={setAddEvent} />
 
 			<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
-				<div className={cn("flex flex-col", "h-full w-20 mt-7")}>
-					{new Array(23 * 1).fill(0).map((_, index) => (
-						<TimeBlock key={index} hour={index + 1} />
-					))}
+				<div className={cn("flex flex-col", "h-full w-20")}>
+					<p className="flex items-center justify-center w-full h-7">
+						W{dayjs().week()}
+					</p>
+					<span className="flex flex-col border-t">
+						{new Array(23 * 1).fill(0).map((_, index) => (
+							<TimeBlock key={index} hour={index + 1} />
+						))}
+					</span>
 				</div>
 				<Grid gridRef={gridRef} scrollToCurrentDate={scrollToCurrentDate} />
 			</div>
