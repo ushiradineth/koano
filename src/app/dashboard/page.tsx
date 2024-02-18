@@ -7,7 +7,7 @@ import TimeBlock from "@/components/TimeBlock";
 import { cn, getDayWithDate } from "@/lib/utils";
 import dayjs from "dayjs";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export default function Dashboard() {
 	const params = useSearchParams();
@@ -32,6 +32,9 @@ export default function Dashboard() {
 		}
 	}, []);
 
+	// @ts-expect-error week exists..
+	const weekNumber = useMemo(() => dayjs().week(), []);
+
 	useEffect(() => {
 		if (params.get("start") && params.get("end")) {
 			setAddEvent(true);
@@ -46,7 +49,7 @@ export default function Dashboard() {
 			<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
 				<div className={cn("flex flex-col", "h-full w-20")}>
 					<p className="flex items-center justify-center w-full h-7">
-						W{dayjs().week()}
+						W{weekNumber}
 					</p>
 					<span className="flex flex-col border-t">
 						{new Array(23 * 1).fill(0).map((_, index) => (
