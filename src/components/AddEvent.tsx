@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 
 import {
 	convertISOToTime,
-	generateTimeArray,
+	getUserTimezone,
 	isStartBeforeEnd,
 	queryParams,
 } from "@/lib/utils";
@@ -33,10 +33,11 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { addEventSchema } from "@/lib/validators";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
-import { repeatValues } from "@/lib/consts";
+import { useDataContext, useEventContext } from "@/app/dashboard/layout";
+import DatePicker from "./DatePicker";
 import Picker from "./Picker";
 
 interface Props {
@@ -48,8 +49,8 @@ export default function AddEvent({ open, setOpen }: Props) {
 	const router = useRouter();
 	const params = useSearchParams();
 	const pathname = usePathname();
-
-	const times = useMemo(() => generateTimeArray(), []);
+	const eventContext = useEventContext();
+	const dataContext = useDataContext();
 
 	const form = useForm<z.infer<typeof addEventSchema>>({
 		resolver: zodResolver(addEventSchema),
@@ -57,7 +58,10 @@ export default function AddEvent({ open, setOpen }: Props) {
 			title: "",
 			start: convertISOToTime(params.get("start") ?? ""),
 			end: convertISOToTime(params.get("end") ?? ""),
-			repeat: repeatValues[0],
+			timezone:
+				getUserTimezone(dataContext.timezone) ?? dataContext.timezone[0],
+			repeat: dataContext.repeated[0],
+			date: new Date(),
 		},
 	});
 
@@ -67,19 +71,45 @@ export default function AddEvent({ open, setOpen }: Props) {
 			return;
 		}
 
+		eventContext.setEvents([
+			...eventContext.events,
+			{
+				title: values.title,
+				start: values.start.value,
+				end: values.end.value,
+				repeated: values.repeat,
+				timezone: values.timezone,
+				date: values.date,
+			},
+		]);
+
 		toast("Event has been created.");
 		setOpen(!open);
 	}
 
 	useEffect(() => {
-		params.get("start") &&
-			form.setValue("start", convertISOToTime(params.get("start")!));
-		params.get("end") &&
-			form.setValue("end", convertISOToTime(params.get("end")!));
+		if (open) {
+			params.get("start") &&
+				form.setValue("start", convertISOToTime(params.get("start")!));
+			params.get("end") &&
+				form.setValue("end", convertISOToTime(params.get("end")!));
 
-		form.setValue("title", "");
-		form.setValue("repeat", repeatValues[0]);
-	}, [form, params, pathname]);
+			form.setValue("title", "");
+			form.setValue("repeat", dataContext.repeated[0]);
+			form.setValue("date", new Date());
+			form.setValue(
+				"timezone",
+				getUserTimezone(dataContext.timezone) ?? dataContext.timezone[0],
+			);
+		}
+	}, [
+		form,
+		params,
+		pathname,
+		open,
+		dataContext.timezone,
+		dataContext.repeated,
+	]);
 
 	return (
 		<Dialog
@@ -124,17 +154,31 @@ export default function AddEvent({ open, setOpen }: Props) {
 								name={"start"}
 								label={"Start"}
 								form={form}
-								options={times}
+								options={dataContext.time}
 							/>
 
-							<Picker name={"end"} label={"End"} form={form} options={times} />
+							<Picker
+								name={"end"}
+								label={"End"}
+								form={form}
+								options={dataContext.time}
+							/>
 						</span>
+
+						<DatePicker name={"date"} label={"Date"} form={form} />
+
+						<Picker
+							name={"timezone"}
+							label={"Timezone"}
+							form={form}
+							options={dataContext.timezone}
+						/>
 
 						<Picker
 							name={"repeat"}
 							label={"Repeat"}
 							form={form}
-							options={repeatValues}
+							options={dataContext.repeated}
 						/>
 
 						<DialogFooter className="flex flex-col gap-2 md:gap-0">
