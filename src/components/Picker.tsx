@@ -26,15 +26,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { PickerType } from "@/lib/types";
 
 interface Props {
 	name: string;
 	label: string;
 	form: any;
-	options: {
-		value: string;
-		label: string;
-	}[];
+	options: PickerType[];
 }
 
 export default function Picker({ name, label, form, options }: Props) {
@@ -56,8 +54,9 @@ export default function Picker({ name, label, form, options }: Props) {
 										!field.value && "text-muted-foreground",
 									)}>
 									{field.value
-										? options.find((option) => option.value === field.value.value)
-												?.label
+										? options.find(
+												(option) => option.value === field.value.value,
+											)?.label
 										: "Select option"}
 									<CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 								</Button>

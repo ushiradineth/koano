@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 dayjs.extend(require("dayjs/plugin/utc"));
+dayjs.extend(require("dayjs/plugin/timezone"));
 dayjs.extend(require("dayjs/plugin/duration"));
 dayjs.extend(require("dayjs/plugin/relativeTime"));
 dayjs.extend(require("dayjs/plugin/weekOfYear"));

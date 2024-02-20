@@ -4,8 +4,10 @@ import "dayjs/plugin/duration";
 import "dayjs/plugin/relativeTime";
 import "dayjs/plugin/utc";
 import { twMerge } from "tailwind-merge";
+import { PickerType } from "./types";
 
 dayjs.extend(require("dayjs/plugin/utc"));
+dayjs.extend(require("dayjs/plugin/timezone"));
 dayjs.extend(require("dayjs/plugin/duration"));
 dayjs.extend(require("dayjs/plugin/relativeTime"));
 dayjs.extend(require("dayjs/plugin/weekOfYear"));
@@ -125,17 +127,14 @@ export function getCurrentHourTime(valueHour: number) {
 	return { hour, minutes, time, isCurrentHour, isPreviousHour };
 }
 
-export function convertISOToTime(isoString: string): {
-	label: string;
-	value: string;
-} {
+export function convertISOToTime(isoString: string): PickerType {
 	const dateTime = dayjs(isoString);
 	const value = dateTime.format("HH:mm");
 
 	return { label: value, value };
 }
 
-export const generateTimeArray = () => {
+export function generateTimeArray(): PickerType[] {
 	const time = [];
 	for (let hours = 0; hours < 24; hours++) {
 		for (let minutes = 0; minutes < 60; minutes += 15) {
@@ -144,7 +143,7 @@ export const generateTimeArray = () => {
 		}
 	}
 	return time;
-};
+}
 
 const timeStringToMinutes = (timeString: string): number => {
 	const [hours, minutes] = timeString.split(":").map(Number);
@@ -156,3 +155,25 @@ export const isStartBeforeEnd = (start: string, end: string): boolean => {
 	const endTime = timeStringToMinutes(end);
 	return startTime < endTime;
 };
+
+export function generateTimezoneArray(): PickerType[] {
+	const timezones: PickerType[] = [{ label: "", value: "" }];
+	const allTimezones = Intl.supportedValuesOf("timeZone");
+
+	allTimezones.map((timezone) =>
+		timezones.push({ label: timezone ?? "", value: timezone ?? "" }),
+	);
+
+	return timezones;
+}
+
+export function getUserTimezone(timezones: PickerType[]): PickerType | null {
+	// @ts-expect-error tz exists..
+	const userTimezone = dayjs.tz.guess();
+
+	const foundTimezone = timezones.find(
+		(timezone) => timezone.value === userTimezone,
+	);
+
+	return foundTimezone || null;
+}

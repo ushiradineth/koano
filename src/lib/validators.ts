@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { repeatValues } from "./consts";
-import { generateTimeArray } from "./utils";
+import { generateTimeArray, generateTimezoneArray } from "./utils";
 
 const TimeSchema = z
 	.object({
@@ -15,6 +15,22 @@ const TimeSchema = z
 		{
 			message:
 				"Invalid time value. Must be in 15-minute intervals from 00:00 to 24:00",
+		},
+	);
+
+const TimeZoneSchema = z
+	.object({
+		label: z.string(),
+		value: z.string(),
+	})
+	.refine(
+		(value) =>
+			generateTimezoneArray().some(
+				(time) => time.label === value.label && time.value === value.value,
+			),
+		{
+			message:
+				"Invalid timezone value. Must be a valid timezone.",
 		},
 	);
 
@@ -46,4 +62,6 @@ export const addEventSchema = z.object({
 	repeat: repeatValueSchema,
 	start: TimeSchema,
 	end: TimeSchema,
+	timezone: TimeZoneSchema,
+	date: z.date(),
 });
