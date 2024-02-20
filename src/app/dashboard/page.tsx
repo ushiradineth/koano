@@ -48,7 +48,6 @@ export default function Dashboard() {
 				if (rect.x > 0) {
 					setMonth(child.id.split("-")[2]);
 					setYear(child.id.split("-")[3]);
-					console.log(child.id.split("-")[4]);
 					setWeek(child.id.split("-")[4]);
 
 					break;
