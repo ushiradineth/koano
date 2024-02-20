@@ -3,7 +3,7 @@
 import { repeatValues } from "@/lib/consts";
 import { Event, PickerType, View } from "@/lib/types";
 import { generateTimeArray, generateTimezoneArray } from "@/lib/utils";
-import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useContext, useState } from "react";
 
 type EventContextType = {
 	events: Event[];
