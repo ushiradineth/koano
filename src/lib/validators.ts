@@ -29,8 +29,7 @@ const TimeZoneSchema = z
 				(time) => time.label === value.label && time.value === value.value,
 			),
 		{
-			message:
-				"Invalid timezone value. Must be a valid timezone.",
+			message: "Invalid timezone value. Must be a valid timezone.",
 		},
 	);
 

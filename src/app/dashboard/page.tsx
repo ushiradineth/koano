@@ -11,7 +11,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export default function Dashboard() {
 	const params = useSearchParams();
-
 	const [addEvent, setAddEvent] = useState(false);
 	const gridRef = useRef<HTMLDivElement>(null);
 
