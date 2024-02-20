@@ -16,7 +16,7 @@ export default function Dashboard() {
 	// @ts-expect-error week exists
 	const [week, setWeek] = useState(dayjs(new Date()).week());
 	const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
-	const [year, setYear] = useState(dayjs(new Date()).format("YY"));
+	const [year, setYear] = useState(dayjs(new Date()).format("YYYY"));
 
 	const scrollToCurrentDate = useCallback(() => {
 		if (gridRef.current) {

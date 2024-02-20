@@ -59,7 +59,7 @@ export function getDayWithDate(date: Date): {
 	const day = formattedDate.format("ddd");
 	const dateNumber = formattedDate.format("DD");
 	const month = formattedDate.format("MMMM");
-	const year = formattedDate.format("YY");
+	const year = formattedDate.format("YYYY");
 	// @ts-expect-error week exists
 	const week = formattedDate.week().toString();
 
