@@ -10,13 +10,15 @@ import {
 } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDataContext } from "./Context";
 
 interface Props {
 	day: Date;
 	reset: boolean;
+	width: number;
 }
 
-export default function Day({ day, reset }: Props) {
+export default function Day({ day, reset, width }: Props) {
 	const router = useRouter();
 	const [selecting, setSelecting] = useState(false);
 	const [done, setDone] = useState(true);
@@ -24,6 +26,7 @@ export default function Day({ day, reset }: Props) {
 	const [end, setEnd] = useState<number>(-1);
 	const date = getDayWithDate(day);
 	const today = isToday(day);
+	const dataContext = useDataContext();
 
 	useEffect(() => {
 		if (!selecting) {
@@ -47,11 +50,13 @@ export default function Day({ day, reset }: Props) {
 
 	return (
 		<div
+			id={`${date.day}-${date.date}-${date.month}-${date.year}`}
 			className={cn(
 				"flex flex-col items-center justify-between gap-2",
 				"snap-start",
-				"h-full w-[calc(100vw-60px)] xs:w-[calc(100vw-64px)] sm:w-[400px]",
-			)}>
+				"h-full w-[calc(100vw-64px)]",
+			)}
+			style={{ width: `${width / dataContext.view}px` }}>
 			<span className="flex h-5 gap-2 font-bold">
 				<p>{date.day}</p>
 				<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>

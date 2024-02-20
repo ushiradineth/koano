@@ -30,8 +30,8 @@ export function getDateRange(date: Date): string[] {
 	const currentDate = dayjs(date);
 	const dateRange: string[] = [];
 
-	// Add 7 previous days
-	for (let i = 7; i > 0; i--) {
+	// Add 60 previous days
+	for (let i = 60; i > 0; i--) {
 		const previousDate = currentDate.subtract(i, "day");
 		dateRange.push(previousDate.format("YYYY-MM-DD"));
 	}
@@ -39,8 +39,8 @@ export function getDateRange(date: Date): string[] {
 	// Add current date
 	dateRange.push(currentDate.format("YYYY-MM-DD"));
 
-	// Add 7 next days
-	for (let i = 1; i <= 7; i++) {
+	// Add 60 next days
+	for (let i = 1; i <= 60; i++) {
 		const nextDate = currentDate.add(i, "day");
 		dateRange.push(nextDate.format("YYYY-MM-DD"));
 	}
@@ -48,13 +48,23 @@ export function getDateRange(date: Date): string[] {
 	return dateRange;
 }
 
-export function getDayWithDate(date: Date): { day: string; date: string } {
+export function getDayWithDate(date: Date): {
+	day: string;
+	date: string;
+	month: string;
+	year: string;
+} {
 	const formattedDate = dayjs(date);
 	const day = formattedDate.format("ddd");
 	const dateNumber = formattedDate.format("DD");
+	const month = formattedDate.format("MMMM");
+	const year = formattedDate.format("YY");
+
 	return {
 		day,
 		date: dateNumber,
+		month,
+		year,
 	};
 }
 
