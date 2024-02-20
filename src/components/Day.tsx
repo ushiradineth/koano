@@ -50,7 +50,7 @@ export default function Day({ day, reset, width }: Props) {
 
 	return (
 		<div
-			id={`${date.day}-${date.date}-${date.month}-${date.year}`}
+			id={`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`}
 			className={cn(
 				"flex flex-col items-center justify-between gap-2",
 				"snap-start",
