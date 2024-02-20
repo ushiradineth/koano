@@ -11,3 +11,5 @@ export type PickerType = {
 	label: string;
 	value: string;
 };
+
+export type View = 1 | 3 | 7 | 30;
