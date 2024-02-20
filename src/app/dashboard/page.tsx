@@ -75,23 +75,31 @@ export default function Dashboard() {
 				month={month}
 				year={year}
 			/>
-			<AddEvent open={addEvent} setOpen={setAddEvent} />
+			{addEvent && <AddEvent open={addEvent} setOpen={setAddEvent} />}
 
-			<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
-				<div className={cn("flex flex-col", "h-full w-20")}>
-					<p className="flex items-center justify-center w-full h-7">W{week}</p>
-					<span className="flex flex-col border-t">
-						{new Array(23 * 1).fill(0).map((_, index) => (
-							<TimeBlock key={index} hour={index + 1} />
-						))}
-					</span>
+			{dataContext.view !== 30 ? (
+				<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
+					<div className={cn("flex flex-col", "h-full w-20")}>
+						<p className="flex items-center justify-center w-full h-7">
+							W{week}
+						</p>
+						<span className="flex flex-col border-t">
+							{new Array(23 * 1).fill(0).map((_, index) => (
+								<TimeBlock key={index} hour={index + 1} />
+							))}
+						</span>
+					</div>
+					<Grid
+						gridRef={gridRef}
+						scrollToCurrentDate={scrollToCurrentDate}
+						setCurrentMonth={setCurrentMonth}
+					/>
 				</div>
-				<Grid
-					gridRef={gridRef}
-					scrollToCurrentDate={scrollToCurrentDate}
-					setCurrentMonth={setCurrentMonth}
-				/>
-			</div>
+			) : (
+				<p className="h-[calc(100vh-64px)] flex items-center justify-center font-semibold text-2xl">
+					Month view coming soon
+				</p>
+			)}
 		</main>
 	);
 }

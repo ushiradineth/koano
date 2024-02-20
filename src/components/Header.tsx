@@ -42,7 +42,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
 						<SelectItem value="1">Day</SelectItem>
 						<SelectItem value="3">3 Days</SelectItem>
 						<SelectItem value="7">Week</SelectItem>
-						{/* <SelectItem value="30">Month</SelectItem> */}
+						<SelectItem value="30">Month</SelectItem>
 					</SelectContent>
 				</Select>
 				<Button className="font-semibold" onClick={() => scrollToCurrentDate()}>
