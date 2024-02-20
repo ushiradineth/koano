@@ -36,7 +36,7 @@ import { addEventSchema } from "@/lib/validators";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-import { useDataContext, useEventContext } from "@/app/dashboard/layout";
+import { useDataContext, useEventContext } from "@/components/Context";
 import DatePicker from "./DatePicker";
 import Picker from "./Picker";
 
