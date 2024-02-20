@@ -190,3 +190,14 @@ export function getUserTimezone(timezones: PickerType[]): PickerType | null {
 
 	return foundTimezone || null;
 }
+
+export function calculateDaysToPreviousMonday(day: string) {
+	const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+	const dayIndex = daysOfWeek.indexOf(day);
+
+	// Calculate the number of days to go back to the previous Monday
+	// If the input day is "Mon", return 0
+	// If the input day is after "Mon", subtract the day index from 1
+	// If the input day is before "Mon", add the difference between the index and 1 to -7
+	return dayIndex === 0 ? 0 : dayIndex > 0 ? 0 - dayIndex : -7 + dayIndex;
+}

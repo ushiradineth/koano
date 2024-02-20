@@ -1,10 +1,11 @@
 "use client";
 
 import AddEvent from "@/components/AddEvent";
+import { useDataContext } from "@/components/Context";
 import Grid from "@/components/Grid";
 import Header from "@/components/Header";
 import TimeBlock from "@/components/TimeBlock";
-import { cn, getDayWithDate } from "@/lib/utils";
+import { calculateDaysToPreviousMonday, cn, getDayWithDate } from "@/lib/utils";
 import dayjs from "dayjs";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -17,6 +18,7 @@ export default function Dashboard() {
 	const [week, setWeek] = useState(dayjs(new Date()).week());
 	const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
 	const [year, setYear] = useState(dayjs(new Date()).format("YYYY"));
+	const dataContext = useDataContext();
 
 	const scrollToCurrentDate = useCallback(() => {
 		if (gridRef.current) {
@@ -29,14 +31,18 @@ export default function Dashboard() {
 					child.id ==
 					`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`
 				) {
+					let reduce = 0;
+					if (dataContext.view === 7) {
+						reduce = calculateDaysToPreviousMonday(date.day);
+					}
 					gridRef.current.scrollTo(
-						gridRef.current.children[i].clientWidth * i,
+						gridRef.current.children[i].clientWidth * (i + reduce),
 						0,
 					);
 				}
 			}
 		}
-	}, []);
+	}, [dataContext.view]);
 
 	const setCurrentMonth = useCallback(() => {
 		if (gridRef.current) {
