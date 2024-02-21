@@ -69,7 +69,7 @@ export default function Dashboard() {
 	}, [params]);
 
 	return (
-		<main className="flex min-h-screen w-full flex-col items-center justify-between bg-background">
+		<main className="flex w-full flex-col items-center justify-between bg-background">
 			<Header
 				scrollToCurrentDate={scrollToCurrentDate}
 				month={month}
