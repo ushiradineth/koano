@@ -9,7 +9,7 @@ export default function ViewPicker() {
 		<Select
 			onValueChange={(value) => dataContext.setView(Number(value) as View)}
 			defaultValue={String(dataContext.view)}>
-			<SelectTrigger className="w-[80px] xs:w-[120px]" defaultValue={"Day"}>
+			<SelectTrigger className="w-[80px] xs:w-[120px]">
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent>

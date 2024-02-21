@@ -41,7 +41,7 @@ const DataContext = createContext<DataContextType>({
 	timezones: [],
 	timezone: { label: "", value: "" },
 	repeated: [],
-	view: 1,
+	view: 7,
 	setView: (value: View) => undefined,
 });
 
@@ -53,7 +53,7 @@ interface Props {
 
 export default function Context({ children }: Props) {
 	const [events, setEvents] = useState<Event[]>([]);
-	const [view, setView] = useState<View>(1);
+	const [view, setView] = useState<View>(7);
 	const [initTimezones, setInitTimezones] = useState<PickerType[]>([]);
 
 	useEffect(() => {
