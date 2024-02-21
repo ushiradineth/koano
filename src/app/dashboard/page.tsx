@@ -2,17 +2,14 @@
 
 import TimeBlock from "@/components/atoms/TimeBlock";
 import Header from "@/components/molecules/Header";
-import AddEvent from "@/components/pages/AddEvent";
 import Grid from "@/components/templates/Grid";
 import { useSettingContext } from "@/components/utils/Context";
 import { calculateDaysToPreviousMonday, cn, getDayWithDate } from "@/lib/utils";
 import dayjs from "dayjs";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useCallback, useRef, useState } from "react";
 
 export default function Dashboard() {
-	const params = useSearchParams();
-	const [addEvent, setAddEvent] = useState(false);
 	const gridRef = useRef<HTMLDivElement>(null);
 	// @ts-expect-error week exists
 	const [week, setWeek] = useState(dayjs(new Date()).week());
@@ -62,12 +59,6 @@ export default function Dashboard() {
 		}
 	}, []);
 
-	useEffect(() => {
-		if (params.get("start") && params.get("end")) {
-			setAddEvent(true);
-		}
-	}, [params]);
-
 	return (
 		<main className="flex w-full flex-col items-center justify-between bg-background">
 			<Header
@@ -75,7 +66,6 @@ export default function Dashboard() {
 				month={month}
 				year={year}
 			/>
-			{addEvent && <AddEvent open={addEvent} setOpen={setAddEvent} />}
 
 			{settingContext.view !== 30 ? (
 				<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>

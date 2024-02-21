@@ -8,8 +8,9 @@ import {
 	getDateTimePairFromSelection,
 	getDayWithDate,
 	isToday,
+	queryParams,
 } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -20,6 +21,8 @@ interface Props {
 
 export default function Day({ day, reset, width }: Props) {
 	const router = useRouter();
+	const pathname = usePathname();
+	const params = useSearchParams();
 	const [selecting, setSelecting] = useState(false);
 	const [done, setDone] = useState(true);
 	const [start, setStart] = useState<number>(-1);
@@ -40,10 +43,18 @@ export default function Day({ day, reset, width }: Props) {
 	useEffect(() => {
 		if (!selecting && start !== -1 && end !== -1) {
 			const selection = getDateTimePairFromSelection(start, end, day);
-			const url = new URL(window.location.href);
-			url.searchParams.set("start", selection.startDateTime.toISOString());
-			url.searchParams.set("end", selection.endDateTime.toISOString());
-			router.push(url.toString(), { scroll: false });
+			router.push(
+				queryParams(
+					[],
+					[
+						["start", selection.startDateTime.toISOString()],
+						["end", selection.endDateTime.toISOString()],
+					],
+					params.entries(),
+					pathname + "/new",
+				),
+				{ scroll: false },
+			);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selecting]);

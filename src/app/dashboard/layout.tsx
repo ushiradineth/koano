@@ -9,14 +9,19 @@ export const metadata: Metadata = {
 
 export default function DashboardLayout({
 	children,
+	event,
 }: {
 	children: React.ReactNode;
+	event: React.ReactNode;
 }) {
 	return (
-		<section>
+		<Suspense>
 			<Context>
-				<Suspense>{children}</Suspense>
+				<section>
+					{children}
+					{event}
+				</section>
 			</Context>
-		</section>
+		</Suspense>
 	);
 }

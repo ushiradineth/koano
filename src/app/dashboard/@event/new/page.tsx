@@ -18,10 +18,9 @@ import {
 	convertISOToTime,
 	getUserTimezone,
 	isStartBeforeEnd,
-	queryParams,
 } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import {
@@ -40,17 +39,11 @@ import DatePicker from "@/components/molecules/DatePicker";
 import Picker from "@/components/molecules/Picker";
 import { useDataContext, useEventContext } from "@/components/utils/Context";
 
-interface Props {
-	open: boolean;
-	setOpen: (value: boolean) => void;
-}
-
-export default function AddEvent({ open, setOpen }: Props) {
+export default function New() {
 	const router = useRouter();
-	const params = useSearchParams();
-	const pathname = usePathname();
 	const eventContext = useEventContext();
 	const dataContext = useDataContext();
+	const params = useSearchParams();
 
 	const form = useForm<z.infer<typeof addEventSchema>>({
 		resolver: zodResolver(addEventSchema),
@@ -83,59 +76,35 @@ export default function AddEvent({ open, setOpen }: Props) {
 		]);
 
 		toast("Event has been created.");
-		setOpen(!open);
+		router.back();
 	}
 
 	useEffect(() => {
-		if (open) {
-			params.get("start") &&
-				form.setValue(
-					"start",
-					convertISOToTime(params.get("start") ?? new Date().toISOString()),
-				);
-			params.get("end") &&
-				form.setValue(
-					"end",
-					convertISOToTime(params.get("end") ?? new Date().toISOString()),
-				);
+		params.get("start") &&
+			form.setValue(
+				"start",
+				convertISOToTime(params.get("start") ?? new Date().toISOString()),
+			);
+		params.get("end") &&
+			form.setValue(
+				"end",
+				convertISOToTime(params.get("end") ?? new Date().toISOString()),
+			);
 
-			form.setValue("title", "");
-			form.setValue("repeat", dataContext.repeated[0]);
-			form.setValue(
-				"date",
-				new Date(params.get("start") ?? new Date().toISOString()),
-			);
-			form.setValue(
-				"timezone",
-				getUserTimezone(dataContext.timezones) ?? dataContext.timezones[0],
-			);
-		}
-	}, [
-		form,
-		params,
-		pathname,
-		open,
-		dataContext.timezones,
-		dataContext.repeated,
-	]);
+		form.setValue("title", "");
+		form.setValue("repeat", dataContext.repeated[0]);
+		form.setValue(
+			"date",
+			new Date(params.get("start") ?? new Date().toISOString()),
+		);
+		form.setValue(
+			"timezone",
+			getUserTimezone(dataContext.timezones) ?? dataContext.timezones[0],
+		);
+	}, [dataContext.repeated, dataContext.timezones, form, params]);
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={(value) => {
-				if (!value) {
-					const url = queryParams(
-						["start", "end"],
-						[["clear", "true"]],
-						params.entries(),
-						pathname,
-					);
-
-					router.replace(url, { scroll: false });
-				}
-
-				setOpen(value);
-			}}>
+		<Dialog onOpenChange={() => router.back()} open={true}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>Event</DialogTitle>
