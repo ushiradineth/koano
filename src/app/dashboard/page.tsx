@@ -4,7 +4,7 @@ import TimeBlock from "@/components/atoms/TimeBlock";
 import Header from "@/components/molecules/Header";
 import AddEvent from "@/components/pages/AddEvent";
 import Grid from "@/components/templates/Grid";
-import { useDataContext } from "@/components/utils/Context";
+import { useSettingContext } from "@/components/utils/Context";
 import { calculateDaysToPreviousMonday, cn, getDayWithDate } from "@/lib/utils";
 import dayjs from "dayjs";
 import { useSearchParams } from "next/navigation";
@@ -18,7 +18,7 @@ export default function Dashboard() {
 	const [week, setWeek] = useState(dayjs(new Date()).week());
 	const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
 	const [year, setYear] = useState(dayjs(new Date()).format("YYYY"));
-	const dataContext = useDataContext();
+	const settingContext = useSettingContext();
 
 	const scrollToCurrentDate = useCallback(() => {
 		if (gridRef.current) {
@@ -32,7 +32,7 @@ export default function Dashboard() {
 					`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`
 				) {
 					let reduce = 0;
-					if (dataContext.view === 7) {
+					if (settingContext.view === 7) {
 						reduce = calculateDaysToPreviousMonday(date.day);
 					}
 					gridRef.current.scrollTo(
@@ -42,7 +42,7 @@ export default function Dashboard() {
 				}
 			}
 		}
-	}, [dataContext.view]);
+	}, [settingContext.view]);
 
 	const setCurrentMonth = useCallback(() => {
 		if (gridRef.current) {
@@ -77,7 +77,7 @@ export default function Dashboard() {
 			/>
 			{addEvent && <AddEvent open={addEvent} setOpen={setAddEvent} />}
 
-			{dataContext.view !== 30 ? (
+			{settingContext.view !== 30 ? (
 				<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
 					<div className={cn("flex flex-col", "h-full w-20")}>
 						<p className="flex items-center justify-center w-full h-7">

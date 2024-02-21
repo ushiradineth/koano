@@ -2,7 +2,7 @@
 
 import Quarter from "@/components/atoms/Quarter";
 import Time from "@/components/atoms/Time";
-import { useDataContext } from "@/components/utils/Context";
+import { useSettingContext } from "@/components/utils/Context";
 import {
 	cn,
 	getDateTimePairFromSelection,
@@ -26,7 +26,7 @@ export default function Day({ day, reset, width }: Props) {
 	const [end, setEnd] = useState<number>(-1);
 	const date = getDayWithDate(day);
 	const today = isToday(day);
-	const dataContext = useDataContext();
+	const settingContext = useSettingContext();
 
 	useEffect(() => {
 		if (!selecting) {
@@ -56,7 +56,7 @@ export default function Day({ day, reset, width }: Props) {
 				"snap-start",
 				"h-full w-[calc(100vw-64px)]",
 			)}
-			style={{ width: `${width / dataContext.view}px` }}>
+			style={{ width: `${width / settingContext.view}px` }}>
 			<span className="flex h-5 gap-2 font-bold">
 				<p>{date.day}</p>
 				<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>

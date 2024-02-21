@@ -15,37 +15,37 @@ import {
 	useState,
 } from "react";
 
-type EventContextType = {
+const EventContext = createContext<{
 	events: Event[];
 	setEvents: (value: Event[]) => void;
-};
-
-const EventContext = createContext<EventContextType>({
+}>({
 	events: [],
 	setEvents: () => undefined,
 });
 
-export const useEventContext = () => useContext(EventContext);
-
-type DataContextType = {
+const DataContext = createContext<{
 	times: PickerType[];
 	timezones: PickerType[];
 	timezone: PickerType;
 	repeated: PickerType[];
-	view: View;
-	setView: (value: View) => void;
-};
-
-const DataContext = createContext<DataContextType>({
+}>({
 	times: [],
 	timezones: [],
 	timezone: { label: "", value: "" },
 	repeated: [],
+});
+
+const SettingContext = createContext<{
+	view: View;
+	setView: (value: View) => void;
+}>({
 	view: 7,
 	setView: (value: View) => undefined,
 });
 
+export const useEventContext = () => useContext(EventContext);
 export const useDataContext = () => useContext(DataContext);
+export const useSettingContext = () => useContext(SettingContext);
 
 interface Props {
 	children: ReactNode;
@@ -68,10 +68,10 @@ export default function Context({ children }: Props) {
 					timezones: initTimezones,
 					timezone: getUserTimezone(initTimezones) ?? initTimezones[0],
 					repeated: repeatValues,
-					view,
-					setView,
 				}}>
-				{children}
+				<SettingContext.Provider value={{ view, setView }}>
+					{children}
+				</SettingContext.Provider>
 			</DataContext.Provider>
 		</EventContext.Provider>
 	);
