@@ -27,7 +27,8 @@ export default function Quarter({
 				"flex items-center justify-center",
 				border && "border-t",
 				"h-[15px] w-full",
-				highlight && "border-purple-400 border-opacity-25 bg-purple-300 bg-opacity-50",
+				highlight &&
+					"border-purple-400 border-opacity-25 bg-purple-300 bg-opacity-50",
 			)}
 			onMouseDown={() => {
 				if (!highlight) {
