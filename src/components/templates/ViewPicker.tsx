@@ -1,7 +1,13 @@
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+} from "@/components/molecules/Select";
+import { useDataContext } from "@/components/utils/Context";
 import { View } from "@/lib/types";
 import { SelectValue } from "@radix-ui/react-select";
-import { useDataContext } from "./Context";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "./ui/select";
+
 export default function ViewPicker() {
 	const dataContext = useDataContext();
 

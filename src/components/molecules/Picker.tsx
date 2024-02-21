@@ -2,7 +2,7 @@
 
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
+} from "@/components/molecules/Form";
 
 import {
 	Command,
@@ -20,12 +20,12 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
-} from "@/components/ui/command";
+} from "@/components/molecules/Command";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/molecules/Popover";
 import { PickerType } from "@/lib/types";
 
 interface Props {

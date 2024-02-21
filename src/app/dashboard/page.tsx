@@ -1,10 +1,10 @@
 "use client";
 
-import AddEvent from "@/components/AddEvent";
-import { useDataContext } from "@/components/Context";
-import Grid from "@/components/Grid";
-import Header from "@/components/Header";
-import TimeBlock from "@/components/TimeBlock";
+import TimeBlock from "@/components/atoms/TimeBlock";
+import Header from "@/components/molecules/Header";
+import AddEvent from "@/components/pages/AddEvent";
+import Grid from "@/components/templates/Grid";
+import { useDataContext } from "@/components/utils/Context";
 import { calculateDaysToPreviousMonday, cn, getDayWithDate } from "@/lib/utils";
 import dayjs from "dayjs";
 import { useSearchParams } from "next/navigation";

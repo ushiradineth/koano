@@ -8,11 +8,11 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/molecules/Dialog";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
 
 import {
 	convertISOToTime,
@@ -31,14 +31,14 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
+} from "@/components/molecules/Form";
 import { addEventSchema } from "@/lib/validators";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-import { useDataContext, useEventContext } from "@/components/Context";
-import DatePicker from "./DatePicker";
-import Picker from "./Picker";
+import DatePicker from "@/components/molecules/DatePicker";
+import Picker from "@/components/molecules/Picker";
+import { useDataContext, useEventContext } from "@/components/utils/Context";
 
 interface Props {
 	open: boolean;

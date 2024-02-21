@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/Button";
 
 import { cn } from "@/lib/utils";
 
@@ -8,12 +8,16 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
+} from "@/components/molecules/Form";
 
+import { Calendar } from "@/components/molecules/Calendar";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/molecules/Popover";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
-import { Calendar } from "./ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 interface Props {
 	name: string;

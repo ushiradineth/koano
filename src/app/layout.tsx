@@ -1,5 +1,5 @@
 import "@/app/globals.css";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/molecules/Sonnar";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";

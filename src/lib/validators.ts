@@ -1,6 +1,6 @@
+import { repeatValues } from "@/lib/consts";
+import { generateTimeArray, generateTimezoneArray } from "@/lib/utils";
 import { z } from "zod";
-import { repeatValues } from "./consts";
-import { generateTimeArray, generateTimezoneArray } from "./utils";
 
 const TimeSchema = z
 	.object({

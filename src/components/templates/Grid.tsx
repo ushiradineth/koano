@@ -1,7 +1,7 @@
 "use client";
 
-import { useEventContext } from "@/components/Context";
-import Day from "@/components/Day";
+import Day from "@/components/molecules/Day";
+import { useEventContext } from "@/components/utils/Context";
 import { getDateRange, queryParams } from "@/lib/utils";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";

@@ -1,10 +1,10 @@
+import { PickerType } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
 import "dayjs/plugin/relativeTime";
 import "dayjs/plugin/utc";
 import { twMerge } from "tailwind-merge";
-import { PickerType } from "./types";
 
 dayjs.extend(require("dayjs/plugin/utc"));
 dayjs.extend(require("dayjs/plugin/timezone"));

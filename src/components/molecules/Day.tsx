@@ -1,7 +1,8 @@
 "use client";
 
-import Quarter from "@/components/Quarter";
-import Time from "@/components/Time";
+import Quarter from "@/components/atoms/Quarter";
+import Time from "@/components/atoms/Time";
+import { useDataContext } from "@/components/utils/Context";
 import {
 	cn,
 	getDateTimePairFromSelection,
@@ -10,7 +11,6 @@ import {
 } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDataContext } from "./Context";
 
 interface Props {
 	day: Date;

@@ -1,4 +1,4 @@
-import Context from "@/components/Context";
+import Context from "@/components/utils/Context";
 import { Metadata } from "next";
 import { Suspense } from "react";
 
