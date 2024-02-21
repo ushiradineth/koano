@@ -56,12 +56,11 @@ export default function AddEvent({ open, setOpen }: Props) {
 		resolver: zodResolver(addEventSchema),
 		defaultValues: {
 			title: "",
-			start: convertISOToTime(params.get("start") ?? ""),
-			end: convertISOToTime(params.get("end") ?? ""),
-			timezone:
-				getUserTimezone(dataContext.timezone) ?? dataContext.timezone[0],
+			start: convertISOToTime(params.get("start") ?? new Date().toISOString()),
+			end: convertISOToTime(params.get("end") ?? new Date().toISOString()),
+			timezone: dataContext.timezone,
 			repeat: dataContext.repeated[0],
-			date: new Date(),
+			date: new Date(params.get("start") ?? new Date().toISOString()),
 		},
 	});
 
@@ -90,16 +89,25 @@ export default function AddEvent({ open, setOpen }: Props) {
 	useEffect(() => {
 		if (open) {
 			params.get("start") &&
-				form.setValue("start", convertISOToTime(params.get("start")!));
+				form.setValue(
+					"start",
+					convertISOToTime(params.get("start") ?? new Date().toISOString()),
+				);
 			params.get("end") &&
-				form.setValue("end", convertISOToTime(params.get("end")!));
+				form.setValue(
+					"end",
+					convertISOToTime(params.get("end") ?? new Date().toISOString()),
+				);
 
 			form.setValue("title", "");
 			form.setValue("repeat", dataContext.repeated[0]);
-			form.setValue("date", new Date());
+			form.setValue(
+				"date",
+				new Date(params.get("start") ?? new Date().toISOString()),
+			);
 			form.setValue(
 				"timezone",
-				getUserTimezone(dataContext.timezone) ?? dataContext.timezone[0],
+				getUserTimezone(dataContext.timezones) ?? dataContext.timezones[0],
 			);
 		}
 	}, [
@@ -107,7 +115,7 @@ export default function AddEvent({ open, setOpen }: Props) {
 		params,
 		pathname,
 		open,
-		dataContext.timezone,
+		dataContext.timezones,
 		dataContext.repeated,
 	]);
 
@@ -154,14 +162,14 @@ export default function AddEvent({ open, setOpen }: Props) {
 								name={"start"}
 								label={"Start"}
 								form={form}
-								options={dataContext.time}
+								options={dataContext.times}
 							/>
 
 							<Picker
 								name={"end"}
 								label={"End"}
 								form={form}
-								options={dataContext.time}
+								options={dataContext.times}
 							/>
 						</span>
 
@@ -171,7 +179,7 @@ export default function AddEvent({ open, setOpen }: Props) {
 							name={"timezone"}
 							label={"Timezone"}
 							form={form}
-							options={dataContext.timezone}
+							options={dataContext.timezones}
 						/>
 
 						<Picker
