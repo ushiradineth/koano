@@ -133,7 +133,7 @@ export function queryParams(
 export function getCurrentHourTime(valueHour: number) {
 	const hour = dayjs().hour();
 	const minutes = dayjs().minute();
-	const time = dayjs().format("h:mm A");
+	const time = dayjs().format("h:mmA");
 	const isCurrentHour = valueHour === hour;
 	const isPreviousHour = valueHour === hour - 1;
 
