@@ -28,6 +28,14 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
+			<head>
+				<title>Cron</title>
+				<meta name="description" content="By Ushira Dineth" />
+				<link rel="shortcut icon" href="/icon/cron.ico" />
+				<link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
+				<link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
+				<link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
+			</head>
 			<body
 				className={cn(
 					"dark min-h-screen bg-background font-sans antialiased",
