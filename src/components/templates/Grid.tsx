@@ -4,7 +4,7 @@ import Day from "@/components/molecules/Day";
 import { useEventContext, useSettingContext } from "@/components/utils/Context";
 import { getDateRange } from "@/lib/utils";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 import Logo from "../atoms/Logo";
 
@@ -28,6 +28,7 @@ export default function Grid({
 		initializeWithValue: true,
 	});
 	const [dayWidth, setDayWidth] = useState(0);
+	const prevDayWidth = useRef(0);
 	const settingContext = useSettingContext();
 
 	useEffect(() => {
@@ -35,14 +36,21 @@ export default function Grid({
 	}, [eventContext.events]);
 
 	useEffect(() => {
-		scrollToCurrentDate();
-	}, [dayWidth, scrollToCurrentDate]);
+		if (prevDayWidth.current === 0) {
+			prevDayWidth.current = dayWidth;
+			scrollToCurrentDate();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dayWidth]);
 
 	useEffect(() => {
 		if (gridRef.current) {
-			setDayWidth(gridRef.current.offsetWidth / settingContext.view);
+			const newDayWidth = gridRef.current.offsetWidth / settingContext.view;
+			prevDayWidth.current = dayWidth; // Update previous value
+			setDayWidth(newDayWidth);
 		}
-	}, [gridRef, settingContext.view, windowWidth]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [settingContext.view, windowWidth]);
 
 	return (
 		<div
