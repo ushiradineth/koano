@@ -130,7 +130,13 @@ export function queryParams(
 	return pathname + (url.toString() ? "?" + url.toString() : "");
 }
 
-export function getCurrentHourTime(valueHour: number) {
+export function getCurrentHourTime(valueHour: number): {
+	hour: number;
+	minutes: number;
+	time: string;
+	isCurrentHour: boolean;
+	isPreviousHour: boolean;
+} {
 	const hour = dayjs().hour();
 	const minutes = dayjs().minute();
 	const time = dayjs().format("h:mmA");
