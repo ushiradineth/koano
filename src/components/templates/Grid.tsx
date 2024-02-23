@@ -58,12 +58,10 @@ export default function Grid({
 			ref={gridRef}
 			onScroll={useDebounceCallback(setCurrentMonth, 100)}>
 			{dayWidth === 0 ? (
-				// Render a placeholder or loading indicator until dayWidth is calculated
 				<div className="h-[calc(100vh-120px)] w-full flex justify-center items-center">
 					<Logo />
 				</div>
 			) : (
-				// Render days using dayWidth
 				days.map((day, index) => (
 					<Day
 						key={index}
