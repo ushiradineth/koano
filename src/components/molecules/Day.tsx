@@ -2,7 +2,6 @@
 
 import Quarter from "@/components/atoms/Quarter";
 import Time from "@/components/atoms/Time";
-import { useSettingContext } from "@/components/utils/Context";
 import {
 	cn,
 	getDateTimePairFromSelection,
@@ -11,15 +10,14 @@ import {
 	queryParams,
 } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
 interface Props {
 	day: Date;
-	reset: boolean;
 	width: number;
 }
 
-export default function Day({ day, reset, width }: Props) {
+export default memo(function Day({ day, width }: Props) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const params = useSearchParams();
@@ -29,7 +27,6 @@ export default function Day({ day, reset, width }: Props) {
 	const [end, setEnd] = useState<number>(-1);
 	const date = getDayWithDate(day);
 	const today = isToday(day);
-	const settingContext = useSettingContext();
 
 	useEffect(() => {
 		if (!selecting) {
@@ -38,7 +35,7 @@ export default function Day({ day, reset, width }: Props) {
 			setDone(true);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [reset]);
+	}, [pathname]);
 
 	useEffect(() => {
 		if (!selecting && start !== -1 && end !== -1) {
@@ -65,9 +62,9 @@ export default function Day({ day, reset, width }: Props) {
 			className={cn(
 				"flex flex-col items-center justify-between gap-2",
 				"snap-start",
-				"h-full w-[calc(100vw-64px)]",
+				"h-full",
 			)}
-			style={{ width: `${width / settingContext.view}px` }}>
+			style={{ width: `${width}px` }}>
 			<span className="flex h-5 gap-2 font-bold">
 				<p>{date.day}</p>
 				<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>
@@ -97,4 +94,4 @@ export default function Day({ day, reset, width }: Props) {
 			</div>
 		</div>
 	);
-}
+});

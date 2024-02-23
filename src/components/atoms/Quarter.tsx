@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { memo, useCallback } from "react";
 
 interface Props {
 	quarter: number;
@@ -11,7 +14,7 @@ interface Props {
 	setEnd: (value: number) => void;
 }
 
-export default function Quarter({
+export default memo(function Quarter({
 	quarter,
 	border,
 	selecting,
@@ -21,6 +24,30 @@ export default function Quarter({
 	setStart,
 	setEnd,
 }: Props) {
+	const handleMouseDown = useCallback(() => {
+		if (!highlight) {
+			// Reset previous selection
+			setEnd(-1);
+		}
+
+		setSelecting(true);
+		setDone(false);
+
+		// Start selecting from the current quarter
+		setStart(quarter);
+	}, [highlight, quarter, setEnd, setSelecting, setStart, setDone]);
+
+	const handleMouseUp = useCallback(() => {
+		setSelecting(false);
+		setEnd(quarter);
+	}, [quarter, setEnd, setSelecting]);
+
+	const handleMouseOver = useCallback(() => {
+		if (selecting) {
+			setEnd(quarter);
+		}
+	}, [quarter, selecting, setEnd]);
+
 	return (
 		<span
 			className={cn(
@@ -30,23 +57,9 @@ export default function Quarter({
 				highlight &&
 					"border-purple-400 border-opacity-25 bg-purple-300 bg-opacity-50",
 			)}
-			onMouseDown={() => {
-				if (!highlight) {
-					// Reset previous selection
-					setEnd(-1);
-				}
-
-				setSelecting(true);
-				setDone(false);
-
-				// Start selecting from the current quarter
-				setStart(quarter);
-			}}
-			onMouseUp={() => {
-				setSelecting(false);
-				setEnd(quarter);
-			}}
-			onMouseOver={() => selecting && setEnd(quarter)}
+			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseUp}
+			onMouseOver={handleMouseOver}
 		/>
 	);
-}
+});
