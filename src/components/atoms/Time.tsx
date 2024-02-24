@@ -8,10 +8,15 @@ interface Props {
 export default function Time({ today }: Props) {
 	return (
 		<div
-			className={cn(
-				"absolute w-full border-b-2 border-orange-400",
-				today ? "border-opacity-100" : "border-opacity-25",
-			)}
-			style={{ top: dayjs().hour() * 60 + dayjs().minute() }}></div>
+			className={cn("absolute w-full flex")}
+			style={{ top: dayjs().hour() * 60 + dayjs().minute() }}>
+			{today && <p className="absolute -top-2.5 -left-1">•</p>}
+			<div
+				className={cn(
+					"w-full h-[2px] bg-orange-400",
+					today ? "bg-opacity-100" : "bg-opacity-25",
+				)}
+			/>
+		</div>
 	);
 }
