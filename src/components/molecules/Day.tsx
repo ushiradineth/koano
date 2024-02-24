@@ -64,7 +64,6 @@ export default memo(function Day({ day, width, events }: Props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selecting]);
 
-
 	const updateEvents = useCallback(
 		(id: string, newStart: string) => {
 			const [title, date, start, end] = id.split(",");
