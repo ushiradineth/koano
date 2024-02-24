@@ -68,12 +68,12 @@ export default function Dashboard() {
 			/>
 
 			{settingContext.view !== 30 ? (
-				<div className={cn("flex justify-between", "my-10 text-sm", "w-full")}>
+				<div className={cn("flex justify-between", "my-2 text-sm", "w-full")}>
 					<div className={cn("flex flex-col", "h-full w-20")}>
-						<p className="flex items-center justify-center w-full h-7">
+						<p className="flex items-center justify-center w-full h-14 sm:h-7 pb-1.5">
 							W{week}
 						</p>
-						<span className="flex flex-col border-t mt-7 sm:mt-0">
+						<span className="flex flex-col border-t">
 							{new Array(23 * 1).fill(0).map((_, index) => (
 								<TimeBlock key={index} hour={index + 1} />
 							))}
