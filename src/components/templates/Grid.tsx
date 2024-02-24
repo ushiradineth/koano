@@ -2,6 +2,7 @@
 
 import Day from "@/components/molecules/Day";
 import { useEventContext, useSettingContext } from "@/components/utils/Context";
+import { breakpoint } from "@/lib/consts";
 import { getDateRange } from "@/lib/utils";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
@@ -30,6 +31,7 @@ export default function Grid({
 	const [dayWidth, setDayWidth] = useState(0);
 	const prevDayWidth = useRef(0);
 	const settingContext = useSettingContext();
+	const [fixedMobileView, setFixedMobileView] = useState(false);
 
 	useEffect(() => {
 		console.log(eventContext.events);
@@ -39,7 +41,19 @@ export default function Grid({
 		if (prevDayWidth.current === 0) {
 			prevDayWidth.current = dayWidth;
 			scrollToCurrentDate();
+			return;
 		}
+
+		if (
+			settingContext.view === 3 &&
+			windowWidth < breakpoint &&
+			!fixedMobileView
+		) {
+			scrollToCurrentDate();
+			setFixedMobileView(true);
+			return;
+		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dayWidth]);
 

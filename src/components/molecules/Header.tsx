@@ -18,7 +18,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
 				</p>
 			</div>
 			<span className="flex gap-2 items-center justify-center ml-auto">
-				<ViewPicker />
+				<ViewPicker scrollToCurrentDate={scrollToCurrentDate} />
 				<Button className="font-semibold" onClick={() => scrollToCurrentDate()}>
 					<p>Today</p>
 				</Button>
