@@ -7,5 +7,3 @@ export const repeatValues: { label: string; value: Repeat }[] = [
 	{ label: "Monthly", value: "monthly" },
 	{ label: "Yearly", value: "yearly" },
 ];
-
-export const breakpoint = 640;
