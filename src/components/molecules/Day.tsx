@@ -65,7 +65,7 @@ export default memo(function Day({ day, width }: Props) {
 				"h-full",
 			)}
 			style={{ width: `${width}px` }}>
-			<span className="flex h-5 gap-2 font-bold">
+			<span className="flex flex-col sm:flex-row h-12 sm:h-5 items-center justify-center gap-2 font-bold">
 				<p>{date.day}</p>
 				<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>
 					{date.date}

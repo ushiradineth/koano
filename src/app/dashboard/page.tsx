@@ -73,7 +73,7 @@ export default function Dashboard() {
 						<p className="flex items-center justify-center w-full h-7">
 							W{week}
 						</p>
-						<span className="flex flex-col border-t">
+						<span className="flex flex-col border-t mt-7 sm:mt-0">
 							{new Array(23 * 1).fill(0).map((_, index) => (
 								<TimeBlock key={index} hour={index + 1} />
 							))}
