@@ -1,29 +1,44 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import {
+	cn,
+	convertISOToTime,
+	getDateTimePairFromSelection,
+} from "@/lib/utils";
+import { useDroppable } from "@dnd-kit/core";
 import { memo, useCallback } from "react";
 
 interface Props {
 	quarter: number;
+	day: Date;
 	border: boolean;
 	selecting: boolean;
 	setSelecting: (value: boolean) => void;
 	highlight: boolean;
 	setDone: (value: boolean) => void;
+	start: number;
 	setStart: (value: number) => void;
+	end: number;
 	setEnd: (value: number) => void;
 }
 
 export default memo(function Quarter({
 	quarter,
+	day,
 	border,
 	selecting,
 	setSelecting,
 	highlight,
 	setDone,
+	start,
 	setStart,
+	end,
 	setEnd,
 }: Props) {
+	const { isOver, setNodeRef } = useDroppable({
+		id: `${day.toISOString()},${quarter}`,
+	});
+	const selection = getDateTimePairFromSelection(start, end, day);
 	const handleMouseDown = useCallback(() => {
 		if (!highlight) {
 			// Reset previous selection
@@ -50,6 +65,7 @@ export default memo(function Quarter({
 
 	return (
 		<span
+			ref={setNodeRef}
 			className={cn(
 				"flex items-center justify-center",
 				border && "border-t",
@@ -59,7 +75,18 @@ export default memo(function Quarter({
 			)}
 			onMouseDown={handleMouseDown}
 			onMouseUp={handleMouseUp}
-			onMouseOver={handleMouseOver}
-		/>
+			onMouseOver={handleMouseOver}>
+			{quarter === start && (
+				<p
+					className={cn(
+						"select-none text-left font-bold w-full",
+						start !== end && "pl-1 pt-2",
+					)}>
+					{convertISOToTime(selection.startDateTime.toISOString()).label}
+					{" - "}
+					{convertISOToTime(selection.endDateTime.toISOString()).label}
+				</p>
+			)}
+		</span>
 	);
 });

@@ -2,7 +2,7 @@
 
 import Day from "@/components/molecules/Day";
 import { useEventContext, useSettingContext } from "@/components/utils/Context";
-import { getDateRange } from "@/lib/utils";
+import { getDateRange, getDayEvents } from "@/lib/utils";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
@@ -68,6 +68,10 @@ export default function Grid({
 						key={index}
 						day={dayjs(day).startOf("day").toDate()}
 						width={dayWidth}
+						events={getDayEvents(
+							eventContext.events,
+							dayjs(day).startOf("day").toDate(),
+						)}
 					/>
 				))
 			)}

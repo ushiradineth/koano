@@ -1,4 +1,4 @@
-import { PickerType } from "@/lib/types";
+import { Event, PickerType } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
@@ -206,4 +206,73 @@ export function calculateDaysToPreviousMonday(day: string) {
 	// If the input day is after "Mon", subtract the day index from 1
 	// If the input day is before "Mon", add the difference between the index and 1 to -7
 	return dayIndex === 0 ? 0 : dayIndex > 0 ? 0 - dayIndex : -7 + dayIndex;
+}
+
+export function getDayEvents(events: Event[], date: Date): Event[] {
+	const filteredEvents = events.filter((event) => {
+		const eventDate = new Date(event.date);
+
+		return eventDate.toDateString() === date.toDateString();
+	});
+
+	return filteredEvents;
+}
+
+export function getDateFromEventTimer(date: Date, timeString: string): Date {
+	// Split the time string into hours and minutes
+	const [hours, minutes] = timeString.split(":");
+
+	// Set the time for the given date
+	const dateTime = dayjs(date)
+		.set("hour", parseInt(hours, 10))
+		.set("minute", parseInt(minutes, 10));
+
+	return dateTime.toDate();
+}
+
+export function calculateTimeDifference(
+	date: Date,
+	startTime: string,
+	endTime: string,
+): number {
+	const [startHours, startMinutes] = startTime.split(":");
+	const [endHours, endMinutes] = endTime.split(":");
+
+	const startDateTime = dayjs(date)
+		.set("hour", parseInt(startHours, 10))
+		.set("minute", parseInt(startMinutes, 10));
+
+	const endDateTime = dayjs(date)
+		.set("hour", parseInt(endHours, 10))
+		.set("minute", parseInt(endMinutes, 10));
+
+	// Calculate the difference in minutes
+	const minutesDifference = endDateTime.diff(startDateTime, "minute");
+
+	return minutesDifference;
+}
+
+export function getTimeDifferenceInQuarters(
+	startTime: string,
+	endTime: string,
+) {
+	// Parse start and end time strings
+	const [startHour, startMinute] = startTime.split(":").map(Number);
+	const [endHour, endMinute] = endTime.split(":").map(Number);
+
+	// Calculate time difference
+	const startTotalMinutes = startHour * 60 + startMinute;
+	const endTotalMinutes = endHour * 60 + endMinute;
+	const differenceInMinutes = endTotalMinutes - startTotalMinutes;
+
+	return differenceInMinutes / 15;
+}
+
+export function getTimeFromQuarter(quarters: number, date: string): string {
+	return dayjs(
+		getDateAndTimeFromSelection(
+			Number(quarters),
+			dayjs(date).startOf("day").toDate(),
+		),
+	).format("HH:mm");
 }
