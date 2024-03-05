@@ -35,10 +35,12 @@ export default memo(function Quarter({
 	end,
 	setEnd,
 }: Props) {
-	const { isOver, setNodeRef } = useDroppable({
+	const selection = getDateTimePairFromSelection(start, end, day);
+
+	const { setNodeRef } = useDroppable({
 		id: `${day.toISOString()},${quarter}`,
 	});
-	const selection = getDateTimePairFromSelection(start, end, day);
+
 	const handleMouseDown = useCallback(() => {
 		if (!highlight) {
 			// Reset previous selection

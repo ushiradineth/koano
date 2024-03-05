@@ -7,17 +7,19 @@ import {
 	getDateFromEventTimer,
 } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 import dayjs from "dayjs";
-import { memo } from "react";
+import { CSSProperties, memo } from "react";
 
 interface Props {
 	event: Event;
 }
 
 export default memo(function Event({ event }: Props) {
-	const { attributes, listeners, setNodeRef, transform } = useDraggable({
-		id: `${event.title},${event.date},${event.start},${event.end}`,
-	});
+	const { attributes, listeners, setNodeRef, transform, isDragging } =
+		useDraggable({
+			id: `${event.title},${event.date},${event.start},${event.end}`,
+		});
 
 	const offset = dayjs(getDateFromEventTimer(event.date, event.start)).diff(
 		dayjs(event.date).startOf("d"),
@@ -30,13 +32,12 @@ export default memo(function Event({ event }: Props) {
 		height: height,
 	};
 
-	const combinedStyle = transform
-		? {
-				...defaultStyles,
-				transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-				"touch-action": "manipulation",
-			}
-		: defaultStyles;
+	const combinedStyle: CSSProperties = {
+		...defaultStyles,
+		opacity: isDragging ? 0.4 : undefined,
+		transform: CSS.Translate.toString(transform),
+		touchAction: "none",
+	};
 
 	return (
 		<span

@@ -3,6 +3,7 @@
 import Event from "@/components/atoms/Event";
 import Quarter from "@/components/atoms/Quarter";
 import Time from "@/components/atoms/Time";
+import { useEventContext } from "@/components/utils/Context";
 import { Event as EventType } from "@/lib/types";
 import {
 	cn,
@@ -13,10 +14,17 @@ import {
 	isToday,
 	queryParams,
 } from "@/lib/utils";
-import { DndContext } from "@dnd-kit/core";
+import {
+	DndContext,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useEffect, useState } from "react";
-import { useEventContext } from "../utils/Context";
+
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface Props {
 	day: Date;
@@ -96,13 +104,18 @@ export default memo(function Day({ day, width, events }: Props) {
 			)}
 			style={{ width: `${width}px` }}>
 			<DndContext
+				sensors={useSensors(
+					useSensor(PointerSensor),
+					useSensor(KeyboardSensor),
+				)}
 				onDragEnd={(event) =>
 					event.collisions?.[0] &&
 					updateEvents(
 						event.active.id.toString(),
 						event.collisions?.[0].id.toString() ?? "",
 					)
-				}>
+				}
+				modifiers={[restrictToVerticalAxis]}>
 				<span className="flex flex-col sm:flex-row h-12 sm:h-5 items-center justify-center gap-2 font-bold">
 					<p>{date.day}</p>
 					<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>
@@ -132,6 +145,7 @@ export default memo(function Day({ day, width, events }: Props) {
 							setEnd={setEnd}
 						/>
 					))}
+
 					{events.map((event, index) => (
 						<Event key={event.title + index} event={event} />
 					))}
