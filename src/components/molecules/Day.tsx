@@ -24,7 +24,10 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useEffect, useState } from "react";
 
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+	restrictToFirstScrollableAncestor,
+	restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
 
 interface Props {
 	day: Date;
@@ -115,7 +118,7 @@ export default memo(function Day({ day, width, events }: Props) {
 						event.collisions?.[0].id.toString() ?? "",
 					)
 				}
-				modifiers={[restrictToVerticalAxis]}>
+				modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}>
 				<span className="flex flex-col sm:flex-row h-12 sm:h-5 items-center justify-center gap-2 font-bold">
 					<p>{date.day}</p>
 					<p className={cn(today && "rounded-sm bg-[#EF4B46] px-[6px]")}>
