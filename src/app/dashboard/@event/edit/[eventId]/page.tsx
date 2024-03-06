@@ -16,11 +16,11 @@ import { Input } from "@/components/atoms/Input";
 
 import {
 	convertISOToTime,
-	getUserTimezone,
+	getDateFromEventTimer,
 	isStartBeforeEnd,
 } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import {
@@ -31,7 +31,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/molecules/Form";
-import { addEventSchema } from "@/lib/validators";
+import { editEventSchema } from "@/lib/validators";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
@@ -39,79 +39,90 @@ import DatePicker from "@/components/molecules/DatePicker";
 import Picker from "@/components/molecules/Picker";
 import { useDataContext, useEventContext } from "@/components/utils/Context";
 
-export default function New() {
+export default function Edit({
+	params: pageParams,
+}: {
+	params: { eventId: string };
+}) {
 	const router = useRouter();
 	const eventContext = useEventContext();
 	const dataContext = useDataContext();
 	const params = useSearchParams();
 
-	const form = useForm<z.infer<typeof addEventSchema>>({
-		resolver: zodResolver(addEventSchema),
+	const form = useForm<z.infer<typeof editEventSchema>>({
+		resolver: zodResolver(editEventSchema),
 		defaultValues: {
+			id: "",
 			title: "",
-			start: convertISOToTime(params.get("start") ?? new Date().toISOString()),
-			end: convertISOToTime(params.get("end") ?? new Date().toISOString()),
+			start: convertISOToTime(new Date().toISOString()),
+			end: convertISOToTime(new Date().toISOString()),
 			timezone: dataContext.timezone,
 			repeat: dataContext.repeated[0],
-			date: new Date(params.get("start") ?? new Date().toISOString()),
+			date: new Date(new Date().toISOString()),
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof addEventSchema>) {
+	function onSubmit(values: z.infer<typeof editEventSchema>) {
 		if (!isStartBeforeEnd(values.start.value, values.end.value)) {
 			toast("Start and End is invalid.");
 			return;
 		}
 
-		eventContext.setEvents([
-			...eventContext.events,
-			{
-				id: String(eventContext.events.length + 1),
-				title: values.title,
-				start: values.start.value,
-				end: values.end.value,
-				repeated: values.repeat,
-				timezone: values.timezone,
-				date: values.date,
-			},
-		]);
+		const events = eventContext.events;
 
-		toast("Event has been created.");
+		for (const event of events) {
+			if (event.id === values.id) {
+				event.title = values.title;
+				event.start = values.start.value;
+				event.end = values.end.value;
+				event.repeated = values.repeat;
+				event.timezone = values.timezone;
+				event.date = values.date;
+
+				break;
+			}
+		}
+
+		eventContext.setEvents(events);
+
+		toast("Event has been edited.");
 		router.back();
 	}
 
 	useEffect(() => {
-		params.get("start") &&
-			form.setValue(
-				"start",
-				convertISOToTime(params.get("start") ?? new Date().toISOString()),
-			);
-		params.get("end") &&
-			form.setValue(
-				"end",
-				convertISOToTime(params.get("end") ?? new Date().toISOString()),
-			);
-
-		form.setValue("title", "");
-		form.setValue("repeat", dataContext.repeated[0]);
-		form.setValue(
-			"date",
-			new Date(params.get("start") ?? new Date().toISOString()),
-		);
-		form.setValue(
-			"timezone",
-			getUserTimezone(dataContext.timezones) ?? dataContext.timezones[0],
+		const event = eventContext.events.find(
+			(event) => event.id === pageParams.eventId,
 		);
 
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+		if (!event) {
+			redirect("/");
+		}
+
+		form.setValue("id", event.id);
+		form.setValue(
+			"start",
+			convertISOToTime(
+				getDateFromEventTimer(event.date, event.start).toISOString(),
+			),
+		);
+		form.setValue(
+			"end",
+			convertISOToTime(
+				getDateFromEventTimer(event.date, event.end).toISOString(),
+			),
+		);
+		form.setValue("title", event.title);
+		form.setValue("repeat", event.repeated);
+		form.setValue("date", new Date(event.date));
+		form.setValue("timezone", event.timezone);
+	}, [eventContext.events, form, pageParams.eventId, params]);
 
 	return (
 		<Dialog onOpenChange={() => router.back()} open={true}>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>Event</DialogTitle>
-					<DialogDescription>Add new event</DialogDescription>
+					<DialogDescription>Edit existing event</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -162,7 +173,7 @@ export default function New() {
 						/>
 
 						<DialogFooter className="flex flex-col gap-2 md:gap-0">
-							<Button type="submit">Create</Button>
+							<Button type="submit">Save</Button>
 							<DialogClose asChild>
 								<Button type="button" variant="secondary">
 									Close

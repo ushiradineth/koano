@@ -5,10 +5,12 @@ import {
 	calculateTimeDifference,
 	cn,
 	getDateFromEventTimer,
+	queryParams,
 } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import dayjs from "dayjs";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, memo } from "react";
 
 interface Props {
@@ -16,9 +18,13 @@ interface Props {
 }
 
 export default memo(function Event({ event }: Props) {
+	const router = useRouter();
+	const params = useSearchParams();
+	const pathname = usePathname();
+
 	const { attributes, listeners, setNodeRef, transform, isDragging } =
 		useDraggable({
-			id: `${event.title},${event.date},${event.start},${event.end}`,
+			id: `${event.id},${event.title},${event.date},${event.start},${event.end}`,
 		});
 
 	const offset = dayjs(getDateFromEventTimer(event.date, event.start)).diff(
@@ -47,10 +53,29 @@ export default memo(function Event({ event }: Props) {
 			className={cn(
 				"absolute flex",
 				"w-full bg-orange-500 bg-opacity-75",
-				height === 15 ? "items-center gap-2 pl-1" : " flex-col p-1",
+				height === 15 || height === 30
+					? "items-center justify-between gap-2 px-1"
+					: " flex-col p-1",
+				height === 0 && "text-transparent",
 			)}
-			style={combinedStyle}>
-			<p className="font-bold hidden sm:block">{event.title}</p>
+			style={combinedStyle}
+			onTouchEnd={() => {
+				router.push(
+					queryParams([], [], params.entries(), `${pathname}/edit/${event.id}`),
+					{
+						scroll: false,
+					},
+				);
+			}}
+			onDoubleClick={() => {
+				router.push(
+					queryParams([], [], params.entries(), `${pathname}/edit/${event.id}`),
+					{
+						scroll: false,
+					},
+				);
+			}}>
+			<p className="font-bold hidden sm:block truncate">{event.title}</p>
 			<p className="font-semibold text-xs hidden lg:block">
 				{event.start}
 				{" - "}

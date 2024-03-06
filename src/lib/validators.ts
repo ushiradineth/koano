@@ -64,3 +64,20 @@ export const addEventSchema = z.object({
 	timezone: TimeZoneSchema,
 	date: z.date(),
 });
+
+export const editEventSchema = z.object({
+	id: z.string(),
+	title: z
+		.string()
+		.min(2, {
+			message: "Title must be at least 2 characters.",
+		})
+		.max(256, {
+			message: "Title must be at most 256 characters.",
+		}),
+	repeat: repeatValueSchema,
+	start: TimeSchema,
+	end: TimeSchema,
+	timezone: TimeZoneSchema,
+	date: z.date(),
+});

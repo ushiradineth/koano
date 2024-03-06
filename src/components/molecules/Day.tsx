@@ -3,7 +3,7 @@
 import Event from "@/components/atoms/Event";
 import Quarter from "@/components/atoms/Quarter";
 import Time from "@/components/atoms/Time";
-import { useEventContext } from "@/components/utils/Context";
+import { useDataContext, useEventContext } from "@/components/utils/Context";
 import { Event as EventType } from "@/lib/types";
 import {
 	cn,
@@ -45,6 +45,7 @@ export default memo(function Day({ day, width, events }: Props) {
 	const [end, setEnd] = useState<number>(-1);
 	const date = getDayWithDate(day);
 	const today = isToday(day);
+	const dataContext = useDataContext();
 	const eventContext = useEventContext();
 
 	useEffect(() => {
@@ -76,25 +77,28 @@ export default memo(function Day({ day, width, events }: Props) {
 	}, [selecting]);
 
 	const updateEvents = useCallback(
-		(id: string, newStart: string) => {
-			const [title, date, start, end] = id.split(",");
+		(eventId: string, newStart: string) => {
+			const [id, title, date, start, end] = eventId.split(",");
 			const events = eventContext.events;
 
 			for (const event of events) {
-				if (event.title === title) {
+				if (event.id === id) {
 					const newStartQuarter = Number(newStart.split(",")[1]);
 
-					event.start = getTimeFromQuarter(newStartQuarter, date);
-					event.end = getTimeFromQuarter(
-						newStartQuarter + getTimeDifferenceInQuarters(start, end),
-						date,
+					const diff = getTimeDifferenceInQuarters(
+						start,
+						end === dataContext.times[0].value ? "24:00" : end,
 					);
+					event.start = getTimeFromQuarter(newStartQuarter, date);
+					event.end = getTimeFromQuarter(newStartQuarter + diff, date);
+
+					break;
 				}
 			}
 
 			eventContext.setEvents(events);
 		},
-		[eventContext],
+		[dataContext.times, eventContext],
 	);
 
 	return (
