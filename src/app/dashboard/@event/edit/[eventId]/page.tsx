@@ -85,7 +85,16 @@ export default function Edit({
 
 		eventContext.setEvents(events);
 
-		toast("Event has been edited.");
+		toast("Event has been saved.");
+		router.back();
+	}
+
+	function onDelete() {
+		eventContext.setEvents(
+			eventContext.events.filter((event) => event.id !== pageParams.eventId),
+		);
+
+		toast("Event has been deleted.");
 		router.back();
 	}
 
@@ -172,7 +181,14 @@ export default function Edit({
 							options={dataContext.repeated}
 						/>
 
-						<DialogFooter className="flex flex-col gap-2 md:gap-0">
+						<DialogFooter className="flex flex-col gap-2 md:gap-0 w-full">
+							<Button
+								type="button"
+								variant={"destructive"}
+								className="mr-auto"
+								onClick={() => onDelete()}>
+								Delete
+							</Button>
 							<Button type="submit">Save</Button>
 							<DialogClose asChild>
 								<Button type="button" variant="secondary">
