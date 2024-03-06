@@ -53,10 +53,7 @@ export default memo(function Event({ event }: Props) {
 			className={cn(
 				"absolute flex",
 				"w-full bg-orange-500 bg-opacity-75",
-				height === 15 || height === 30
-					? "items-center justify-between gap-2 px-1"
-					: " flex-col p-1",
-				height === 0 && "text-transparent",
+				"flex-col px-1",
 			)}
 			style={combinedStyle}
 			onTouchEnd={() => {
@@ -75,8 +72,20 @@ export default memo(function Event({ event }: Props) {
 					},
 				);
 			}}>
-			<p className="font-bold hidden sm:block truncate">{event.title}</p>
-			<p className="font-semibold text-xs hidden lg:block">
+			<p
+				className={cn(
+					"font-bold sm:block truncate",
+					height === 15 && "text-xs",
+				)}>
+				{event.title}
+			</p>
+			<p
+				className={cn(
+					"font-semibold text-xs",
+					height === 0 || height === 15 || height === 30
+						? "hidden"
+						: "hidden lg:block",
+				)}>
 				{event.start}
 				{" - "}
 				{event.end}
