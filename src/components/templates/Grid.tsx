@@ -1,12 +1,12 @@
 "use client";
 
+import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
 import { useEventContext, useSettingContext } from "@/components/utils/Context";
 import { getDateRange, getDayEvents } from "@/lib/utils";
 import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
-import Logo from "../atoms/Logo";
 
 interface Props {
 	gridRef: React.RefObject<HTMLDivElement>;
