@@ -11,6 +11,7 @@ import {
 	getDayWithDate,
 	getTimeDifferenceInQuarters,
 	getTimeFromQuarter,
+	isStartBeforeEnd,
 	isToday,
 	queryParams,
 } from "@/lib/utils";
@@ -91,6 +92,14 @@ export default memo(function Day({ day, width, events }: Props) {
 					);
 					event.start = getTimeFromQuarter(newStartQuarter, date);
 					event.end = getTimeFromQuarter(newStartQuarter + diff, date);
+
+					if (!isStartBeforeEnd(event.start, event.end)) {
+						event.start = getTimeFromQuarter(newStartQuarter - 1, date);
+						event.end = getTimeFromQuarter(newStartQuarter + diff - 1, date);
+					} else {
+						event.start = getTimeFromQuarter(newStartQuarter, date);
+						event.end = getTimeFromQuarter(newStartQuarter + diff, date);
+					}
 
 					break;
 				}
