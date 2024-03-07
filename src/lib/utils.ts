@@ -78,7 +78,7 @@ export function isToday(dateToCompare: Date): boolean {
 	return today.isSame(otherDate);
 }
 
-interface DateTimePair {
+export interface DateTimePair {
 	startDateTime: Date;
 	endDateTime: Date;
 }
@@ -146,10 +146,13 @@ export function getCurrentHourTime(valueHour: number): {
 	return { hour, minutes, time, isCurrentHour, isPreviousHour };
 }
 
-export function convertISOToTime(isoString: string): PickerType {
+export function convertISOToTime(isoString: string, day?: string): PickerType {
 	const dateTime = dayjs(isoString);
 	const value = dateTime.format("HH:mm");
 
+	if (dayjs(dateTime).diff(day, "day") === 1) {
+		return { value: "24:00", label: "24:00" };
+	}
 	return { label: value, value };
 }
 
@@ -161,6 +164,8 @@ export function generateTimeArray(): PickerType[] {
 			time.push({ value: formattedTime, label: formattedTime });
 		}
 	}
+
+	time.push({ value: "24:00", label: "24:00" } as PickerType);
 	return time;
 }
 

@@ -1,12 +1,13 @@
 "use client";
 
 import {
+	DateTimePair,
 	cn,
 	convertISOToTime,
 	getDateTimePairFromSelection,
 } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 
 interface Props {
 	quarter: number;
@@ -35,7 +36,20 @@ export default memo(function Quarter({
 	end,
 	setEnd,
 }: Props) {
-	const selection = getDateTimePairFromSelection(start, end, day);
+	const [selection, setSelection] = useState<DateTimePair>(
+		start !== -1 && end !== -1
+			? getDateTimePairFromSelection(start, end, day)
+			: {
+					startDateTime: new Date(),
+					endDateTime: new Date(),
+				},
+	);
+
+	useEffect(() => {
+		start !== -1 &&
+			end !== -1 &&
+			setSelection(getDateTimePairFromSelection(start, end, day));
+	}, [start, end, day]);
 
 	const { setNodeRef } = useDroppable({
 		id: `${day.toISOString()},${quarter}`,
@@ -86,7 +100,12 @@ export default memo(function Quarter({
 					)}>
 					{convertISOToTime(selection.startDateTime.toISOString()).label}
 					{" - "}
-					{convertISOToTime(selection.endDateTime.toISOString()).label}
+					{
+						convertISOToTime(
+							selection.endDateTime.toISOString(),
+							day.toISOString(),
+						).label
+					}
 				</p>
 			)}
 		</span>

@@ -96,9 +96,10 @@ export default memo(function Day({ day, width, events }: Props) {
 					if (!isStartBeforeEnd(event.start, event.end)) {
 						event.start = getTimeFromQuarter(newStartQuarter - 1, date);
 						event.end = getTimeFromQuarter(newStartQuarter + diff - 1, date);
-					} else {
-						event.start = getTimeFromQuarter(newStartQuarter, date);
-						event.end = getTimeFromQuarter(newStartQuarter + diff, date);
+					}
+
+					if (event.end === "00:00") {
+						event.end = "24:00";
 					}
 
 					break;
