@@ -73,12 +73,14 @@ export default function Day({
 			// Dragging is finished
 			setSelecting(false);
 
+      console.log(start, end, selecting, dragging);
+
 			if (!dragging) {
 				addEvent({
 					id: String(new Date().getSeconds()),
 					title: "asd",
 					start: getTimeFromPixelOffset(start.y, day),
-					end: getTimeFromPixelOffset(end.y === - 1 ? start.y + pixelPerQuarter : end.y, day),
+					end: getTimeFromPixelOffset(Math.max(end.y, start.y + pixelPerQuarter), day),
 					repeated: { label: "asd", value: "asd" },
 					timezone: { label: "asd", value: "asd" },
 				});
