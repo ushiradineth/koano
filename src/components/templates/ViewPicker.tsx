@@ -4,17 +4,17 @@ import {
 	SelectItem,
 	SelectTrigger,
 } from "@/components/molecules/Select";
-import { useSettingContext } from "@/components/utils/Context";
+import { useSettingStore } from "@/lib/stores/settings";
 import { View } from "@/lib/types";
 import { SelectValue } from "@radix-ui/react-select";
 
 export default function ViewPicker() {
-	const settingContext = useSettingContext();
+	const { view, setView } = useSettingStore();
 
 	return (
 		<Select
-			onValueChange={(value) => settingContext.setView(Number(value) as View)}
-			defaultValue={String(settingContext.view)}>
+			onValueChange={(value) => setView(Number(value) as View)}
+			defaultValue={String(view)}>
 			<SelectTrigger className="w-[80px] xs:w-[120px]">
 				<SelectValue />
 			</SelectTrigger>
