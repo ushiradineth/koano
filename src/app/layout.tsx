@@ -8,11 +8,17 @@ import "dayjs/plugin/utc";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-dayjs.extend(require("dayjs/plugin/utc"));
-dayjs.extend(require("dayjs/plugin/timezone"));
-dayjs.extend(require("dayjs/plugin/duration"));
-dayjs.extend(require("dayjs/plugin/relativeTime"));
-dayjs.extend(require("dayjs/plugin/weekOfYear"));
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
+dayjs.extend(weekOfYear);
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -27,7 +33,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="en" className="no-scrollbar">
 			<head>
 				<link rel="shortcut icon" href="/icon/cron.ico" />
 				<link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
