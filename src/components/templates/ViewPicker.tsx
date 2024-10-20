@@ -9,12 +9,14 @@ import { View } from "@/lib/types";
 import { SelectValue } from "@radix-ui/react-select";
 
 export default function ViewPicker() {
-	const { view, setView } = useSettingStore();
+	const { settings, setSettings } = useSettingStore();
 
 	return (
 		<Select
-			onValueChange={(value) => setView(Number(value) as View)}
-			defaultValue={String(view)}>
+			onValueChange={(value) =>
+				setSettings({ ...settings, view: Number(value) as View })
+			}
+			defaultValue={String(settings.view)}>
 			<SelectTrigger className="w-[80px] xs:w-[120px]">
 				<SelectValue />
 			</SelectTrigger>

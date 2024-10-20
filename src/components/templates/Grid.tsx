@@ -33,7 +33,7 @@ export default function Grid({
 	});
 	const [dayWidth, setDayWidth] = useState(0);
 	const prevDayWidth = useRef(0);
-	const { view } = useSettingStore();
+	const { settings } = useSettingStore();
 	const [dragging, setDragging] = useState(false);
 
 	useEffect(() => {
@@ -51,12 +51,12 @@ export default function Grid({
 
 	useEffect(() => {
 		if (gridRef.current) {
-			const newDayWidth = gridRef.current.offsetWidth / view;
+			const newDayWidth = gridRef.current.offsetWidth / settings.view;
 			prevDayWidth.current = dayWidth; // Update previous value
 			setDayWidth(newDayWidth);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [view, windowWidth]);
+	}, [settings.view, windowWidth]);
 
 	return (
 		<DndContext

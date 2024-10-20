@@ -1,7 +1,8 @@
 "use client";
 
 import { pixelPerMinute, pixelPerQuarter } from "@/lib/consts";
-import { Event } from "@/lib/types";
+import { useSettingStore } from "@/lib/stores/settings";
+import { Clock, Event } from "@/lib/types";
 import { cn, queryParams } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
@@ -14,10 +15,12 @@ interface Props {
 }
 
 export default function Event({ event, containerHeight }: Props) {
+  const { settings } = useSettingStore();
 	const router = useRouter();
 	const params = useSearchParams();
 	const pathname = usePathname();
 
+  const [label, setLabel] = useState("");
 	const [y, setY] = useState(
 		dayjs(event.start).diff(dayjs(event.start).startOf("d"), "m") *
 			pixelPerMinute,
@@ -45,6 +48,10 @@ export default function Event({ event, containerHeight }: Props) {
 		touchAction: "none",
 		opacity: isDragging ? 0.4 : undefined,
 	};
+
+  useEffect(() => {
+    setLabel(generateEventTime(event.start, event.end, settings.clock));
+  }, [settings, event]);
 
 	useEffect(() => {
 		if (transform) {
@@ -108,10 +115,19 @@ export default function Event({ event, containerHeight }: Props) {
 						? "hidden"
 						: "hidden lg:block",
 				)}>
-				{dayjs(event.start).format("HH:mm")}
-				{" - "}
-				{dayjs(event.end).format("HH:mm")}
+				{label}
 			</p>
 		</span>
 	);
+}
+
+function generateEventTime(start: Date, end: Date, clock: Clock) {
+	const startTime =  dayjs(start).format(clock === 12 ? "hh:mm" : "HH:mm");
+	const conditional =
+		clock === 12 ? (dayjs(start).format("A") !== dayjs(end).format("A")
+			? dayjs(start).format(" A")
+			: "") : "";
+	const endTime = dayjs(end).format(clock === 12 ? "hh:mm A" : "HH:mm");
+
+	return `${startTime}${conditional} - ${endTime}`;
 }

@@ -14,7 +14,7 @@ export default function Dashboard() {
 	const [week, setWeek] = useState(dayjs(new Date()).week());
 	const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
 	const [year, setYear] = useState(dayjs(new Date()).format("YYYY"));
-	const { view } = useSettingStore();
+	const { settings } = useSettingStore();
 
 	const scrollToCurrentDate = useCallback(() => {
 		if (gridRef.current) {
@@ -28,7 +28,7 @@ export default function Dashboard() {
 					`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`
 				) {
 					let reduce = 0;
-					if (view === 7) {
+					if (settings.view === 7) {
 						reduce = calculateDaysToPreviousMonday(date.day);
 					}
 					gridRef.current.scrollTo(
@@ -38,7 +38,7 @@ export default function Dashboard() {
 				}
 			}
 		}
-	}, [view]);
+	}, [settings.view]);
 
 	const setCurrentMonth = useCallback(() => {
 		if (gridRef.current) {
@@ -66,7 +66,7 @@ export default function Dashboard() {
 				year={year}
 			/>
 
-			{view !== 30 ? (
+			{settings.view !== 30 ? (
 				<div className={"flex justify-between text-sm w-full"}>
 					<div className={"flex flex-col h-full w-20"}>
 						<p className="flex items-center justify-center w-full h-12 border-b">

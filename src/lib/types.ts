@@ -13,3 +13,9 @@ export type Picker = {
 };
 
 export type View = 1 | 3 | 7 | 30;
+export type Clock = 12 | 24;
+
+export type Settings = {
+  view: View;
+  clock: Clock;
+}

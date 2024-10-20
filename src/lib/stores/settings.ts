@@ -1,12 +1,17 @@
-import { View } from "@/lib/types";
+import { Settings } from "@/lib/types";
 import { create } from "zustand";
 
 type SettingStore = {
-	view: View;
-	setView: (value: View) => void;
+	settings: Settings;
+	setSettings: (value: Settings) => void;
 };
 
-export const useSettingStore = create<SettingStore>()((set, get) => ({
-	view: 7,
-	setView: (value: View) => set({ view: value }),
+export const useSettingStore = create<SettingStore>()((set) => ({
+	settings: {
+		view: 7,
+		clock: 12,
+	},
+	setSettings: (value: Settings) => {
+		set({ settings: value });
+	},
 }));
