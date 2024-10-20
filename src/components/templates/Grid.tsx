@@ -24,18 +24,20 @@ export default function Grid({
 	scrollToCurrentDate,
 	setCurrentMonth,
 }: Props) {
-	const [days, setDays] = useState<Date[]>(
-		getDateRange(dayjs().startOf("day").toDate()),
-	);
+	const [days, setDays] = useState<Date[]>([]);
 	const { events, editEvent, getEventById } = useEventStore();
+	const { settings } = useSettingStore();
 	const { width: windowWidth } = useWindowSize({
 		debounceDelay: 100,
 		initializeWithValue: true,
 	});
+	const debouncedSetCurrentMonth = useDebounceCallback(setCurrentMonth, 100);
 	const [dayWidth, setDayWidth] = useState(0);
-	const prevDayWidth = useRef(0);
-	const { settings } = useSettingStore();
 	const [dragging, setDragging] = useState(false);
+	const prevDayWidth = useRef(0);
+
+	const initialRange = 60;
+	const bufferRange = 30;
 
 	useEffect(() => {
 		console.debug(events); //! DEBUG: Remove
@@ -59,6 +61,45 @@ export default function Grid({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [settings.view, windowWidth]);
 
+	useEffect(() => {
+		const currentDay = dayjs().startOf("day").toDate();
+		const initialDays = getDateRange(
+			dayjs(currentDay).subtract(initialRange, "day").toDate(),
+			dayjs(currentDay).add(initialRange, "day").toDate(),
+		);
+		setDays(initialDays);
+	}, []);
+
+	const handleScroll = () => {
+		debouncedSetCurrentMonth();
+
+		if (gridRef.current) {
+			const scrollPosition = gridRef.current.scrollLeft;
+			const maxScroll =
+				gridRef.current.scrollWidth - gridRef.current.clientWidth;
+
+			// If the user is close to the right end (future dates), add more future days
+			if (scrollPosition > maxScroll - dayWidth * 5) {
+				const lastDay = days[days.length - 1];
+				const newDays = getDateRange(
+					dayjs(lastDay).add(1, "day").toDate(),
+					dayjs(lastDay).add(bufferRange, "day").toDate(),
+				);
+				setDays((prevDays) => [...prevDays, ...newDays]);
+			}
+
+			// If the user is close to the left end (past dates), add more past days
+			if (scrollPosition < dayWidth * 5) {
+				const firstDay = days[0];
+				const newDays = getDateRange(
+					dayjs(firstDay).subtract(bufferRange, "day").toDate(),
+					dayjs(firstDay).subtract(1, "day").toDate(),
+				);
+				setDays((prevDays) => [...newDays, ...prevDays]);
+			}
+		}
+	};
+
 	return (
 		<DndContext
 			onDragStart={() => setDragging(true)}
@@ -67,7 +108,7 @@ export default function Grid({
 			<div
 				className="grid-col-3 grid w-full snap-x snap-mandatory grid-flow-col overflow-scroll no-scrollbar"
 				ref={gridRef}
-				onScroll={useDebounceCallback(setCurrentMonth, 100)}>
+				onScroll={gridRef.current ? handleScroll : undefined}>
 				{dayWidth === 0 ? (
 					<div className="h-[calc(100vh-120px)] w-full flex justify-center items-center">
 						<Logo />
@@ -146,24 +187,17 @@ export function getTimeFromYOffsetAndTime(
 	return i;
 }
 
-function getDateRange(date: Date): Date[] {
-	const currentDate = dayjs(date);
+function getDateRange(startDate: Date, endDate: Date): Date[] {
+	const start = dayjs(startDate);
+	const end = dayjs(endDate);
 	const dateRange: Date[] = [];
-	const range = 60;
 
-	// Add 60 previous days
-	for (let i = range; i > 0; i--) {
-		const previousDate = currentDate.subtract(i, "day");
-		dateRange.push(previousDate.toDate());
-	}
-
-	// Add current date
-	dateRange.push(currentDate.toDate());
-
-	// Add 60 next days
-	for (let i = 1; i <= range; i++) {
-		const nextDate = currentDate.add(i, "day");
-		dateRange.push(nextDate.toDate());
+	for (
+		let current = start;
+		current.isBefore(end) || current.isSame(end);
+		current = current.add(1, "day")
+	) {
+		dateRange.push(current.toDate());
 	}
 
 	return dateRange;
