@@ -8,11 +8,11 @@ import "dayjs/plugin/utc";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import duration from "dayjs/plugin/duration";
+import relativeTime from "dayjs/plugin/relativeTime";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import weekOfYear from "dayjs/plugin/weekOfYear";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

@@ -10,7 +10,9 @@ export default function Time({ today }: Props) {
 	return (
 		<div
 			className={cn("absolute w-full flex")}
-			style={{ top: dayjs().hour() * pixelPerHour + dayjs().minute() * pixelPerMinute }}>
+			style={{
+				top: dayjs().hour() * pixelPerHour + dayjs().minute() * pixelPerMinute,
+			}}>
 			{today && <p className="absolute -top-2.5 -left-1">•</p>}
 			<div
 				className={cn(
