@@ -143,7 +143,7 @@ export function calculateDaysToPreviousMonday(day: string) {
 
 export function getTimeFromPixelOffset(offset: number, day: Date): Date {
 	const dateTime = dayjs(day);
-	const minutes = Math.floor(offset / pixelPerQuarter) * pixelPerQuarter;
+	const minutes = getQuarter(offset);
 
 	return dayjs(dateTime)
 		.set("hour", Math.floor(minutes / 60))
@@ -188,4 +188,8 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 	}
 
 	return times;
+}
+
+export function getQuarter(value: number): number {
+	return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
 }

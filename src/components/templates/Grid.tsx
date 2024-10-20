@@ -8,9 +8,10 @@ import dayjs from "dayjs";
 import React, { useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
-import { gridHeight, pixelPerMinute, pixelPerQuarter } from "@/lib/consts";
+import { gridHeight, pixelPerMinute } from "@/lib/consts";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
+import { getQuarter } from "@/lib/utils";
 
 interface Props {
 	gridRef: React.RefObject<HTMLDivElement>;
@@ -108,12 +109,6 @@ export default function Grid({
 			const event = getEventById(eventId);
 
 			if (!event) return;
-			//const { start, end } = getNewStartEndTime(
-			//  active.data.current?.y * pixelPerMinute ?? 0, // The delta in pixels the event is being dragged
-			//  event.start,
-			//  event.end,
-			//  new Date(over.id), // The date of the day the event is being dragged to
-			//);
 
 			const pixelOffset = active.data.current?.y * pixelPerMinute ?? 0;
 			const start = getTimeFromYOffsetAndTime(
@@ -139,8 +134,7 @@ export function getTimeFromYOffsetAndTime(
 	time: Date,
 	day: Date,
 ): Date {
-	const minutes =
-		Math.floor((offset * pixelPerMinute) / pixelPerQuarter) * pixelPerQuarter;
+	const minutes = getQuarter(offset * pixelPerMinute);
 
 	const i = dayjs(time)
 		.set("date", dayjs(day).date())

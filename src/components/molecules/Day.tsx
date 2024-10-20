@@ -1,7 +1,11 @@
 import Time from "@/components/atoms/Time";
 import { pixelPerHour, pixelPerQuarter } from "@/lib/consts";
 import { useEventStore } from "@/lib/stores/event";
-import { getDayWithDate, getTimeFromPixelOffset } from "@/lib/utils";
+import {
+	getDayWithDate,
+	getQuarter,
+	getTimeFromPixelOffset,
+} from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -73,14 +77,17 @@ export default function Day({
 			// Dragging is finished
 			setSelecting(false);
 
-      console.log(start, end, selecting, dragging);
+			console.log(start, end, selecting, dragging);
 
 			if (!dragging) {
 				addEvent({
 					id: String(new Date().getSeconds()),
 					title: "asd",
 					start: getTimeFromPixelOffset(start.y, day),
-					end: getTimeFromPixelOffset(Math.max(end.y, start.y + pixelPerQuarter), day),
+					end: getTimeFromPixelOffset(
+						Math.max(end.y, start.y + pixelPerQuarter),
+						day,
+					),
 					repeated: { label: "asd", value: "asd" },
 					timezone: { label: "asd", value: "asd" },
 				});
@@ -106,7 +113,7 @@ export default function Day({
 	//  }
 	//  // eslint-disable-next-line react-hooks/exhaustive-deps
 	//}, [selecting]);
-	//
+
 	return (
 		<div
 			id={`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`}>
@@ -131,15 +138,18 @@ export default function Day({
 				}}
 				className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b">
 				<Time today={today} />
+				{selecting && (
+					<div
+						style={{
+							height: getQuarter(Math.max(end.y - start.y, 15)),
+							top: getQuarter(start.y),
+						}}
+						className="absolute w-full flex items-center justify-center select-none bg-orange-500 bg-opacity-25">
+						<p className="text-center text-lg font-bold"></p>
+					</div>
+				)}
 				{children}
 			</div>
 		</div>
 	);
 }
-//{selecting && (
-//  <div style={{ height }} className="absolute w-full h-full bg-background bg-opacity-50 flex items-center justify-center">
-//    <p className="text-center text-lg font-bold">
-//      {date.day}
-//    </p>
-//  </div>
-//)}
