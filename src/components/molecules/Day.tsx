@@ -1,5 +1,5 @@
 import Time from "@/components/atoms/Time";
-import { pixelPerHour } from "@/lib/consts";
+import { pixelPerHour, pixelPerQuarter } from "@/lib/consts";
 import { useEventStore } from "@/lib/stores/event";
 import { getDayWithDate, getTimeFromPixelOffset } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
@@ -78,7 +78,7 @@ export default function Day({
 					id: String(new Date().getSeconds()),
 					title: "asd",
 					start: getTimeFromPixelOffset(start.y, day),
-					end: getTimeFromPixelOffset(end.y, day),
+					end: getTimeFromPixelOffset(end.y === - 1 ? start.y + pixelPerQuarter : end.y, day),
 					repeated: { label: "asd", value: "asd" },
 					timezone: { label: "asd", value: "asd" },
 				});
