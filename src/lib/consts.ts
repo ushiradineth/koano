@@ -7,3 +7,8 @@ export const repeatValues: { label: string; value: Repeat }[] = [
 	{ label: "Monthly", value: "monthly" },
 	{ label: "Yearly", value: "yearly" },
 ];
+
+export const gridHeight = 1440; // 24 hours * 60 minutes - Pixel Per Minute
+export const pixelPerMinute = 1;
+export const pixelPerQuarter = 15;
+export const pixelPerHour = 60;
