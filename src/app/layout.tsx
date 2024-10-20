@@ -23,31 +23,31 @@ dayjs.extend(weekOfYear);
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-	title: "Cron",
-	description: "By Ushira Dineth",
+  title: "Cron",
+  description: "By Ushira Dineth",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="en" className="no-scrollbar">
-			<head>
-				<link rel="shortcut icon" href="/icon/cron.ico" />
-				<link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
-				<link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
-				<link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
-			</head>
-			<body
-				className={cn(
-					"dark min-h-screen bg-background font-sans antialiased",
-					inter.variable,
-				)}>
-				{children}
-				<Toaster />
-			</body>
-		</html>
-	);
+  return (
+    <html lang="en" className="no-scrollbar">
+      <head>
+        <link rel="shortcut icon" href="/icon/cron.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
+      </head>
+      <body
+        className={cn(
+          "dark min-h-screen bg-background font-sans antialiased",
+          inter.variable,
+        )}>
+        {children}
+        <Toaster />
+      </body>
+    </html>
+  );
 }
