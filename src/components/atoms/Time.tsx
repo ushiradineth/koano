@@ -1,3 +1,4 @@
+import { pixelPerHour, pixelPerMinute } from "@/lib/consts";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 
@@ -9,7 +10,7 @@ export default function Time({ today }: Props) {
 	return (
 		<div
 			className={cn("absolute w-full flex")}
-			style={{ top: dayjs().hour() * 60 + dayjs().minute() }}>
+			style={{ top: dayjs().hour() * pixelPerHour + dayjs().minute() * pixelPerMinute }}>
 			{today && <p className="absolute -top-2.5 -left-1">•</p>}
 			<div
 				className={cn(

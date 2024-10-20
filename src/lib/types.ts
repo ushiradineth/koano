@@ -1,14 +1,13 @@
 export type Event = {
 	id: string;
 	title: string;
-	start: string;
-	end: string;
-	timezone: PickerType;
-	repeated: PickerType;
-	date: Date;
+	start: Date;
+	end: Date;
+	timezone: Picker;
+	repeated: Picker;
 };
 
-export type PickerType = {
+export type Picker = {
 	label: string;
 	value: string;
 };

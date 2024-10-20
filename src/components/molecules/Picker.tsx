@@ -26,13 +26,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/molecules/Popover";
-import { PickerType } from "@/lib/types";
+import { Picker } from "@/lib/types";
 
 interface Props {
 	name: string;
 	label: string;
 	form: any;
-	options: PickerType[];
+	options: Picker[];
 }
 
 export default function Picker({ name, label, form, options }: Props) {
