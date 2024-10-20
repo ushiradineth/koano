@@ -73,8 +73,8 @@ export default function Dashboard() {
               W{week}
             </p>
             <span className="flex flex-col border-t">
-              {new Array(23 * 1).fill(0).map((_, index) => (
-                <TimeBlock key={index} hour={index + 1} />
+              {new Array(24 * 1).fill(0).map((_, index) => (
+                <TimeBlock key={index} hour={index} />
               ))}
             </span>
           </div>

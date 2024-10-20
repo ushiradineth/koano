@@ -14,14 +14,14 @@ interface Props {
 export default memo(function TimeBlock({ hour }: Props) {
   const { settings } = useSettingStore();
   const [currentHour, setCurrentHour] = useState(
-    getCurrentHourTime(hour - 1, settings.clock),
+    getCurrentTimeObject(hour, settings.clock),
   );
   const textHeight = 16;
 
   useEffect(() => {
     if (currentHour.isCurrentHour) {
       const interval = setInterval(
-        () => setCurrentHour(getCurrentHourTime(hour - 1, settings.clock)),
+        () => setCurrentHour(getCurrentTimeObject(hour, settings.clock)),
         (60 - dayjs().second()) * 1000,
       );
       return () => {
@@ -31,25 +31,27 @@ export default memo(function TimeBlock({ hour }: Props) {
   }, [currentHour.isCurrentHour, hour, settings]);
 
   useEffect(() => {
-    setCurrentHour(getCurrentHourTime(hour - 1, settings.clock));
+    setCurrentHour(getCurrentTimeObject(hour, settings.clock));
   }, [settings, hour]);
 
   return (
     <div
+      id={String(hour)}
       style={{ height: pixelPerHour }}
       className="flex relative w-full items-center justify-center px-2 font-mono font-medium text-xs">
       <p
         style={{ top: pixelPerHour - textHeight / 2, height: textHeight }}
         className={cn(
           "absolute",
+          hour === 23 && "hidden",
           currentHour.isPreviousHour && currentHour.minutes < 15 && "hidden",
           currentHour.isCurrentHour && currentHour.minutes > 45 && "hidden",
         )}>
-        {getHour(hour, settings.clock)}
+        {getHour(hour + 1, settings.clock)}
       </p>
       {currentHour.isCurrentHour && (
         <p
-          className={cn("absolute bg-background")}
+          className={"absolute bg-background"}
           style={{
             top: currentHour.minutes - textHeight / 2,
             height: textHeight,
@@ -68,21 +70,21 @@ function getHour(hour: number, clock: Clock) {
   return dayjs().set("hour", hour).format("hA");
 }
 
-function getCurrentHourTime(
+function getCurrentTimeObject(
   valueHour: number,
   clock: Clock,
 ): {
-  hour: number;
   minutes: number;
   time: string;
   isCurrentHour: boolean;
   isPreviousHour: boolean;
 } {
-  const hour = dayjs().hour();
-  const minutes = dayjs().minute();
-  const time = dayjs().format(clock === 12 ? "h:mmA" : "H:mm");
+  const day = dayjs();
+  const hour = Number(day.format("H"));
+  const minutes = day.minute();
+  const time = day.format(clock === 12 ? "h:mmA" : "H:mm");
   const isCurrentHour = valueHour === hour;
   const isPreviousHour = valueHour === hour - 1;
 
-  return { hour, minutes, time, isCurrentHour, isPreviousHour };
+  return { minutes, time, isCurrentHour, isPreviousHour };
 }
