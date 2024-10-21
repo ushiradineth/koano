@@ -29,6 +29,7 @@ export default function Day({
   const date = getDayWithDate(day);
   const today = dayjs().startOf("day").isSame(dayjs(day).startOf("day"));
   const [selecting, setSelecting] = useState(false);
+  const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
   const [start, setStart] = useState({ x: -1, y: -1 });
   const [end, setEnd] = useState({ x: -1, y: -1 });
   const { addEvent } = useEventStore();
@@ -51,9 +52,7 @@ export default function Day({
       );
 
       setSelecting(dragging ? false : true);
-
-      setStart({ x: divX, y: divY });
-      setEnd({ x: divX, y: divY });
+      setClickPosition({ x: divX, y: divY });
     },
     [dragging],
   );
@@ -69,27 +68,27 @@ export default function Day({
         );
 
         // Dragging upwards
-        if (divY < start.y) {
-          setEnd(start);
+        if (divY < clickPosition.y) {
+          setEnd(clickPosition);
           setStart({ x: divX, y: divY });
           const previewHeight = getQuarter(
-            Math.max(start.y - divY, pixelPerQuarter),
+            Math.max(clickPosition.y - divY, pixelPerQuarter),
           );
           setPreview({
             height: previewHeight,
-            top: getQuarter(start.y) - previewHeight,
+            top: getQuarter(clickPosition.y) - previewHeight,
           });
         } else {
-          setStart(end);
+          setStart(clickPosition);
           setEnd({ x: divX, y: divY });
           setPreview({
-            height: getQuarter(Math.max(divY - end.y, pixelPerQuarter)),
-            top: getQuarter(end.y),
+            height: getQuarter(Math.max(divY - clickPosition.y, pixelPerQuarter)),
+            top: getQuarter(clickPosition.y),
           });
         }
       }
     },
-    [selecting],
+    [selecting, clickPosition],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -160,7 +159,7 @@ export default function Day({
         {selecting && (
           <div
             style={preview}
-            className="absolute w-full flex items-center justify-center select-none bg-orange-500 bg-opacity-25">
+            className="absolute w-full flex items-center justify-center bg-orange-500 bg-opacity-25">
             <p className="text-center text-lg font-bold"></p>
           </div>
         )}
