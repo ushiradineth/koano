@@ -1,5 +1,5 @@
 import Time from "@/components/atoms/Time";
-import { pixelPerHour, pixelPerQuarter } from "@/lib/consts";
+import { gridHeight, pixelPerHour, pixelPerQuarter } from "@/lib/consts";
 import { useEventStore } from "@/lib/stores/event";
 import {
   getDayWithDate,
@@ -32,6 +32,7 @@ export default function Day({
   const [start, setStart] = useState({ x: -1, y: -1 });
   const [end, setEnd] = useState({ x: -1, y: -1 });
   const { addEvent } = useEventStore();
+  const [preview, setPreview] = useState({ height: 0, top: 0 });
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -44,14 +45,15 @@ export default function Day({
     (event: React.MouseEvent<HTMLDivElement>) => {
       const rect = event.currentTarget.getBoundingClientRect();
       const divX = event.clientX - rect.left;
-      const divY = event.clientY - rect.top;
+      const divY = Math.min(
+        Math.max(event.clientY - rect.top, -1),
+        gridHeight + 1,
+      );
 
       setSelecting(dragging ? false : true);
-      setStart({
-        x: divX,
-        y: divY,
-      });
-      setEnd({ x: -1, y: -1 });
+
+      setStart({ x: divX, y: divY });
+      setEnd({ x: divX, y: divY });
     },
     [dragging],
   );
@@ -61,12 +63,30 @@ export default function Day({
       if (selecting) {
         const rect = event.currentTarget.getBoundingClientRect();
         const divX = event.clientX - rect.left;
-        const divY = event.clientY - rect.top;
+        const divY = Math.min(
+          Math.max(event.clientY - rect.top, -1),
+          gridHeight + 1,
+        );
 
-        setEnd({
-          x: divX,
-          y: divY,
-        });
+        // Dragging upwards
+        if (divY < start.y) {
+          setEnd(start);
+          setStart({ x: divX, y: divY });
+          const previewHeight = getQuarter(
+            Math.max(start.y - divY, pixelPerQuarter),
+          );
+          setPreview({
+            height: previewHeight,
+            top: getQuarter(start.y) - previewHeight,
+          });
+        } else {
+          setStart(end);
+          setEnd({ x: divX, y: divY });
+          setPreview({
+            height: getQuarter(Math.max(divY - end.y, pixelPerQuarter)),
+            top: getQuarter(end.y),
+          });
+        }
       }
     },
     [selecting],
@@ -76,8 +96,6 @@ export default function Day({
     if (selecting) {
       // Dragging is finished
       setSelecting(false);
-
-      console.log(start, end, selecting, dragging);
 
       if (!dragging) {
         addEvent({
@@ -113,6 +131,7 @@ export default function Day({
   //  }
   //  // eslint-disable-next-line react-hooks/exhaustive-deps
   //}, [selecting]);
+  //
 
   return (
     <div
@@ -140,10 +159,7 @@ export default function Day({
         <Time today={today} />
         {selecting && (
           <div
-            style={{
-              height: getQuarter(Math.max(end.y - start.y, 15)),
-              top: getQuarter(start.y),
-            }}
+            style={preview}
             className="absolute w-full flex items-center justify-center select-none bg-orange-500 bg-opacity-25">
             <p className="text-center text-lg font-bold"></p>
           </div>
