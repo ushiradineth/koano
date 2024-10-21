@@ -1,4 +1,4 @@
-import { Clock, Picker } from "@/lib/types";
+import { Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
@@ -189,6 +189,10 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 }
 
 export function getQuarter(value: number): number {
-  return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
+  const remainder = value % pixelPerQuarter;
+  if (remainder >= pixelPerQuarter / 2) {
+    return Math.ceil(value / pixelPerQuarter) * pixelPerQuarter;
+  } else {
+    return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
+  }
 }
-
