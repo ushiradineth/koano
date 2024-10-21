@@ -80,7 +80,7 @@ export default function Event({ event, containerHeight }: Props) {
       {...listeners}
       {...attributes}
       className={cn(
-        "absolute flex select-none",
+        "absolute flex",
         "w-full bg-orange-500 bg-opacity-75",
         "flex-col px-1",
       )}

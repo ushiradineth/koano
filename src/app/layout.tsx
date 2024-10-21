@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="no-scrollbar">
+    <html lang="en" className="no-scrollbar select-none">
       <head>
         <link rel="shortcut icon" href="/icon/cron.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
