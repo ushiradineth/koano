@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export type Event = {
   id: string;
   title: string;
@@ -18,4 +20,11 @@ export type Clock = 12 | 24;
 export type Settings = {
   view: View;
   clock: Clock;
+};
+
+export type TimeObject = {
+  day: dayjs.Dayjs;
+  hour: number;
+  minutes: number;
+  time: string;
 };

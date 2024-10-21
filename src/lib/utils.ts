@@ -1,4 +1,4 @@
-import { Picker } from "@/lib/types";
+import { Clock, Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
@@ -139,8 +139,6 @@ export function calculateDaysToPreviousMonday(day: string) {
   return dayIndex === 0 ? 0 : dayIndex > 0 ? 0 - dayIndex : -7 + dayIndex;
 }
 
-// ---
-
 export function getTimeFromPixelOffset(offset: number, day: Date): Date {
   const dateTime = dayjs(day);
   const minutes = getQuarter(offset);
@@ -193,3 +191,4 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 export function getQuarter(value: number): number {
   return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
 }
+

@@ -1,17 +1,19 @@
 import { pixelPerHour, pixelPerMinute } from "@/lib/consts";
+import { useDataStore } from "@/lib/stores/data";
 import { cn } from "@/lib/utils";
-import dayjs from "dayjs";
 
 interface Props {
   today: boolean;
 }
 
 export default function Time({ today }: Props) {
+  const { time } = useDataStore();
+
   return (
     <div
       className={cn("absolute w-full flex")}
       style={{
-        top: dayjs().hour() * pixelPerHour + dayjs().minute() * pixelPerMinute,
+        top: time.hour * pixelPerHour + time.minutes * pixelPerMinute,
       }}>
       {today && <p className="absolute -top-2.5 -left-1">•</p>}
       <div
