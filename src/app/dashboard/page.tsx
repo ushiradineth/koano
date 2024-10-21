@@ -1,7 +1,7 @@
 "use client";
 
+import Header from "@/components/atoms/Header";
 import TimeBlock from "@/components/atoms/TimeBlock";
-import Header from "@/components/molecules/Header";
 import Grid from "@/components/templates/Grid";
 import { useSettingStore } from "@/lib/stores/settings";
 import { calculateDaysToPreviousMonday, getDayWithDate } from "@/lib/utils";

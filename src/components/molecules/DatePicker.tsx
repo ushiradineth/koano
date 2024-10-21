@@ -1,4 +1,4 @@
-import { Button } from "@/components/atoms/Button";
+import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 
@@ -8,14 +8,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/molecules/Form";
+} from "@/components/ui/form";
 
-import { Calendar } from "@/components/molecules/Calendar";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/molecules/Popover";
+} from "@/components/ui/popover";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 

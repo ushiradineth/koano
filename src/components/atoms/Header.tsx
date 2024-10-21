@@ -1,6 +1,6 @@
-import { Button } from "@/components/atoms/Button";
 import Logo from "@/components/atoms/Logo";
 import ViewPicker from "@/components/templates/ViewPicker";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   scrollToCurrentDate: () => void;

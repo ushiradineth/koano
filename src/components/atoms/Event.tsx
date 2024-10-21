@@ -2,7 +2,7 @@
 
 import { pixelPerMinute } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Clock, Event } from "@/lib/types";
+import { Clock, Event as EventType } from "@/lib/types";
 import { cn, getQuarter, queryParams } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
@@ -10,7 +10,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useState } from "react";
 
 interface Props {
-  event: Event;
+  event: EventType;
   containerHeight: number;
 }
 
@@ -134,7 +134,8 @@ function generateEventTime(start: Date, end: Date, clock: Clock) {
       ? dayjs(start).format(" A")
       : "";
 
-  const endTime = formatTime(end) + (clock === 12 ? dayjs(end).format(" A") : "");
+  const endTime =
+    formatTime(end) + (clock === 12 ? dayjs(end).format(" A") : "");
 
   return `${startTime}${conditional} - ${endTime}`;
 }
