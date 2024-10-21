@@ -124,14 +124,17 @@ export default function Event({ event, containerHeight }: Props) {
 }
 
 function generateEventTime(start: Date, end: Date, clock: Clock) {
-  const startTime = dayjs(start).format(clock === 12 ? "hh:mm" : "HH:mm");
+  const formatTime = (time: Date) =>
+    dayjs(time).format(clock === 12 ? "h" : "HH") +
+    (dayjs(time).minute() !== 0 ? dayjs(time).format(":mm") : "");
+
+  const startTime = formatTime(start);
   const conditional =
-    clock === 12
-      ? dayjs(start).format("A") !== dayjs(end).format("A")
-        ? dayjs(start).format(" A")
-        : ""
+    clock === 12 && dayjs(start).format("A") !== dayjs(end).format("A")
+      ? dayjs(start).format(" A")
       : "";
-  const endTime = dayjs(end).format(clock === 12 ? "hh:mm A" : "HH:mm");
+
+  const endTime = formatTime(end) + (clock === 12 ? dayjs(end).format(" A") : "");
 
   return `${startTime}${conditional} - ${endTime}`;
 }

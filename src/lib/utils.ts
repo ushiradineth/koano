@@ -189,10 +189,5 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 }
 
 export function getQuarter(value: number): number {
-  const remainder = value % pixelPerQuarter;
-  if (remainder >= pixelPerQuarter / 2) {
-    return Math.ceil(value / pixelPerQuarter) * pixelPerQuarter;
-  } else {
-    return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
-  }
+  return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
 }
