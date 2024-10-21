@@ -82,7 +82,9 @@ export default function Day({
           setStart(clickPosition);
           setEnd({ x: divX, y: divY });
           setPreview({
-            height: getQuarter(Math.max(divY - clickPosition.y, pixelPerQuarter)),
+            height: getQuarter(
+              Math.max(divY - clickPosition.y, pixelPerQuarter),
+            ),
             top: getQuarter(clickPosition.y),
           });
         }
