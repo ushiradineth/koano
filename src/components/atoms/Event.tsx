@@ -115,7 +115,7 @@ export default function Event({ event, containerHeight }: Props) {
             height === 15 * pixelPerMinute ||
             height === 30 * pixelPerMinute
             ? "hidden"
-            : "hidden lg:block",
+            : "hidden md:block",
         )}>
         {label}
       </p>

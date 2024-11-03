@@ -37,7 +37,7 @@ export default memo(function TimeBlock({ hour }: Props) {
     <div
       id={`timeblock-${hour + 1}`}
       style={{ height: pixelPerHour }}
-      className="flex relative w-full items-center justify-center px-2 font-mono font-medium text-xs">
+      className="flex relative w-full items-center justify-center px-1 font-mono font-medium text-[10px]">
       <p
         style={{ top: pixelPerHour - textHeight / 2, height: textHeight }}
         className={cn(

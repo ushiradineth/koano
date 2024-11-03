@@ -137,7 +137,7 @@ export default function Day({
   return (
     <div
       id={`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`}>
-      <span className="flex flex-col sm:flex-row w-full h-12 items-center justify-center gap-2 font-bold border-b">
+      <span className="sticky top-14 flex flex-col sm:flex-row w-full h-12 items-center justify-center gap-2 font-bold border-b">
         <p>{date.day}</p>
         <p className={today ? "rounded-sm bg-[#EF4B46] px-[6px]" : ""}>
           {date.date}
@@ -156,7 +156,7 @@ export default function Day({
           backgroundSize: `100% ${pixelPerHour}px`,
           backgroundPosition: `0 ${pixelPerHour}px`,
         }}
-        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b">
+        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b mt-14">
         <Time today={today} />
         {selecting && (
           <div
