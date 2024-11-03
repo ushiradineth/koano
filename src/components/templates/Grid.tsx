@@ -106,7 +106,7 @@ export default function Grid({
       onDragEnd={handleDragEnd}
       collisionDetection={closestCenter}>
       <div
-        className="grid-col-3 grid w-full snap-x snap-mandatory grid-flow-col overflow-scroll no-scrollbar"
+        className="grid-col-3 grid w-full scroll-smooth snap-x snap-mandatory grid-flow-col overflow-scroll no-scrollbar"
         ref={gridRef}
         onScroll={gridRef.current ? handleScroll : undefined}>
         {dayWidth === 0 ? (
