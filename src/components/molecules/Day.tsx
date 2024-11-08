@@ -55,9 +55,13 @@ export default function Day({
       setClickPosition({ x: divX, y: divY });
 
       // When extending an existing event
-      if (["up", "down"].includes(mouseEvent.target.name ?? "")) {
-        const eventId = mouseEvent.nativeEvent.srcElement.offsetParent.id;
-        setExtendingEventId(eventId);
+      if (["up", "down"].includes((mouseEvent.target as any).name ?? "")) {
+        const eventId = (mouseEvent.nativeEvent.srcElement as any)?.offsetParent
+          .id;
+
+        if (eventId) {
+          setExtendingEventId(eventId);
+        }
         return;
       }
 
@@ -110,17 +114,45 @@ export default function Day({
       const event = getEventById(extendingEventId);
 
       if (!event) return;
-      const startTime = getTimeFromPixelOffset(start.y, day);
-      const endTime = getTimeFromPixelOffset(end.y, day);
 
+      const startTime = dayjs(getTimeFromPixelOffset(start.y, day));
+      const endTime = dayjs(getTimeFromPixelOffset(end.y, day));
+      const eventStart = dayjs(event.start);
+      const eventEnd = dayjs(event.end);
+
+      // If the event is pulled down from the end
       if (
-        dayjs(startTime).isBefore(dayjs(event.end)) &&
-        dayjs(endTime).isBefore(dayjs(event.end))
+        startTime.isAfter(eventStart) &&
+        startTime.isBefore(eventEnd) &&
+        endTime.isAfter(eventEnd)
       ) {
-        editEvent({ ...event, start: startTime });
-      } else {
-        editEvent({ ...event, end: endTime });
+        console.debug("event is pulled down from the end");
+        editEvent({ ...event, end: endTime.toDate() });
+        return;
       }
+
+      // If the event is pulled up from the end
+      if (startTime.isAfter(eventStart) && endTime.isBefore(eventEnd)) {
+        console.debug("event is pulled up from the end");
+        editEvent({ ...event, end: startTime.toDate() });
+        return;
+      }
+
+      // If the event is pulled up from the start
+      if (startTime.isBefore(eventStart) && endTime.isSame(eventStart)) {
+        console.debug("event is pulled up from the start");
+        editEvent({ ...event, start: startTime.toDate() });
+        return;
+      }
+
+      // If the event is pulled down from the start
+      if (startTime.isSame(eventStart) && endTime.isBefore(eventEnd)) {
+        console.debug("event is pulled down from the start");
+        editEvent({ ...event, start: endTime.toDate() });
+        return;
+      }
+
+      console.debug("event is not pulled");
     }
 
     if (start.y === end.y) {
@@ -157,6 +189,7 @@ export default function Day({
     day,
     extendingEventId,
     getEventById,
+    editEvent,
   ]);
 
   //useEffect(() => {
