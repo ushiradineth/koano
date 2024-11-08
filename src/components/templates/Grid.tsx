@@ -1,5 +1,3 @@
-"use client";
-
 import Event from "@/components/atoms/Event";
 import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
