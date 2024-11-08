@@ -3,7 +3,7 @@
 import { pixelPerMinute } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
-import { cn, getQuarter, queryParams } from "@/lib/utils";
+import { cn, queryParams } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -11,22 +11,18 @@ import { CSSProperties, useEffect, useState } from "react";
 
 interface Props {
   event: EventType;
-  containerHeight: number;
 }
 
-export default function Event({ event, containerHeight }: Props) {
+export default function Event({ event }: Props) {
   const { settings } = useSettingStore();
   const router = useRouter();
   const params = useSearchParams();
   const pathname = usePathname();
 
   const [label, setLabel] = useState("");
-  const [y, setY] = useState(
-    dayjs(event.start).diff(dayjs(event.start).startOf("d"), "m") *
-      pixelPerMinute,
-  );
+  const [y, setY] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
-  const height = dayjs(event.end).diff(event.start, "minute") * pixelPerMinute;
+  const [height, setHeight] = useState(0);
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: event.id,
@@ -50,6 +46,14 @@ export default function Event({ event, containerHeight }: Props) {
   };
 
   useEffect(() => {
+    setY(
+      dayjs(event.start).diff(dayjs(event.start).startOf("d"), "m") *
+        pixelPerMinute,
+    );
+    setHeight(dayjs(event.end).diff(event.start, "minute") * pixelPerMinute);
+  }, [event]);
+
+  useEffect(() => {
     setLabel(generateEventTime(event.start, event.end, settings.clock));
   }, [settings, event]);
 
@@ -59,67 +63,74 @@ export default function Event({ event, containerHeight }: Props) {
     }
   }, [transform]);
 
-  useEffect(() => {
-    if (!isDragging) {
-      setY((prevY: number) => {
-        let res = prevY + dragOffset;
-
-        res = res < 0 ? 0 : res;
-        res = res > containerHeight ? containerHeight - 40 : res;
-
-        return getQuarter(res);
-      });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDragging]);
-
   return (
-    <span
+    <div
+      id={event.id}
       ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className={cn(
-        "absolute flex",
-        "w-full bg-orange-500 bg-opacity-75",
-        "flex-col px-1",
-      )}
-      style={style}
-      onTouchEnd={() => {
-        router.push(
-          queryParams([], [], params.entries(), `${pathname}/edit/${event.id}`),
-          {
-            scroll: false,
-          },
-        );
-      }}
-      onDoubleClick={() => {
-        router.push(
-          queryParams([], [], params.entries(), `${pathname}/edit/${event.id}`),
-          {
-            scroll: false,
-          },
-        );
-      }}>
-      <p
-        className={cn(
-          "font-bold sm:block truncate",
-          height === 15 * pixelPerMinute && "text-xs",
-        )}>
-        {event.title}
-      </p>
-      <p
-        className={cn(
-          "font-semibold text-xs",
-          height === 0 ||
-            height === 15 * pixelPerMinute ||
-            height === 30 * pixelPerMinute
-            ? "hidden"
-            : "hidden md:block",
-        )}>
-        {label}
-      </p>
-    </span>
+      className="flex flex-col w-full bg-orange-500 bg-opacity-75 group relative"
+      style={style}>
+      <Dragger name="up" />
+      <span
+        className="h-full"
+        {...listeners}
+        {...attributes}
+        onTouchEnd={() => {
+          router.push(
+            queryParams(
+              [],
+              [],
+              params.entries(),
+              `${pathname}/edit/${event.id}`,
+            ),
+            {
+              scroll: false,
+            },
+          );
+        }}
+        onDoubleClick={() => {
+          router.push(
+            queryParams(
+              [],
+              [],
+              params.entries(),
+              `${pathname}/edit/${event.id}`,
+            ),
+            {
+              scroll: false,
+            },
+          );
+        }}>
+        <p
+          className={cn(
+            "font-bold sm:block truncate",
+            height === 15 * pixelPerMinute && "text-xs",
+          )}>
+          {event.title}
+        </p>
+        <p
+          className={cn(
+            "font-semibold text-xs",
+            height === 0 ||
+              height === 15 * pixelPerMinute ||
+              height === 30 * pixelPerMinute
+              ? "hidden"
+              : "hidden md:block",
+          )}>
+          {label}
+        </p>
+      </span>
+      <Dragger name="down" />
+    </div>
+  );
+}
+
+function Dragger({ name }: { name: string }) {
+  return (
+    <button
+      name={name}
+      className="w-full flex items-center justify-center h-4 bg-red-300">
+      [----]
+    </button>
   );
 }
 

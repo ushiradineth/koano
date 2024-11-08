@@ -129,11 +129,7 @@ export default function Grid({
                     dayjs(date).format("DD/MM/YYYY"),
                 )
                 .map((event) => (
-                  <Event
-                    key={event.id}
-                    event={event}
-                    containerHeight={gridHeight}
-                  />
+                  <Event key={event.id} event={event} />
                 ))}
             </Day>
           ))
@@ -143,7 +139,7 @@ export default function Grid({
   );
 
   function handleDragEnd(event: DragEndEvent) {
-    const { over, delta, active } = event;
+    const { over, active } = event;
 
     if (over) {
       const eventId = active.id as string;

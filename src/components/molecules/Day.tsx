@@ -29,10 +29,11 @@ export default function Day({
   const date = getDayWithDate(day);
   const today = dayjs().startOf("day").isSame(dayjs(day).startOf("day"));
   const [selecting, setSelecting] = useState(false);
+  const [extendingEventId, setExtendingEventId] = useState();
   const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
   const [start, setStart] = useState({ x: -1, y: -1 });
   const [end, setEnd] = useState({ x: -1, y: -1 });
-  const { addEvent } = useEventStore();
+  const { addEvent, getEventById, editEvent } = useEventStore();
   const [preview, setPreview] = useState({ height: 0, top: 0 });
   const router = useRouter();
   const pathname = usePathname();
@@ -43,23 +44,32 @@ export default function Day({
   });
 
   const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const divX = event.clientX - rect.left;
+    (mouseEvent: React.MouseEvent<HTMLDivElement>) => {
+      const rect = mouseEvent.currentTarget.getBoundingClientRect();
+      const divX = mouseEvent.clientX - rect.left;
       const divY = Math.min(
-        Math.max(event.clientY - rect.top, -1),
+        Math.max(mouseEvent.clientY - rect.top, -1),
         gridHeight + 1,
       );
 
-      setSelecting(dragging ? false : true);
       setClickPosition({ x: divX, y: divY });
+
+      // When extending an existing event
+      if (["up", "down"].includes(mouseEvent.target.name ?? "")) {
+        const eventId = mouseEvent.nativeEvent.srcElement.offsetParent.id;
+        setExtendingEventId(eventId);
+        return;
+      }
+
+      // When dragging a range to create a new event
+      setSelecting(dragging ? false : true);
     },
     [dragging],
   );
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if (selecting) {
+      if (selecting || extendingEventId) {
         const rect = event.currentTarget.getBoundingClientRect();
         const divX = event.clientX - rect.left;
         const divY = Math.min(
@@ -81,38 +91,73 @@ export default function Day({
         } else {
           setStart(clickPosition);
           setEnd({ x: divX, y: divY });
-          setPreview({
-            height: getQuarter(
-              Math.max(divY - clickPosition.y, pixelPerQuarter),
-            ),
-            top: getQuarter(clickPosition.y),
-          });
+          selecting &&
+            setPreview({
+              height: getQuarter(
+                Math.max(divY - clickPosition.y, pixelPerQuarter),
+              ),
+              top: getQuarter(clickPosition.y),
+            });
         }
       }
     },
-    [selecting, clickPosition],
+    [selecting, clickPosition, extendingEventId],
   );
 
   const handleMouseUp = useCallback(() => {
-    if (selecting) {
-      // Dragging is finished
-      setSelecting(false);
+    // When extending an existing event
+    if (extendingEventId) {
+      const event = getEventById(extendingEventId);
 
-      if (!dragging) {
-        addEvent({
-          id: String(new Date().getSeconds()),
-          title: "asd",
-          start: getTimeFromPixelOffset(start.y, day),
-          end: getTimeFromPixelOffset(
-            Math.max(end.y, start.y + pixelPerQuarter),
-            day,
-          ),
-          repeated: { label: "asd", value: "asd" },
-          timezone: { label: "asd", value: "asd" },
-        });
+      if (!event) return;
+      const startTime = getTimeFromPixelOffset(start.y, day);
+      const endTime = getTimeFromPixelOffset(end.y, day);
+
+      if (
+        dayjs(startTime).isBefore(dayjs(event.end)) &&
+        dayjs(endTime).isBefore(dayjs(event.end))
+      ) {
+        editEvent({ ...event, start: startTime });
+      } else {
+        editEvent({ ...event, end: endTime });
       }
     }
-  }, [selecting, start, end, dragging, addEvent, day]);
+
+    if (start.y === end.y) {
+      setSelecting(false);
+      return;
+    }
+
+    // When dragging a range to create a new event
+    if (selecting && !dragging) {
+      addEvent({
+        id: String(window.performance.now()),
+        title: "asd",
+        start: getTimeFromPixelOffset(start.y, day),
+        end: getTimeFromPixelOffset(
+          Math.max(end.y, start.y + pixelPerQuarter),
+          day,
+        ),
+        repeated: { label: "asd", value: "asd" },
+        timezone: { label: "asd", value: "asd" },
+      });
+    }
+
+    // Reset all states
+    setExtendingEventId(undefined);
+    setSelecting(false);
+    setStart({ x: -1, y: -1 });
+    setEnd({ x: -1, y: -1 });
+  }, [
+    selecting,
+    start,
+    end,
+    dragging,
+    addEvent,
+    day,
+    extendingEventId,
+    getEventById,
+  ]);
 
   //useEffect(() => {
   //  if (!selecting && start.y !== -1 && end.y !== -1) {
@@ -132,7 +177,6 @@ export default function Day({
   //  }
   //  // eslint-disable-next-line react-hooks/exhaustive-deps
   //}, [selecting]);
-  //
 
   return (
     <div
