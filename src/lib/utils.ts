@@ -149,6 +149,12 @@ export function getTimeFromPixelOffset(offset: number, day: Date): Date {
     .toDate();
 }
 
+export function getPixelOffsetFromTime(time: Date, day: Date): number {
+  const dateTime = dayjs(day);
+  const minutes = dayjs(time).diff(dateTime, "minute");
+  return getQuarter(minutes);
+}
+
 export function generateStartTimes(start: string, timezone: string): Picker[] {
   const times: Picker[] = [];
   const startDate = dayjs(start).tz(timezone).startOf("day");

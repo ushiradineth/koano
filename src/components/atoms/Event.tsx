@@ -1,6 +1,6 @@
 "use client";
 
-import { pixelPerMinute } from "@/lib/consts";
+import { draggerId, pixelPerMinute, pixelPerQuarter } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
 import { cn, queryParams } from "@/lib/utils";
@@ -69,7 +69,7 @@ export default function Event({ event }: Props) {
       ref={setNodeRef}
       className="flex flex-col w-full bg-orange-500 bg-opacity-75 group relative"
       style={style}>
-      <Dragger name="up" />
+      <Dragger className={"top-0"} />
       <span
         className="h-full"
         {...listeners}
@@ -119,18 +119,21 @@ export default function Event({ event }: Props) {
           {label}
         </p>
       </span>
-      <Dragger name="down" />
+      <Dragger className={"bottom-0"} />
     </div>
   );
 }
 
-function Dragger({ name }: { name: string }) {
+function Dragger({ className }: { className?: string }) {
   return (
     <button
-      name={name}
-      className="w-full flex items-center justify-center h-4 bg-red-300">
-      [----]
-    </button>
+      name={draggerId}
+      style={{ height: pixelPerQuarter }}
+      className={cn(
+        "w-full flex items-center justify-center absolute cursor-row-resize",
+        className,
+      )}
+    />
   );
 }
 

@@ -1,8 +1,15 @@
 import Time from "@/components/atoms/Time";
-import { gridHeight, pixelPerHour, pixelPerQuarter } from "@/lib/consts";
+import {
+  draggerId,
+  gridHeight,
+  pixelPerHour,
+  pixelPerQuarter,
+} from "@/lib/consts";
 import { useEventStore } from "@/lib/stores/event";
+import { Event as EventType } from "@/lib/types";
 import {
   getDayWithDate,
+  getPixelOffsetFromTime,
   getQuarter,
   getTimeFromPixelOffset,
 } from "@/lib/utils";
@@ -29,7 +36,7 @@ export default function Day({
   const date = getDayWithDate(day);
   const today = dayjs().startOf("day").isSame(dayjs(day).startOf("day"));
   const [selecting, setSelecting] = useState(false);
-  const [extendingEventId, setExtendingEventId] = useState();
+  const [extendingEvent, setExtendingEvent] = useState<EventType>();
   const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
   const [start, setStart] = useState({ x: -1, y: -1 });
   const [end, setEnd] = useState({ x: -1, y: -1 });
@@ -55,70 +62,164 @@ export default function Day({
       setClickPosition({ x: divX, y: divY });
 
       // When extending an existing event
-      if (["up", "down"].includes((mouseEvent.target as any).name ?? "")) {
+      if (((mouseEvent.target as any).name ?? "") == draggerId) {
         const eventId = (mouseEvent.nativeEvent.srcElement as any)?.offsetParent
           .id;
 
         if (eventId) {
-          setExtendingEventId(eventId);
+          const event = getEventById(eventId);
+          if (!event) return;
+
+          setExtendingEvent(event);
         }
+
         return;
       }
 
       // When dragging a range to create a new event
       setSelecting(dragging ? false : true);
     },
-    [dragging],
+    [dragging, getEventById],
   );
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if (selecting || extendingEventId) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        const divX = event.clientX - rect.left;
-        const divY = Math.min(
-          Math.max(event.clientY - rect.top, -1),
-          gridHeight + 1,
-        );
+      const rect = event.currentTarget.getBoundingClientRect();
+      const currentMouseX = event.clientX - rect.left;
+      const currentMouseY = Math.min(
+        Math.max(event.clientY - rect.top, -1),
+        gridHeight + 1,
+      );
 
+      // Dragging upwards
+      if (currentMouseY < clickPosition.y) {
+        setEnd(clickPosition);
+        setStart({ x: currentMouseX, y: currentMouseY });
+      }
+      // Dragging downwards
+      else {
+        setStart(clickPosition);
+        setEnd({ x: currentMouseX, y: currentMouseY });
+      }
+
+      if (selecting) {
         // Dragging upwards
-        if (divY < clickPosition.y) {
-          setEnd(clickPosition);
-          setStart({ x: divX, y: divY });
+        if (currentMouseY < clickPosition.y) {
           const previewHeight = getQuarter(
-            Math.max(clickPosition.y - divY, pixelPerQuarter),
+            Math.max(clickPosition.y - currentMouseY, pixelPerQuarter),
           );
           setPreview({
             height: previewHeight,
             top: getQuarter(clickPosition.y) - previewHeight,
           });
-        } else {
-          setStart(clickPosition);
-          setEnd({ x: divX, y: divY });
+        }
+        // Dragging downwards
+        else {
           selecting &&
             setPreview({
               height: getQuarter(
-                Math.max(divY - clickPosition.y, pixelPerQuarter),
+                Math.max(currentMouseY - clickPosition.y, pixelPerQuarter),
               ),
               top: getQuarter(clickPosition.y),
             });
         }
+
+        return;
       }
+
+      if (extendingEvent) {
+        const endOffset = getPixelOffsetFromTime(extendingEvent.end, day);
+        const startOffset = getPixelOffsetFromTime(extendingEvent.start, day);
+        const currentMouseQuarter = getQuarter(currentMouseY);
+        const clickPositionQuarter = getQuarter(clickPosition.y);
+
+        if (
+          clickPositionQuarter === startOffset &&
+          currentMouseQuarter > endOffset
+        ) {
+          console.debug("start is pulled over the end");
+          return;
+        }
+
+        if (
+          (clickPositionQuarter === endOffset ||
+            clickPositionQuarter === endOffset - 15) &&
+          currentMouseQuarter < startOffset
+        ) {
+          console.debug("end is pulled over the start");
+          return;
+        }
+
+        // If the event is pulled up from the start
+        if (
+          currentMouseQuarter < clickPositionQuarter &&
+          currentMouseQuarter < startOffset
+        ) {
+          console.debug("1 event is pulled up from the start");
+          const previewHeight = getQuarter(endOffset - currentMouseQuarter);
+          setPreview({
+            height: previewHeight,
+            top: endOffset - previewHeight,
+          });
+          return;
+        }
+
+        // If the event is pulled down from the start
+        if (
+          currentMouseQuarter > clickPositionQuarter &&
+          currentMouseQuarter > startOffset &&
+          currentMouseQuarter < endOffset
+        ) {
+          console.debug("2 event is pulled down from the start");
+          setPreview({
+            height: getQuarter(endOffset - currentMouseQuarter),
+            top:
+              clickPositionQuarter +
+              getQuarter(currentMouseQuarter - startOffset),
+          });
+          return;
+        }
+
+        // If the event is pulled up from the end
+        if (
+          currentMouseQuarter < clickPositionQuarter &&
+          currentMouseQuarter > startOffset
+        ) {
+          console.debug("3 event is pulled up from the end");
+          setPreview({
+            height: getQuarter(currentMouseQuarter - startOffset),
+            top: startOffset,
+          });
+
+          return;
+        }
+
+        // If the event is pulled down from the end
+        if (
+          currentMouseQuarter > clickPositionQuarter &&
+          currentMouseQuarter > endOffset
+        ) {
+          console.debug("4 event is pulled down from the end");
+          setPreview({
+            height: getQuarter(currentMouseQuarter - startOffset),
+            top: startOffset,
+          });
+          return;
+        }
+      }
+
+      setPreview({ height: 0, top: 0 });
     },
-    [selecting, clickPosition, extendingEventId],
+    [selecting, clickPosition, extendingEvent, day],
   );
 
   const handleMouseUp = useCallback(() => {
     // When extending an existing event
-    if (extendingEventId) {
-      const event = getEventById(extendingEventId);
-
-      if (!event) return;
-
+    if (extendingEvent) {
       const startTime = dayjs(getTimeFromPixelOffset(start.y, day));
       const endTime = dayjs(getTimeFromPixelOffset(end.y, day));
-      const eventStart = dayjs(event.start);
-      const eventEnd = dayjs(event.end);
+      const eventStart = dayjs(extendingEvent.start);
+      const eventEnd = dayjs(extendingEvent.end);
 
       // If the event is pulled down from the end
       if (
@@ -127,32 +228,38 @@ export default function Day({
         endTime.isAfter(eventEnd)
       ) {
         console.debug("event is pulled down from the end");
-        editEvent({ ...event, end: endTime.toDate() });
+        editEvent({ ...extendingEvent, end: endTime.toDate() });
+        setExtendingEvent(undefined);
         return;
       }
 
       // If the event is pulled up from the end
       if (startTime.isAfter(eventStart) && endTime.isBefore(eventEnd)) {
         console.debug("event is pulled up from the end");
-        editEvent({ ...event, end: startTime.toDate() });
+        editEvent({ ...extendingEvent, end: startTime.toDate() });
+        setExtendingEvent(undefined);
         return;
       }
 
       // If the event is pulled up from the start
       if (startTime.isBefore(eventStart) && endTime.isSame(eventStart)) {
         console.debug("event is pulled up from the start");
-        editEvent({ ...event, start: startTime.toDate() });
+        editEvent({ ...extendingEvent, start: startTime.toDate() });
+        setExtendingEvent(undefined);
         return;
       }
 
       // If the event is pulled down from the start
       if (startTime.isSame(eventStart) && endTime.isBefore(eventEnd)) {
         console.debug("event is pulled down from the start");
-        editEvent({ ...event, start: endTime.toDate() });
+        editEvent({ ...extendingEvent, start: endTime.toDate() });
+        setExtendingEvent(undefined);
         return;
       }
 
       console.debug("event is not pulled");
+      setExtendingEvent(undefined);
+      return;
     }
 
     if (start.y === end.y) {
@@ -176,7 +283,7 @@ export default function Day({
     }
 
     // Reset all states
-    setExtendingEventId(undefined);
+    setExtendingEvent(undefined);
     setSelecting(false);
     setStart({ x: -1, y: -1 });
     setEnd({ x: -1, y: -1 });
@@ -187,8 +294,7 @@ export default function Day({
     dragging,
     addEvent,
     day,
-    extendingEventId,
-    getEventById,
+    extendingEvent,
     editEvent,
   ]);
 
@@ -242,6 +348,14 @@ export default function Day({
             <p className="text-center text-lg font-bold"></p>
           </div>
         )}
+        {extendingEvent && (
+          <div
+            style={preview}
+            className="absolute z-50 w-full flex items-center justify-center bg-red-500">
+            <p className="text-center text-lg font-bold"></p>
+          </div>
+        )}
+
         {children}
       </div>
     </div>
