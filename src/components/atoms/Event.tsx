@@ -6,6 +6,7 @@ import { Clock, Event as EventType } from "@/lib/types";
 import { cn, queryParams } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
+import { GripVertical } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useState } from "react";
 
@@ -23,6 +24,7 @@ export default function Event({ event }: Props) {
   const [y, setY] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [height, setHeight] = useState(0);
+  const [compact, setCompact] = useState(height <= 30 * pixelPerMinute);
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: event.id,
@@ -40,7 +42,7 @@ export default function Event({ event }: Props) {
       ? `translate3d(${transform.x}px, ${transform.y + y}px, 0)`
       : `translate3d(0px, ${y}px, 0)`,
     position: "absolute",
-    height,
+    height: Math.max(height, pixelPerQuarter),
     touchAction: "none",
     opacity: isDragging ? 0.4 : undefined,
   };
@@ -63,15 +65,23 @@ export default function Event({ event }: Props) {
     }
   }, [transform]);
 
+  useEffect(() => {
+    setCompact(height <= 15 * pixelPerMinute);
+  }, [height]);
+
   return (
     <div
       id={event.id}
       ref={setNodeRef}
       className="flex flex-col w-full bg-orange-500 bg-opacity-75 group relative"
       style={style}>
-      <Dragger className={"top-0"} />
+      <Dragger className={cn("top-0", compact ? "w-[90%]" : "w-full")} />
       <span
-        className="h-full"
+        className={cn(
+          "flex flex-col h-full text-xs",
+          isDragging ? "cursor-grabbing" : "cursor-grab",
+          compact && "gap-2 flex-row",
+        )}
         {...listeners}
         {...attributes}
         onTouchEnd={() => {
@@ -103,23 +113,14 @@ export default function Event({ event }: Props) {
         <p
           className={cn(
             "font-bold sm:block truncate",
-            height === 15 * pixelPerMinute && "text-xs",
+            compact ? "w-[90%]" : "w-full",
           )}>
           {event.title}
         </p>
-        <p
-          className={cn(
-            "font-semibold text-xs",
-            height === 0 ||
-              height === 15 * pixelPerMinute ||
-              height === 30 * pixelPerMinute
-              ? "hidden"
-              : "hidden md:block",
-          )}>
-          {label}
-        </p>
+        {!compact && <p className={"font-semibold"}>{label}</p>}
       </span>
-      <Dragger className={"bottom-0"} />
+      {compact && <GripVertical className="w-4 h-4 absolute right-0 -z-50" />}
+      <Dragger className={cn("bottom-0", compact ? "w-[90%]" : "w-full")} />
     </div>
   );
 }
@@ -130,14 +131,14 @@ function Dragger({ className }: { className?: string }) {
       name={draggerId}
       style={{ height: pixelPerQuarter }}
       className={cn(
-        "w-full flex items-center justify-center absolute cursor-row-resize",
+        "flex items-center justify-center absolute cursor-row-resize",
         className,
       )}
     />
   );
 }
 
-function generateEventTime(start: Date, end: Date, clock: Clock) {
+export function generateEventTime(start: Date, end: Date, clock: Clock) {
   const formatTime = (time: Date) =>
     dayjs(time).format(clock === 12 ? "h" : "HH") +
     (dayjs(time).minute() !== 0 ? dayjs(time).format(":mm") : "");
