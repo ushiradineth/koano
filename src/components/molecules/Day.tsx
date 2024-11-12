@@ -84,13 +84,12 @@ export default function Day({
 
       // When extending an existing event
       if ((target.id ?? "") === draggerId) {
-        console.log(mouseEvent);
         const eventId = target.offsetParent?.id;
 
         if (eventId) {
           const event = getEventById(eventId);
           if (!event) {
-            console.debug(`Event ${eventId} not found`);
+            console.error(`Event ${eventId} not found`);
             return;
           }
           setExtendingEvent(event);
