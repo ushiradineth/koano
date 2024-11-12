@@ -69,7 +69,7 @@ export default function Dashboard() {
       {settings.view !== 30 ? (
         <div className={"flex justify-between text-sm w-full"}>
           <div className={"flex flex-col h-full w-20 mt-14"}>
-            <p className="flex items-center justify-center w-full h-12 border-b">
+            <p className="flex items-center justify-center w-full h-12">
               W{week}
             </p>
             <span className="flex flex-col border-t">
