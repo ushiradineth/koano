@@ -127,8 +127,8 @@ export default function Event({ event }: Props) {
 
 function Dragger({ className }: { className?: string }) {
   return (
-    <button
-      name={draggerId}
+    <span
+      id={draggerId}
       style={{ height: pixelPerQuarter }}
       className={cn(
         "flex items-center justify-center absolute cursor-row-resize",

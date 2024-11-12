@@ -20,7 +20,12 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+interface MouseEventTarget extends EventTarget {
+  id?: string;
+  offsetParent?: HTMLElement;
+}
 
 export default function Day({
   id,
@@ -75,10 +80,12 @@ export default function Day({
 
       setClickPosition({ x: divX, y: divY });
 
+      const target = mouseEvent.target as MouseEventTarget;
+
       // When extending an existing event
-      if (((mouseEvent.target as any).name ?? "") == draggerId) {
-        const eventId = (mouseEvent.nativeEvent.srcElement as any)?.offsetParent
-          .id;
+      if ((target.id ?? "") === draggerId) {
+        console.log(mouseEvent);
+        const eventId = target.offsetParent?.id;
 
         if (eventId) {
           const event = getEventById(eventId);
@@ -222,6 +229,20 @@ export default function Day({
     resetState,
   ]);
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        resetState();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [resetState]);
+
   //useEffect(() => {
   //  if (!selecting && start.y !== -1 && end.y !== -1) {
   //    const selection = getDateTimePairFromSelection(start.y, end.y, day);
@@ -238,7 +259,6 @@ export default function Day({
   //      { scroll: false },
   //    );
   //  }
-  //  // eslint-disable-next-line react-hooks/exhaustive-deps
   //}, [selecting]);
 
   return (
