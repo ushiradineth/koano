@@ -6,7 +6,6 @@ import { Clock, Event as EventType } from "@/lib/types";
 import { cn, queryParams } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
-import { GripVertical } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useState } from "react";
 
@@ -75,7 +74,7 @@ export default function Event({ event }: Props) {
       ref={setNodeRef}
       className="flex flex-col w-full bg-orange-500 bg-opacity-75 group relative"
       style={style}>
-      <Dragger className={cn("top-0", compact ? "w-[90%]" : "w-full")} />
+      <Dragger className={"top-0"} compact={compact} />
       <span
         className={cn(
           "flex flex-col h-full text-xs",
@@ -110,28 +109,29 @@ export default function Event({ event }: Props) {
             },
           );
         }}>
-        <p
-          className={cn(
-            "font-bold sm:block truncate",
-            compact ? "w-[90%]" : "w-full",
-          )}>
-          {event.title}
-        </p>
+        <p className={"font-bold sm:block truncate w-full"}>{event.title}</p>
         {!compact && <p className={"font-semibold"}>{label}</p>}
       </span>
-      {compact && <GripVertical className="w-4 h-4 absolute right-0 -z-50" />}
-      <Dragger className={cn("bottom-0", compact ? "w-[90%]" : "w-full")} />
+      <Dragger className={"bottom-0"} compact={compact} />
     </div>
   );
 }
 
-function Dragger({ className }: { className?: string }) {
+function Dragger({
+  className,
+  compact,
+}: {
+  className?: string;
+  compact: boolean;
+}) {
   return (
     <span
       id={draggerId}
-      style={{ height: pixelPerQuarter }}
+      style={{
+        height: compact ? pixelPerMinute * 2.5 : pixelPerQuarter,
+      }}
       className={cn(
-        "flex items-center justify-center absolute cursor-row-resize",
+        "flex items-center justify-center absolute cursor-row-resize w-full",
         className,
       )}
     />
