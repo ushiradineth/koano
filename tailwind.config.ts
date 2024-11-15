@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config = {
   darkMode: ["class"],
@@ -26,13 +25,34 @@ const config = {
       xl: "1280px",
       "2xl": "1536px",
     },
+    fontSize: {
+      xxs: "0.5rem",
+      xs: "0.6rem",
+      sm: "0.75rem",
+      base: "1rem",
+      xl: "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "2rem",
+      "4xl": "2.5rem",
+      "5xl": "3rem",
+    },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        border: {
+          DEFAULT: "hsl(var(--border))",
+          horizontal: "hsl(var(--border-horizontal))",
+          vertical: "hsl(var(--border-vertical))",
+        },
+        text: {
+          primary: "hsl(var(--text-primary))",
+          secondary: "hsl(var(--text-secondary))",
+          tertiary: "hsl(var(--text-tertiary))",
+        },
+        "time-grid": "hsl(var(--time-grid))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -88,9 +108,6 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-      },
-      fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
       },
     },
   },

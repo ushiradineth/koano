@@ -48,8 +48,18 @@ html {
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 0 0% 15%;
     --foreground: 0 0% 98%;
+
+    --text-primary: 0 0% 100%;
+    --text-secondary: 0 0% 70%;
+    --text-tertiary: 0 0% 50%;
+
+    --time-grid: 0 0% 10%;
+
+    --border: 0 0% 18.8%;
+    --border-horizontal: 0 0% 15.9%;
+    --border-vertical: 0 0% 16.9%;
 
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -72,7 +82,6 @@ html {
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
