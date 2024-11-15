@@ -11,14 +11,14 @@ export default function Time({ today }: Props) {
 
   return (
     <div
-      className={cn("absolute w-full flex")}
+      className="flex absolute w-full"
       style={{
         top: time.hour * pixelPerHour + time.minutes * pixelPerMinute,
       }}>
       {today && <p className="absolute -top-2.5 -left-1">•</p>}
       <div
         className={cn(
-          "w-full h-[2px] bg-orange-400",
+          "h-0.5 w-full bg-orange-400",
           today ? "bg-opacity-100" : "bg-opacity-25",
         )}
       />

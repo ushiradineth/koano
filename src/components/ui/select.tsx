@@ -31,6 +31,17 @@ const SelectTrigger = React.forwardRef<
 ));
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
+const SelectUnstyledTrigger = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Trigger
+    ref={ref}
+    className={cn("flex cursor-default items-center justify-center", className)}
+    {...props}></SelectPrimitive.Trigger>
+));
+SelectUnstyledTrigger.displayName = SelectPrimitive.Trigger.displayName;
+
 const SelectScrollUpButton = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
@@ -150,5 +161,6 @@ export {
   SelectScrollUpButton,
   SelectSeparator,
   SelectTrigger,
+  SelectUnstyledTrigger,
   SelectValue,
 };

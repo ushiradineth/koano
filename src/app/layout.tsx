@@ -1,12 +1,10 @@
 import "@/app/globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import "dayjs/plugin/duration";
 import "dayjs/plugin/relativeTime";
 import "dayjs/plugin/utc";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -20,10 +18,8 @@ dayjs.extend(duration);
 dayjs.extend(relativeTime);
 dayjs.extend(weekOfYear);
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
 export const metadata: Metadata = {
-  title: "Cron",
+  title: `${dayjs().format("MMM DD, YYYY")} · Cron`,
   description: "By Ushira Dineth",
 };
 
@@ -40,11 +36,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
       </head>
-      <body
-        className={cn(
-          "dark min-h-screen bg-background font-sans antialiased",
-          inter.variable,
-        )}>
+      <body className="dark min-h-screen max-w-[1440px] bg-background text-text-primary font-sans antialiased">
         {children}
         <Toaster />
       </body>

@@ -15,6 +15,7 @@ interface Props {
 export default memo(function TimeBlock({ hour }: Props) {
   const { settings } = useSettingStore();
   const { time, updateTime } = useDataStore();
+
   const textHeight = 16;
 
   useEffect(() => {
@@ -37,11 +38,11 @@ export default memo(function TimeBlock({ hour }: Props) {
     <div
       id={`timeblock-${hour + 1}`}
       style={{ height: pixelPerHour }}
-      className="flex relative w-full items-center justify-center px-1 font-mono font-medium text-[10px]">
+      className="flex relative justify-end px-1 font-mono font-medium text-xs">
       <p
         style={{ top: pixelPerHour - textHeight / 2, height: textHeight }}
         className={cn(
-          "absolute",
+          "absolute text-text-tertiary",
           hour === 23 && "hidden",
           time.hour - 1 === hour && time.minutes < 15 && "hidden",
           time.hour === hour && time.minutes > 45 && "hidden",
@@ -50,7 +51,7 @@ export default memo(function TimeBlock({ hour }: Props) {
       </p>
       {time.hour === hour && (
         <p
-          className={"absolute bg-background"}
+          className="absolute font-semibold"
           style={{
             top: time.minutes - textHeight / 2,
             height: textHeight,

@@ -17,7 +17,7 @@ export default function ViewPicker() {
         setSettings({ ...settings, view: Number(value) as View })
       }
       defaultValue={String(settings.view)}>
-      <SelectTrigger className="w-[80px] xs:w-[120px]">
+      <SelectTrigger className="shadow-text-tertiary shadow-sm bg-text-tertiary/20">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
