@@ -3,10 +3,11 @@ import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import dayjs from "dayjs";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
-import { gridHeight, pixelPerMinute } from "@/lib/consts";
+import { gridHeight, headerHeight, pixelPerMinute } from "@/lib/consts";
+import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
 import { getQuarter } from "@/lib/utils";
@@ -23,52 +24,24 @@ export default function Grid({
   setCurrentMonth,
 }: Props) {
   const [days, setDays] = useState<Date[]>([]);
+  const [dayWidth, setDayWidth] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const prevDayWidth = useRef(0);
   const { events, editEvent, getEventById } = useEventStore();
   const { settings } = useSettingStore();
+  const { activeEvent } = useContextStore();
+
   const { width: windowWidth } = useWindowSize({
     debounceDelay: 100,
     initializeWithValue: true,
   });
   const debouncedSetCurrentMonth = useDebounceCallback(setCurrentMonth, 100);
-  const [dayWidth, setDayWidth] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const prevDayWidth = useRef(0);
 
   const initialRange = 60;
   const bufferRange = 30;
 
-  useEffect(() => {
-    console.debug(events); //! DEBUG: Remove
-  }, [events]);
-
-  useEffect(() => {
-    if (prevDayWidth.current === 0) {
-      prevDayWidth.current = dayWidth;
-      scrollToCurrentDate();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dayWidth]);
-
-  useEffect(() => {
-    if (gridRef.current) {
-      const newDayWidth = gridRef.current.offsetWidth / settings.view;
-      prevDayWidth.current = dayWidth; // Update previous value
-      setDayWidth(newDayWidth);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.view, windowWidth]);
-
-  useEffect(() => {
-    const currentDay = dayjs().startOf("day").toDate();
-    const initialDays = getDateRange(
-      dayjs(currentDay).subtract(initialRange, "day").toDate(),
-      dayjs(currentDay).add(initialRange, "day").toDate(),
-    );
-    setDays(initialDays);
-  }, []);
-
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     debouncedSetCurrentMonth();
 
     if (gridRef.current) {
@@ -96,7 +69,33 @@ export default function Grid({
         setDays((prevDays) => [...newDays, ...prevDays]);
       }
     }
-  };
+  }, [days, dayWidth, debouncedSetCurrentMonth, gridRef]);
+
+  useEffect(() => {
+    if (prevDayWidth.current === 0) {
+      prevDayWidth.current = dayWidth;
+      scrollToCurrentDate();
+    }
+  }, [dayWidth, scrollToCurrentDate]);
+
+  useEffect(() => {
+    if (gridRef.current) {
+      const newDayWidth = gridRef.current.offsetWidth / settings.view;
+      prevDayWidth.current = dayWidth; // Update previous value
+      setDayWidth(newDayWidth);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.view, windowWidth]);
+
+  useEffect(() => {
+    const currentDay = dayjs().startOf("day").toDate();
+    const initialDays = getDateRange(
+      dayjs(currentDay).subtract(initialRange, "day").toDate(),
+      dayjs(currentDay).add(initialRange, "day").toDate(),
+    );
+
+    setDays(initialDays);
+  }, []);
 
   return (
     <DndContext
@@ -104,11 +103,13 @@ export default function Grid({
       onDragEnd={handleDragEnd}
       collisionDetection={closestCenter}>
       <div
-        className="grid-col-3 grid w-full scroll-smooth snap-x snap-mandatory grid-flow-col overflow-scroll no-scrollbar"
+        className="flex w-full scroll-smooth snap-x snap-mandatory overflow-scroll no-scrollbar"
         ref={gridRef}
         onScroll={gridRef.current ? handleScroll : undefined}>
         {dayWidth === 0 ? (
-          <div className="h-[calc(100vh-120px)] w-full flex justify-center items-center">
+          <div
+            style={{ height: `calc(100vh - ${headerHeight}px)` }}
+            className="flex w-full justify-center items-center">
             <Logo />
           </div>
         ) : (
@@ -127,7 +128,11 @@ export default function Grid({
                     dayjs(date).format("DD/MM/YYYY"),
                 )
                 .map((event) => (
-                  <Event key={event.id} event={event} />
+                  <Event
+                    key={event.id}
+                    event={event}
+                    active={event.id === activeEvent?.id}
+                  />
                 ))}
             </Day>
           ))

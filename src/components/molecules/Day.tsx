@@ -3,24 +3,34 @@ import Time from "@/components/atoms/Time";
 import {
   draggerId,
   gridHeight,
+  headerHeight,
   pixelPerHour,
   pixelPerMinute,
   pixelPerQuarter,
+  secondaryHeaderHeight,
 } from "@/lib/consts";
+import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Event as EventType } from "@/lib/types";
 import {
   cn,
-  getDayWithDate,
+  getDayObjectWithDate,
   getPixelOffsetFromTime,
   getQuarter,
   getTimeFromPixelOffset,
 } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import dayjs from "dayjs";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+
+interface Props {
+  id: string;
+  height: number;
+  width: number;
+  children: React.ReactNode;
+  dragging: boolean;
+  day: Date;
+}
 
 interface MouseEventTarget extends EventTarget {
   id?: string;
@@ -34,40 +44,41 @@ export default function Day({
   children,
   dragging,
   day,
-}: {
-  id: string;
-  height: number;
-  width: number;
-  children: React.ReactNode;
-  dragging: boolean;
-  day: Date;
-}) {
-  const date = getDayWithDate(day);
-  const today = dayjs().startOf("day").isSame(dayjs(day).startOf("day"));
-  const [selecting, setSelecting] = useState(false);
-  const [extendingEvent, setExtendingEvent] = useState<EventType>();
-  const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
+}: Props) {
   const [start, setStart] = useState({ x: -1, y: -1 });
   const [end, setEnd] = useState({ x: -1, y: -1 });
-  const { addEvent, getEventById, editEvent } = useEventStore();
-  const { settings } = useSettingStore();
   const [preview, setPreview] = useState({ height: 0, top: 0 });
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
+  const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
+
+  const { addEvent, getEventById, editEvent } = useEventStore();
+  const {
+    activeEvent,
+    setActiveEvent,
+    extending,
+    setExtending,
+    selecting,
+    setSelecting,
+    previewing,
+    setPreviewing,
+  } = useContextStore();
+  const { settings } = useSettingStore();
+
+  const dayObject = getDayObjectWithDate(day);
+  const today = dayjs().startOf("day").isSame(dayjs(day).startOf("day"));
 
   const { setNodeRef } = useDroppable({
     id,
   });
 
   const resetState = useCallback(() => {
-    setExtendingEvent(undefined);
-    setSelecting(false);
-    setPreview({ height: 0, top: 0 });
-    setClickPosition({ x: -1, y: -1 });
     setStart({ x: -1, y: -1 });
     setEnd({ x: -1, y: -1 });
-  }, []);
+    setClickPosition({ x: -1, y: -1 });
+    setPreview({ height: 0, top: 0 });
+    setSelecting(false);
+    setExtending(false);
+    setPreviewing(false);
+  }, [setExtending, setSelecting, setPreviewing]);
 
   const handleMouseDown = useCallback(
     (mouseEvent: React.MouseEvent<HTMLDivElement>) => {
@@ -92,7 +103,8 @@ export default function Day({
             console.error(`Event ${eventId} not found`);
             return;
           }
-          setExtendingEvent(event);
+          setExtending(true);
+          setActiveEvent(event);
         }
         return;
       }
@@ -100,7 +112,7 @@ export default function Day({
       // When dragging a range to create a new event
       setSelecting(dragging ? false : true);
     },
-    [dragging, getEventById],
+    [dragging, getEventById, setSelecting, setExtending, setActiveEvent],
   );
 
   const handleMouseMove = useCallback(
@@ -112,7 +124,9 @@ export default function Day({
         gridHeight + 1,
       );
 
-      if (selecting || extendingEvent) {
+      if (dragging) return;
+
+      if (selecting || extending) {
         // Dragging upwards
         if (currentMouseY < clickPosition.y) {
           setStart({ x: currentMouseX, y: currentMouseY });
@@ -151,9 +165,17 @@ export default function Day({
       }
 
       // When extending an existing event
-      if (extendingEvent) {
-        const endOffset = getPixelOffsetFromTime(extendingEvent.end, day);
-        const startOffset = getPixelOffsetFromTime(extendingEvent.start, day);
+      if (extending && activeEvent) {
+        if (
+          !dayjs(activeEvent?.start)
+            .startOf("day")
+            .isSame(dayjs(day).startOf("day"))
+        ) {
+          return;
+        }
+
+        const startOffset = getPixelOffsetFromTime(activeEvent.start, day);
+        const endOffset = getPixelOffsetFromTime(activeEvent.end, day);
         const currentMouseQuarter = getQuarter(currentMouseY);
         const clickPositionQuarter = getQuarter(clickPosition.y);
         const anchorOffset =
@@ -173,7 +195,15 @@ export default function Day({
 
       resetState();
     },
-    [selecting, clickPosition, extendingEvent, day, resetState],
+    [
+      day,
+      selecting,
+      extending,
+      dragging,
+      clickPosition,
+      activeEvent,
+      resetState,
+    ],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -191,42 +221,53 @@ export default function Day({
 
       addEvent({
         id: String(window.performance.now()),
-        title: "asdasdasdasdasdasdasdasdasdasdasdasdasdasd",
+        title: "This Title needs to be changed",
         start: getTimeFromPixelOffset(start.y, day),
         end: getTimeFromPixelOffset(
           Math.max(end.y, start.y + pixelPerQuarter),
           day,
         ),
-        repeated: { label: "asd", value: "asd" },
-        timezone: { label: "asd", value: "asd" },
+        repeated: "None",
+        timezone: settings.timezone,
       });
     }
 
     // When extending an existing event
-    if (extendingEvent) {
+    if (extending && activeEvent) {
       editEvent({
-        ...extendingEvent,
+        ...activeEvent,
         start: getTimeFromPixelOffset(preview.top, day),
         end: getTimeFromPixelOffset(preview.top + preview.height, day),
       });
-
-      setExtendingEvent(undefined);
-      return;
     }
 
     resetState();
   }, [
-    selecting,
     start,
     end,
     dragging,
     addEvent,
     day,
-    extendingEvent,
-    editEvent,
     preview,
+    editEvent,
+    selecting,
+    extending,
+    activeEvent,
     resetState,
+    settings.timezone,
   ]);
+
+  useEffect(() => {
+    if (previewing && activeEvent) {
+      const start = getPixelOffsetFromTime(activeEvent.start, day);
+      const end = getPixelOffsetFromTime(activeEvent.end, day);
+
+      setPreview({
+        height: Math.max(end - start, pixelPerQuarter),
+        top: start,
+      });
+    }
+  }, [previewing, activeEvent, day]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -242,31 +283,16 @@ export default function Day({
     };
   }, [resetState]);
 
-  //useEffect(() => {
-  //  if (!selecting && start.y !== -1 && end.y !== -1) {
-  //    const selection = getDateTimePairFromSelection(start.y, end.y, day);
-  //    router.push(
-  //      queryParams(
-  //        [],
-  //        [
-  //          ["start", selection.startDateTime.toISOString()],
-  //          ["end", selection.endDateTime.toISOString()],
-  //        ],
-  //        params.entries(),
-  //        pathname + "/new",
-  //      ),
-  //      { scroll: false },
-  //    );
-  //  }
-  //}, [selecting]);
-
   return (
     <div
-      id={`${date.day}-${date.date}-${date.month}-${date.year}-${date.week}`}>
-      <span className="sticky top-14 flex flex-col sm:flex-row w-full h-12 items-center justify-center gap-2 font-bold border-b">
-        <p>{date.day}</p>
-        <p className={today ? "rounded-sm bg-[#EF4B46] px-[6px]" : ""}>
-          {date.date}
+      id={`${dayObject.day}-${dayObject.date}-${dayObject.month}-${dayObject.year}-${dayObject.week}`}
+      style={{ marginTop: headerHeight }}>
+      <span
+        style={{ height: secondaryHeaderHeight }}
+        className="flex flex-row w-full sticky items-center justify-center gap-1 font-bold border-b text-sm">
+        <p>{dayObject.day}</p>
+        <p className={cn(today && "rounded-sm bg-[#EF4B46] px-1")}>
+          {dayObject.date}
         </p>
       </span>
       <div
@@ -278,30 +304,27 @@ export default function Day({
           height,
           width,
           backgroundImage:
-            "linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)",
+            "linear-gradient(to bottom, hsl(var(--border-horizontal)) 1px, transparent 1px)",
           backgroundSize: `100% ${pixelPerHour}px`,
           backgroundPosition: `0 ${pixelPerHour}px`,
         }}
-        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b mt-14">
+        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b border-border-vertical">
         <Time today={today} />
-        {selecting && (
+        {selecting ? (
           <div
             style={preview}
             className="absolute w-full flex items-center justify-center bg-orange-500 bg-opacity-25">
             <p className="text-center text-lg font-bold"></p>
           </div>
-        )}
-        {extendingEvent && preview.height >= pixelPerMinute && (
+        ) : extending && activeEvent && preview.height >= pixelPerMinute ? (
           <div
             style={{
               top: preview.top,
               height: Math.max(preview.height, pixelPerQuarter),
             }}
-            className="absolute z-50 w-full flex flex-col bg-orange-400">
-            <p className={cn("font-bold sm:block truncate text-xs")}>
-              {extendingEvent.title}
-            </p>
-            <p className={cn("font-semibold text-xs")}>
+            className="flex flex-col absolute z-50 w-full bg-orange-400 text-xs">
+            <p className="font-bold sm:block truncate">{activeEvent.title}</p>
+            <p className="font-semibold">
               {generateEventTime(
                 getTimeFromPixelOffset(preview.top, day),
                 getTimeFromPixelOffset(preview.top + preview.height, day),
@@ -309,6 +332,28 @@ export default function Day({
               )}
             </p>
           </div>
+        ) : (
+          previewing &&
+          activeEvent && (
+            <div
+              style={{
+                top: preview.top,
+                height: Math.max(preview.height, pixelPerQuarter),
+              }}
+              className={cn(
+                "flex flex-col h-full w-full text-text-primary font-medium absolute z-50 bg-orange-400",
+                Math.max(preview.height, pixelPerQuarter) > 30 ? "p-1" : "px-1",
+              )}>
+              <p className="truncate text-sm">{activeEvent.title}</p>
+              <p className="text-xs opacity-75">
+                {generateEventTime(
+                  getTimeFromPixelOffset(preview.top, day),
+                  getTimeFromPixelOffset(preview.top + preview.height, day),
+                  settings.clock,
+                )}
+              </p>
+            </div>
+          )
         )}
         {children}
       </div>

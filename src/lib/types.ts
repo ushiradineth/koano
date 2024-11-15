@@ -5,8 +5,8 @@ export type Event = {
   title: string;
   start: Date;
   end: Date;
-  timezone: Picker;
-  repeated: Picker;
+  timezone: string;
+  repeated: string;
 };
 
 export type Picker = {
@@ -20,6 +20,7 @@ export type Clock = 12 | 24;
 export type Settings = {
   view: View;
   clock: Clock;
+  timezone: string;
 };
 
 export type TimeObject = {

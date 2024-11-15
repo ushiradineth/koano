@@ -1,6 +1,7 @@
 import { Event } from "@/lib/types";
 
 import { create } from "zustand";
+import { useContextStore } from "./context";
 
 type EventStore = {
   events: Event[];
@@ -12,12 +13,16 @@ type EventStore = {
 
 export const useEventStore = create<EventStore>()((set, get) => ({
   events: [],
-  addEvent: (event: Event) =>
-    set((state) => ({ events: [...state.events, event] })),
-  editEvent: (event: Event) =>
-    set((state) => ({
+  addEvent: (event: Event) => {
+    useContextStore.setState({ activeEvent: event });
+    return set((state) => ({ events: [...state.events, event] }));
+  },
+  editEvent: (event: Event) => {
+    useContextStore.setState({ activeEvent: event });
+    return set((state) => ({
       events: state.events.map((e) => (e.id === event.id ? event : e)),
-    })),
+    }));
+  },
   removeEvent: (id: string) =>
     set((state) => ({ events: state.events.filter((e) => e.id !== id) })),
   getEventById: (id: string) => {

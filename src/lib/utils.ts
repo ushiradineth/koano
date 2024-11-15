@@ -12,34 +12,53 @@ dayjs.extend(require("dayjs/plugin/timezone"));
 dayjs.extend(require("dayjs/plugin/duration"));
 dayjs.extend(require("dayjs/plugin/relativeTime"));
 dayjs.extend(require("dayjs/plugin/weekOfYear"));
+dayjs.extend(require("dayjs/plugin/customParseFormat"));
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Used for day component ID
-export function getDayWithDate(date: Date): {
+// Day ID
+
+type DayObject = {
   day: string;
   date: string;
   month: string;
   year: string;
   week: string;
-} {
-  const formattedDate = dayjs(date);
+};
+
+// Generate
+export function getDayObjectWithDate(dateInput: Date): DayObject {
+  const formattedDate = dayjs(dateInput);
   const day = formattedDate.format("ddd");
-  const dateNumber = formattedDate.format("DD");
+  const date = formattedDate.format("DD");
   const month = formattedDate.format("MMMM");
   const year = formattedDate.format("YYYY");
   const week = formattedDate.week().toString();
 
   return {
     day,
-    date: dateNumber,
+    date,
     month,
     year,
     week,
   };
 }
+
+// Parse
+export function getDayObjectFromId(id: string): DayObject {
+  const [day, date, month, year, week] = id.split("-");
+  return {
+    day,
+    date,
+    month,
+    year,
+    week,
+  };
+}
+
+// ---
 
 // Helper function to add/remove query params
 export function queryParams(
