@@ -6,6 +6,7 @@ import { EventSchema } from "@/lib/validators";
 import dayjs from "dayjs";
 import { ArrowRight, Clock9 } from "lucide-react";
 
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -13,20 +14,23 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectUnstyledTrigger,
+} from "@/components/ui/select";
 import { sidebarWidth } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectUnstyledTrigger,
-} from "../ui/select";
 
 const ButtonStyle = cn(
   "w-full text-sm text-primary font-medium rounded-sm p-2",

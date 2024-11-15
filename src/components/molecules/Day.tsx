@@ -1,4 +1,4 @@
-import { generateEventTime } from "@/components/atoms/Event";
+import PreviewEvent from "@/components/atoms/PreviewEvent";
 import Time from "@/components/atoms/Time";
 import {
   draggerId,
@@ -317,42 +317,15 @@ export default function Day({
             <p className="text-center text-lg font-bold"></p>
           </div>
         ) : extending && activeEvent && preview.height >= pixelPerMinute ? (
-          <div
-            style={{
-              top: preview.top,
-              height: Math.max(preview.height, pixelPerQuarter),
-            }}
-            className="flex flex-col absolute z-50 w-full bg-orange-400 text-xs">
-            <p className="font-bold sm:block truncate">{activeEvent.title}</p>
-            <p className="font-semibold">
-              {generateEventTime(
-                getTimeFromPixelOffset(preview.top, day),
-                getTimeFromPixelOffset(preview.top + preview.height, day),
-                settings.clock,
-              )}
-            </p>
-          </div>
+          <PreviewEvent preview={preview} title={activeEvent.title} day={day} />
         ) : (
           previewing &&
           activeEvent && (
-            <div
-              style={{
-                top: preview.top,
-                height: Math.max(preview.height, pixelPerQuarter),
-              }}
-              className={cn(
-                "flex flex-col h-full w-full text-text-primary font-medium absolute z-50 bg-orange-400",
-                Math.max(preview.height, pixelPerQuarter) > 30 ? "p-1" : "px-1",
-              )}>
-              <p className="truncate text-sm">{activeEvent.title}</p>
-              <p className="text-xs opacity-75">
-                {generateEventTime(
-                  getTimeFromPixelOffset(preview.top, day),
-                  getTimeFromPixelOffset(preview.top + preview.height, day),
-                  settings.clock,
-                )}
-              </p>
-            </div>
+            <PreviewEvent
+              preview={preview}
+              title={activeEvent.title}
+              day={day}
+            />
           )
         )}
         {children}
