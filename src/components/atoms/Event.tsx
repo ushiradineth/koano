@@ -3,27 +3,24 @@
 import { draggerId, pixelPerMinute, pixelPerQuarter } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
-import { cn, queryParams } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CSSProperties, useEffect, useState } from "react";
 
 interface Props {
   event: EventType;
+  active: boolean;
 }
 
-export default function Event({ event }: Props) {
-  const { settings } = useSettingStore();
-  const router = useRouter();
-  const params = useSearchParams();
-  const pathname = usePathname();
-
-  const [label, setLabel] = useState("");
+export default function Event({ event, active }: Props) {
   const [y, setY] = useState(0);
-  const [dragOffset, setDragOffset] = useState(0);
+  const [label, setLabel] = useState("");
   const [height, setHeight] = useState(0);
-  const [compact, setCompact] = useState(height <= 30 * pixelPerMinute);
+  const [dragOffset, setDragOffset] = useState(0);
+
+  const { settings } = useSettingStore();
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: event.id,
@@ -44,6 +41,7 @@ export default function Event({ event }: Props) {
     height: Math.max(height, pixelPerQuarter),
     touchAction: "none",
     opacity: isDragging ? 0.4 : undefined,
+    zIndex: isDragging ? 10 : undefined,
   };
 
   useEffect(() => {
@@ -64,55 +62,31 @@ export default function Event({ event }: Props) {
     }
   }, [transform]);
 
-  useEffect(() => {
-    setCompact(height <= 15 * pixelPerMinute);
-  }, [height]);
-
   return (
     <div
       id={event.id}
       ref={setNodeRef}
-      className="flex flex-col w-full bg-orange-500 bg-opacity-75 group relative"
+      className={cn(
+        "flex flex-col w-full bg-opacity-75 relative border-l-4 border-orange-300 rounded-sm",
+        active ? "bg-orange-300" : "bg-orange-500",
+      )}
       style={style}>
-      <Dragger className={"top-0"} compact={compact} />
+      <Dragger className="top-0" compact={height <= 30 * pixelPerMinute} />
       <span
         className={cn(
-          "flex flex-col h-full text-xs",
+          "flex h-full text-text-primary font-medium",
           isDragging ? "cursor-grabbing" : "cursor-grab",
-          compact && "gap-2 flex-row",
+          height > 30 * pixelPerMinute ? "p-1" : "px-1",
+          height <= 15 * pixelPerMinute
+            ? "flex-row gap-2 items-center truncate"
+            : "flex-col",
         )}
         {...listeners}
-        {...attributes}
-        onTouchEnd={() => {
-          router.push(
-            queryParams(
-              [],
-              [],
-              params.entries(),
-              `${pathname}/edit/${event.id}`,
-            ),
-            {
-              scroll: false,
-            },
-          );
-        }}
-        onDoubleClick={() => {
-          router.push(
-            queryParams(
-              [],
-              [],
-              params.entries(),
-              `${pathname}/edit/${event.id}`,
-            ),
-            {
-              scroll: false,
-            },
-          );
-        }}>
-        <p className={"font-bold sm:block truncate w-full"}>{event.title}</p>
-        {!compact && <p className={"font-semibold"}>{label}</p>}
+        {...attributes}>
+        <p className="truncate text-sm">{event.title}</p>
+        <p className="text-xs opacity-75">{label}</p>
       </span>
-      <Dragger className={"bottom-0"} compact={compact} />
+      <Dragger className="bottom-0" compact={height <= 30 * pixelPerMinute} />
     </div>
   );
 }
@@ -138,19 +112,31 @@ function Dragger({
   );
 }
 
-export function generateEventTime(start: Date, end: Date, clock: Clock) {
-  const formatTime = (time: Date) =>
+export function formatTime(
+  time: Date,
+  clock: Clock,
+  showPeriod: boolean = false,
+  noSpace: boolean = false,
+) {
+  return (
     dayjs(time).format(clock === 12 ? "h" : "HH") +
-    (dayjs(time).minute() !== 0 ? dayjs(time).format(":mm") : "");
+    (dayjs(time).minute() !== 0 ? dayjs(time).format(":mm") : "") +
+    (showPeriod && clock === 12
+      ? noSpace
+        ? dayjs(time).format("A")
+        : dayjs(time).format(" A")
+      : "")
+  );
+}
 
-  const startTime = formatTime(start);
+export function generateEventTime(start: Date, end: Date, clock: Clock) {
+  const startTime = formatTime(start, clock);
   const conditional =
     clock === 12 && dayjs(start).format("A") !== dayjs(end).format("A")
       ? dayjs(start).format(" A")
       : "";
 
-  const endTime =
-    formatTime(end) + (clock === 12 ? dayjs(end).format(" A") : "");
+  const endTime = formatTime(end, clock, true);
 
   return `${startTime}${conditional} - ${endTime}`;
 }
