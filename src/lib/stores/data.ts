@@ -1,78 +1,63 @@
 import { repeatValues } from "@/lib/consts";
-import { Clock, Picker, TimeObject } from "@/lib/types";
+import { Clock, TimeObject } from "@/lib/types";
 import dayjs from "dayjs";
 import { create } from "zustand";
 import { useSettingStore } from "./settings";
 
 type DataStore = {
-  times: Picker[];
-  timezones: Picker[];
-  timezone: Picker;
-  repeated: Picker[];
+  times: string[];
+  timezones: string[];
+  repeated: string[];
   time: TimeObject;
   updateTime: () => void;
 };
 
 export const useDataStore = create<DataStore>()((set) => {
   const timezones = generateTimezoneArray();
-  const userTimezone = getUserTimezone(timezones) ?? timezones[0];
   const clock = useSettingStore.getState().settings.clock;
 
   return {
     times: generate24HourTimeArray(),
     timezones: timezones,
-    timezone: userTimezone,
     repeated: repeatValues,
     time: getTimeObject(clock),
     updateTime: () => set({ time: getTimeObject(clock) }),
   };
 });
 
-function generate24HourTimeArray(): Picker[] {
+function generate24HourTimeArray(): string[] {
   const time = [];
   for (let hours = 0; hours < 24; hours++) {
     for (let minutes = 0; minutes < 60; minutes += 15) {
       const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-      time.push({ value: formattedTime, label: formattedTime });
+      time.push(formattedTime);
     }
   }
 
   return time;
 }
 
-export function generate12HourTimeArray(): Picker[] {
+export function generate12HourTimeArray(): string[] {
   const time = [];
   for (let hours = 0; hours < 24; hours++) {
     for (let minutes = 0; minutes < 60; minutes += 15) {
       const period = hours < 12 ? "AM" : "PM";
       const adjustedHour = hours % 12 === 0 ? 12 : hours % 12;
       const formattedTime = `${String(adjustedHour)}:${String(minutes).padStart(2, "0")} ${period}`;
-      time.push({ value: formattedTime, label: formattedTime });
+      time.push(formattedTime);
     }
   }
 
   return time;
 }
 
-function generateTimezoneArray(): Picker[] {
-  const timezones: Picker[] = [{ label: "", value: "" }];
+function generateTimezoneArray(): string[] {
+  const timezones: string[] = [];
   const allTimezones = Intl.supportedValuesOf("timeZone");
 
-  allTimezones.map((timezone) =>
-    timezones.push({ label: timezone ?? "", value: timezone ?? "" }),
-  );
+  allTimezones.map((timezone) => timezones.push(timezone));
 
   return timezones;
-}
-
-function getUserTimezone(timezones: Picker[]): Picker | null {
-  const userTimezone = dayjs.tz?.guess();
-
-  const foundTimezone = timezones.find(
-    (timezone) => timezone.value === userTimezone,
-  );
-
-  return foundTimezone || null;
 }
 
 export function getTimeObject(clock: Clock): TimeObject {
