@@ -1,3 +1,4 @@
+import { pixelPerHour, pixelPerQuarter } from "@/lib/consts";
 import { Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
@@ -5,7 +6,6 @@ import "dayjs/plugin/duration";
 import "dayjs/plugin/relativeTime";
 import "dayjs/plugin/utc";
 import { twMerge } from "tailwind-merge";
-import { pixelPerHour, pixelPerQuarter } from "./consts";
 
 dayjs.extend(require("dayjs/plugin/utc"));
 dayjs.extend(require("dayjs/plugin/timezone"));

@@ -1,8 +1,8 @@
 import { repeatValues } from "@/lib/consts";
+import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, TimeObject } from "@/lib/types";
 import dayjs from "dayjs";
 import { create } from "zustand";
-import { useSettingStore } from "./settings";
 
 type DataStore = {
   times: string[];

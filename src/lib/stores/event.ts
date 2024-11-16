@@ -1,7 +1,7 @@
 import { Event } from "@/lib/types";
 
+import { useContextStore } from "@/lib/stores/context";
 import { create } from "zustand";
-import { useContextStore } from "./context";
 
 type EventStore = {
   events: Event[];

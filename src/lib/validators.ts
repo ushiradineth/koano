@@ -1,6 +1,6 @@
 import { repeatValues } from "@/lib/consts";
+import { useDataStore } from "@/lib/stores/data";
 import { z } from "zod";
-import { useDataStore } from "./stores/data";
 
 const times = useDataStore.getState().times;
 const timezones = useDataStore.getState().timezones;
