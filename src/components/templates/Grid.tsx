@@ -30,7 +30,13 @@ export default function Grid({
   const prevDayWidth = useRef(0);
   const { events, editEvent, getEventById } = useEventStore();
   const { settings } = useSettingStore();
-  const { activeEvent } = useContextStore();
+  const {
+    activeEvent,
+    setActiveEvent,
+    setSelecting,
+    setExtending,
+    setPreviewing,
+  } = useContextStore();
 
   const { width: windowWidth } = useWindowSize({
     debounceDelay: 100,
@@ -71,6 +77,45 @@ export default function Grid({
     }
   }, [days, dayWidth, debouncedSetCurrentMonth, gridRef]);
 
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { over, active } = event;
+
+      if (over) {
+        const eventId = active.id as string;
+        const event = getEventById(eventId);
+
+        if (!event) {
+          setActiveEvent(null);
+          return;
+        }
+
+        const pixelOffset = active.data.current?.y * pixelPerMinute ?? 0;
+        const start = getTimeFromYOffsetAndTime(
+          pixelOffset,
+          event.start,
+          new Date(over.id),
+        );
+        const end = getTimeFromYOffsetAndTime(
+          pixelOffset,
+          event.end,
+          new Date(over.id),
+        );
+
+        if (
+          dayjs(start).isSame(dayjs(event.start)) &&
+          dayjs(end).isSame(dayjs(event.end))
+        )
+          return;
+
+        editEvent({ ...event, start, end });
+      }
+
+      setDragging(false);
+    },
+    [getEventById, editEvent],
+  );
+
   useEffect(() => {
     if (prevDayWidth.current === 0) {
       prevDayWidth.current = dayWidth;
@@ -96,6 +141,22 @@ export default function Grid({
 
     setDays(initialDays);
   }, []);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelecting(false);
+        setExtending(false);
+        setPreviewing(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [setSelecting, setExtending, setPreviewing]);
 
   return (
     <DndContext
@@ -140,33 +201,6 @@ export default function Grid({
       </div>
     </DndContext>
   );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { over, active } = event;
-
-    if (over) {
-      const eventId = active.id as string;
-      const event = getEventById(eventId);
-
-      if (!event) return;
-
-      const pixelOffset = active.data.current?.y * pixelPerMinute ?? 0;
-      const start = getTimeFromYOffsetAndTime(
-        pixelOffset,
-        event.start,
-        new Date(over.id),
-      );
-      const end = getTimeFromYOffsetAndTime(
-        pixelOffset,
-        event.end,
-        new Date(over.id),
-      );
-
-      editEvent({ ...event, start, end });
-    }
-
-    setDragging(false);
-  }
 }
 
 export function getTimeFromYOffsetAndTime(

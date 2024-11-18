@@ -17,16 +17,20 @@ import {
 } from "@/lib/utils";
 import dayjs from "dayjs";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 export default function Home() {
   const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
   const [year, setYear] = useState(dayjs(new Date()).format("YYYY"));
-  const [timezoneString, setTimezoneString] = useState("");
 
   const gridRef = useRef<HTMLDivElement>(null);
 
   const { settings } = useSettingStore();
+
+  const timezoneString = useMemo(
+    () => getTimezoneString(settings.timezone),
+    [settings.timezone],
+  );
 
   const scrollToCurrentDate = useCallback(() => {
     if (gridRef.current) {
@@ -73,11 +77,6 @@ export default function Home() {
       }
     }
   }, []);
-
-  // Generate Timezone String Eg: GMT+4 or GMT+5:30
-  useEffect(() => {
-    setTimezoneString(getTimezoneString(settings.timezone));
-  }, [settings.timezone]);
 
   return (
     <main className="flex">

@@ -11,6 +11,7 @@ interface Props {
 
 export default function PreviewEvent({ preview, title, day }: Props) {
   const { settings } = useSettingStore();
+
   return (
     <div
       style={{

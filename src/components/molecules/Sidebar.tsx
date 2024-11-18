@@ -28,7 +28,7 @@ import {
 import { sidebarWidth } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -41,14 +41,14 @@ const ButtonStyle = cn(
 );
 
 export default function Sidebar() {
+  const [startTimes, setStartTimes] = useState<string[]>([]);
+  const [endTimes, setEndTimes] = useState<string[]>([]);
+
   const { editEvent } = useEventStore();
   const { activeEvent, setActiveEvent, previewing, setPreviewing } =
     useContextStore();
   const { settings } = useSettingStore();
   const { repeated, times } = useDataStore();
-
-  const [startTimes, setStartTimes] = useState<string[]>([]);
-  const [endTimes, setEndTimes] = useState<string[]>([]);
 
   const form = useForm<z.infer<typeof EventSchema>>({
     defaultValues: {
@@ -61,34 +61,37 @@ export default function Sidebar() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof EventSchema>) {
-    //if (
-    //  !isStartDateBeforeEndDate(
-    //    new Date(values.start.value),
-    //    new Date(values.end.value),
-    //  )
-    //) {
-    //  return;
-    //}
+  const onSubmit = useCallback(
+    (values: z.infer<typeof EventSchema>) => {
+      //if (
+      //  !isStartDateBeforeEndDate(
+      //    new Date(values.start.value),
+      //    new Date(values.end.value),
+      //  )
+      //) {
+      //  return;
+      //}
 
-    setPreviewing(false);
-    if (!activeEvent) return;
+      setPreviewing(false);
+      if (!activeEvent) return;
 
-    editEvent({
-      id: activeEvent.id,
-      title: values.title,
-      start: dayjs(values.date)
-        .hour(dayjs(values.start, "HH:mm").hour())
-        .minute(dayjs(values.start, "HH:mm").minute())
-        .toDate(),
-      end: dayjs(values.date)
-        .hour(dayjs(values.end, "HH:mm").hour())
-        .minute(dayjs(values.end, "HH:mm").minute())
-        .toDate(),
-      timezone: values.timezone,
-      repeated: values.repeat,
-    });
-  }
+      editEvent({
+        id: activeEvent.id,
+        title: values.title,
+        start: dayjs(values.date)
+          .hour(dayjs(values.start, "HH:mm").hour())
+          .minute(dayjs(values.start, "HH:mm").minute())
+          .toDate(),
+        end: dayjs(values.date)
+          .hour(dayjs(values.end, "HH:mm").hour())
+          .minute(dayjs(values.end, "HH:mm").minute())
+          .toDate(),
+        timezone: values.timezone,
+        repeated: values.repeat,
+      });
+    },
+    [activeEvent, editEvent, setPreviewing],
+  );
 
   useEffect(() => {
     if (!activeEvent || previewing) return;

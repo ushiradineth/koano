@@ -21,7 +21,7 @@ import {
 } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Props {
   id: string;
@@ -63,8 +63,11 @@ export default function Day({
   } = useContextStore();
   const { settings } = useSettingStore();
 
-  const dayObject = getDayObjectWithDate(day);
-  const today = dayjs().startOf("day").isSame(dayjs(day).startOf("day"));
+  const dayObject = useMemo(() => getDayObjectWithDate(day), [day]);
+  const today = useMemo(
+    () => dayjs().startOf("day").isSame(dayjs(day).startOf("day")),
+    [day],
+  );
 
   const { setNodeRef } = useDroppable({
     id,
@@ -82,6 +85,8 @@ export default function Day({
 
   const handleMouseDown = useCallback(
     (mouseEvent: React.MouseEvent<HTMLDivElement>) => {
+      if (selecting || extending || previewing) return;
+
       const rect = mouseEvent.currentTarget.getBoundingClientRect();
       const divX = mouseEvent.clientX - rect.left;
       const divY = Math.min(
@@ -92,27 +97,41 @@ export default function Day({
       setClickPosition({ x: divX, y: divY });
 
       const target = mouseEvent.target as MouseEventTarget;
+      const eventId = target.offsetParent?.id;
 
       // When extending an existing event
-      if ((target.id ?? "") === draggerId) {
-        const eventId = target.offsetParent?.id;
-
-        if (eventId) {
-          const event = getEventById(eventId);
-          if (!event) {
-            console.error(`Event ${eventId} not found`);
-            return;
-          }
-          setExtending(true);
-          setActiveEvent(event);
+      if (eventId) {
+        const event = getEventById(eventId);
+        if (!event) {
+          console.error(`Event ${eventId} not found`);
+          setActiveEvent(null);
+          return;
         }
+
+        setActiveEvent(event);
+
+        if ((target.id ?? "") === draggerId) {
+          setExtending(true);
+        }
+
         return;
       }
+
+      setActiveEvent(null);
 
       // When dragging a range to create a new event
       setSelecting(dragging ? false : true);
     },
-    [dragging, getEventById, setSelecting, setExtending, setActiveEvent],
+    [
+      dragging,
+      getEventById,
+      setSelecting,
+      setExtending,
+      setActiveEvent,
+      selecting,
+      extending,
+      previewing,
+    ],
   );
 
   const handleMouseMove = useCallback(
@@ -269,20 +288,6 @@ export default function Day({
     }
   }, [previewing, activeEvent, day]);
 
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        resetState();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [resetState]);
-
   return (
     <div
       id={`${dayObject.day}-${dayObject.date}-${dayObject.month}-${dayObject.year}-${dayObject.week}`}
@@ -299,6 +304,7 @@ export default function Day({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onClick={() => setActiveEvent(null)}
         ref={setNodeRef}
         style={{
           height,

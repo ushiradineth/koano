@@ -1,5 +1,4 @@
 import { repeatValues } from "@/lib/consts";
-import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, TimeObject } from "@/lib/types";
 import dayjs from "dayjs";
 import { create } from "zustand";
@@ -9,21 +8,22 @@ type DataStore = {
   timezones: string[];
   repeated: string[];
   time: TimeObject;
-  updateTime: () => void;
+  updateTime: (clock: Clock) => void;
+  updateTimesArray: (clock: Clock) => void;
 };
 
-export const useDataStore = create<DataStore>()((set) => {
-  const timezones = generateTimezoneArray();
-  const clock = useSettingStore.getState().settings.clock;
-
-  return {
-    times: generate24HourTimeArray(),
-    timezones: timezones,
-    repeated: repeatValues,
-    time: getTimeObject(clock),
-    updateTime: () => set({ time: getTimeObject(clock) }),
-  };
-});
+export const useDataStore = create<DataStore>()((set) => ({
+  times: generate12HourTimeArray(),
+  timezones: generateTimezoneArray(),
+  repeated: repeatValues,
+  time: getTimeObject(12 as Clock),
+  updateTime: (clock: Clock) => set({ time: getTimeObject(clock) }),
+  updateTimesArray: (clock: Clock) =>
+    set({
+      times:
+        clock === 12 ? generate12HourTimeArray() : generate24HourTimeArray(),
+    }),
+}));
 
 function generate24HourTimeArray(): string[] {
   const time = [];
@@ -37,7 +37,7 @@ function generate24HourTimeArray(): string[] {
   return time;
 }
 
-export function generate12HourTimeArray(): string[] {
+function generate12HourTimeArray(): string[] {
   const time = [];
   for (let hours = 0; hours < 24; hours++) {
     for (let minutes = 0; minutes < 60; minutes += 15) {
@@ -60,7 +60,7 @@ function generateTimezoneArray(): string[] {
   return timezones;
 }
 
-export function getTimeObject(clock: Clock): TimeObject {
+function getTimeObject(clock: Clock): TimeObject {
   const day = dayjs();
   const hour = Number(day.format("H"));
   const minutes = day.minute();

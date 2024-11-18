@@ -1,12 +1,13 @@
 "use client";
 
 import { draggerId, pixelPerMinute, pixelPerQuarter } from "@/lib/consts";
+import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import dayjs from "dayjs";
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useState } from "react";
 
 interface Props {
   event: EventType;
@@ -20,6 +21,7 @@ export default function Event({ event, active }: Props) {
   const [dragOffset, setDragOffset] = useState(0);
 
   const { settings } = useSettingStore();
+  const { setActiveEvent } = useContextStore();
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -33,16 +35,18 @@ export default function Event({ event, active }: Props) {
       },
     });
 
-  const style: CSSProperties = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y + y}px, 0)`
-      : `translate3d(0px, ${y}px, 0)`,
-    position: "absolute",
-    height: Math.max(height, pixelPerQuarter),
-    touchAction: "none",
-    opacity: isDragging ? 0.4 : undefined,
-    zIndex: isDragging ? 10 : undefined,
-  };
+  const style: CSSProperties = useMemo(() => {
+    return {
+      transform: transform
+        ? `translate3d(${transform.x}px, ${transform.y + y}px, 0)`
+        : `translate3d(0px, ${y}px, 0)`,
+      position: "absolute",
+      height: Math.max(height, pixelPerQuarter),
+      touchAction: "none",
+      opacity: isDragging ? 0.4 : undefined,
+      zIndex: isDragging ? 10 : undefined,
+    };
+  }, [transform, y, height, isDragging]);
 
   useEffect(() => {
     setY(
@@ -75,12 +79,19 @@ export default function Event({ event, active }: Props) {
       <span
         className={cn(
           "flex h-full text-text-primary font-medium",
-          isDragging ? "cursor-grabbing" : "cursor-grab",
+          isDragging
+            ? "cursor-grabbing"
+            : active
+              ? "cursor-grab"
+              : "cursor-default",
           height > 30 * pixelPerMinute ? "p-1" : "px-1",
           height <= 15 * pixelPerMinute
             ? "flex-row gap-2 items-center truncate"
             : "flex-col",
         )}
+        onMouseDown={() => {
+          !active && setActiveEvent(event);
+        }}
         {...listeners}
         {...attributes}>
         <p className="truncate text-sm">{event.title}</p>

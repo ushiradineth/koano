@@ -12,18 +12,18 @@ interface Props {
   hour: number;
 }
 
+const textHeight = 16;
+
 export default memo(function TimeBlock({ hour }: Props) {
   const { settings } = useSettingStore();
   const { time, updateTime } = useDataStore();
 
-  const textHeight = 16;
-
   useEffect(() => {
-    updateTime();
+    updateTime(settings.clock);
 
     if (time.hour === hour) {
       const interval = setInterval(
-        () => updateTime(),
+        () => updateTime(settings.clock),
         (60 - dayjs().second()) * 1000,
       );
       return () => {

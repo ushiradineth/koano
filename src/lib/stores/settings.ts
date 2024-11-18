@@ -1,3 +1,4 @@
+import { useDataStore } from "@/lib/stores/data";
 import { Settings } from "@/lib/types";
 import dayjs from "dayjs";
 import { create } from "zustand";
@@ -15,6 +16,8 @@ export const useSettingStore = create<SettingStore>()((set) => ({
   },
   setSettings: (value: Settings) => {
     dayjs.tz.setDefault(value.timezone);
+    useDataStore.getState().updateTimesArray(value.clock);
+
     set({ settings: value });
   },
 }));
