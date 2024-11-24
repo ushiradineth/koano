@@ -113,7 +113,7 @@ export default function Grid({
 
       setDragging(false);
     },
-    [getEventById, editEvent],
+    [getEventById, editEvent, setActiveEvent],
   );
 
   useEffect(() => {

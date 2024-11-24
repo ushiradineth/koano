@@ -75,7 +75,7 @@ function getTimeObject(clock: Clock): TimeObject {
   const day = dayjs();
   const hour = Number(day.format("H"));
   const minutes = day.minute();
-  const time = day.format(clock === 12 ? "h:mmA" : "H:mm");
+  const time = day.format(clock === 12 ? "h:mmA" : "HH:mm");
 
   return { day, hour, minutes, time };
 }
