@@ -1,7 +1,9 @@
 import Logo from "@/components/atoms/Logo";
-import ViewPicker from "@/components/templates/ViewPicker";
+import SettingPicker from "@/components/atoms/SettingPicker";
 import { Button } from "@/components/ui/button";
 import { headerHeight, sidebarWidth } from "@/lib/consts";
+import { useSettingStore } from "@/lib/stores/settings";
+import { Clock, View } from "@/lib/types";
 
 interface Props {
   scrollToCurrentDate: () => void;
@@ -10,6 +12,8 @@ interface Props {
 }
 
 export default function Header({ scrollToCurrentDate, month, year }: Props) {
+  const { settings, setSettings } = useSettingStore();
+
   return (
     <nav
       style={{ height: headerHeight, width: `calc(100vw - ${sidebarWidth}px)` }}
@@ -21,7 +25,29 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
         </p>
       </div>
       <span className="flex gap-2">
-        <ViewPicker />
+        <SettingPicker
+          defaultValue={settings.clock}
+          setSetting={(value) =>
+            setSettings({ ...settings, clock: Number(value) as Clock })
+          }
+          data={[
+            { value: 12, label: "12" },
+            { value: 24, label: "24" },
+          ]}
+        />
+
+        <SettingPicker
+          defaultValue={settings.view}
+          setSetting={(value) =>
+            setSettings({ ...settings, view: Number(value) as View })
+          }
+          data={[
+            { value: 1, label: "Day" },
+            { value: 3, label: "3 Days" },
+            { value: 7, label: "Week" },
+            { value: 30, label: "Month" },
+          ]}
+        />
         <Button
           className="text-text-primary shadow-text-tertiary shadow-sm bg-text-tertiary/20"
           onClick={() => scrollToCurrentDate()}>
