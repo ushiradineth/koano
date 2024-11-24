@@ -13,8 +13,8 @@ type DataStore = {
   updateTimesArray: (clock: Clock) => void;
 };
 
-export const useDataStore = create(
-  persist<DataStore>(
+export const useDataStore = create<DataStore>()(
+  persist(
     (set) => ({
       times: generate12HourTimeArray(),
       timezones: generateTimezoneArray(),

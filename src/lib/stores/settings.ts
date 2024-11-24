@@ -9,8 +9,8 @@ type SettingStore = {
   setSettings: (value: Settings) => void;
 };
 
-export const useSettingStore = create(
-  persist<SettingStore>(
+export const useSettingStore = create<SettingStore>()(
+  persist(
     (set) => ({
       settings: {
         view: 7,
