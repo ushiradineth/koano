@@ -304,7 +304,6 @@ export default function Day({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onClick={() => setActiveEvent(null)}
         ref={setNodeRef}
         style={{
           height,
