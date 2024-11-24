@@ -2,6 +2,7 @@ import { repeatValues } from "@/lib/consts";
 import { Clock, TimeObject } from "@/lib/types";
 import dayjs from "dayjs";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 type DataStore = {
   times: string[];
@@ -12,18 +13,28 @@ type DataStore = {
   updateTimesArray: (clock: Clock) => void;
 };
 
-export const useDataStore = create<DataStore>()((set) => ({
-  times: generate12HourTimeArray(),
-  timezones: generateTimezoneArray(),
-  repeated: repeatValues,
-  time: getTimeObject(12 as Clock),
-  updateTime: (clock: Clock) => set({ time: getTimeObject(clock) }),
-  updateTimesArray: (clock: Clock) =>
-    set({
-      times:
-        clock === 12 ? generate12HourTimeArray() : generate24HourTimeArray(),
+export const useDataStore = create(
+  persist<DataStore>(
+    (set) => ({
+      times: generate12HourTimeArray(),
+      timezones: generateTimezoneArray(),
+      repeated: repeatValues,
+      time: getTimeObject(12 as Clock),
+      updateTime: (clock: Clock) => set({ time: getTimeObject(clock) }),
+      updateTimesArray: (clock: Clock) =>
+        set({
+          times:
+            clock === 12
+              ? generate12HourTimeArray()
+              : generate24HourTimeArray(),
+        }),
     }),
-}));
+    {
+      name: "cron-data",
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+);
 
 function generate24HourTimeArray(): string[] {
   const time = [];
