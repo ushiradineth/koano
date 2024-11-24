@@ -54,8 +54,8 @@ export default function Sidebar() {
     defaultValues: {
       title: "",
       repeat: "None",
-      start: "00:00",
-      end: "00:00",
+      start: settings.clock === 12 ? "12:00 AM" : "00:00",
+      end: settings.clock === 12 ? "12:00 AM" : "00:00",
       timezone: "Etc/GMT",
       date: new Date(),
     },
@@ -83,18 +83,18 @@ export default function Sidebar() {
         id: activeEvent.id,
         title: values.title,
         start: dayjs(values.date)
-          .hour(dayjs(values.start, "HH:mm").hour())
-          .minute(dayjs(values.start, "HH:mm").minute())
+          .hour(dayjs(values.start, timeFormat).hour())
+          .minute(dayjs(values.start, timeFormat).minute())
           .toDate(),
         end: dayjs(values.date)
-          .hour(dayjs(values.end, "HH:mm").hour())
-          .minute(dayjs(values.end, "HH:mm").minute())
+          .hour(dayjs(values.end, timeFormat).hour())
+          .minute(dayjs(values.end, timeFormat).minute())
           .toDate(),
         timezone: values.timezone,
         repeated: values.repeat,
       });
     },
-    [activeEvent, editEvent, setPreviewing],
+    [activeEvent, editEvent, setPreviewing, timeFormat],
   );
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export default function Sidebar() {
     form.setValue("title", activeEvent.title);
     form.setValue("repeat", repeated[0]);
     form.setValue("timezone", settings.timezone);
-    form.setValue("start", dayjs(activeEvent.start).format("HH:mm"));
-    form.setValue("end", dayjs(activeEvent.end).format("HH:mm"));
+    form.setValue("start", dayjs(activeEvent.start).format(timeFormat));
+    form.setValue("end", dayjs(activeEvent.end).format(timeFormat));
     form.setValue("date", dayjs(activeEvent.start).startOf("day").toDate());
 
     setStartTimes(
@@ -181,9 +181,9 @@ export default function Sidebar() {
                               <p>
                                 {formatTime(
                                   dayjs(form.getValues().date)
-                                    .hour(dayjs(field.value, "HH:mm").hour())
+                                    .hour(dayjs(field.value, timeFormat).hour())
                                     .minute(
-                                      dayjs(field.value, "HH:mm").minute(),
+                                      dayjs(field.value, timeFormat).minute(),
                                     )
                                     .toDate(),
                                   settings.clock,
@@ -203,8 +203,8 @@ export default function Sidebar() {
                                   setActiveEvent({
                                     ...activeEvent,
                                     start: dayjs(form.getValues().date)
-                                      .hour(dayjs(time, "HH:mm").hour())
-                                      .minute(dayjs(time, "HH:mm").minute())
+                                      .hour(dayjs(time, timeFormat).hour())
+                                      .minute(dayjs(time, timeFormat).minute())
                                       .toDate(),
                                   });
                                 }}>
@@ -238,9 +238,9 @@ export default function Sidebar() {
                               <p>
                                 {formatTime(
                                   dayjs(form.getValues().date)
-                                    .hour(dayjs(field.value, "HH:mm").hour())
+                                    .hour(dayjs(field.value, timeFormat).hour())
                                     .minute(
-                                      dayjs(field.value, "HH:mm").minute(),
+                                      dayjs(field.value, timeFormat).minute(),
                                     )
                                     .toDate(),
                                   settings.clock,
@@ -252,12 +252,12 @@ export default function Sidebar() {
                                 {formatDuration(
                                   dayjs(
                                     form.getValues().start,
-                                    "HH:mm",
+                                    timeFormat,
                                     false,
                                   ).toISOString(),
                                   dayjs(
                                     form.getValues().end,
-                                    "HH:mm",
+                                    timeFormat,
                                     false,
                                   ).toISOString(),
                                 )}
@@ -274,8 +274,8 @@ export default function Sidebar() {
                                   setActiveEvent({
                                     ...activeEvent,
                                     end: dayjs(form.getValues().date)
-                                      .hour(dayjs(time, "HH:mm").hour())
-                                      .minute(dayjs(time, "HH:mm").minute())
+                                      .hour(dayjs(time, timeFormat).hour())
+                                      .minute(dayjs(time, timeFormat).minute())
                                       .toDate(),
                                   });
                                 }}>

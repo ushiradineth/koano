@@ -6,7 +6,7 @@ import { useSettingStore } from "@/lib/stores/settings";
 import { Clock } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 
 interface Props {
   hour: number;
@@ -17,8 +17,12 @@ const textHeight = 16;
 export default memo(function TimeBlock({ hour }: Props) {
   const { settings } = useSettingStore();
   const { time, updateTime } = useDataStore();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // Set the component as mounted after the first render
+    setIsMounted(true);
+
     updateTime(settings.clock);
 
     if (time.hour === hour) {
@@ -33,6 +37,10 @@ export default memo(function TimeBlock({ hour }: Props) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings, hour]);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div
@@ -64,6 +72,11 @@ export default memo(function TimeBlock({ hour }: Props) {
 });
 
 function getHour(hour: number, clock: Clock) {
+  // Placeholder for SSR
+  if (typeof window === "undefined") {
+    return "--:--";
+  }
+
   if (clock === 24) {
     return dayjs().set("hour", hour).format("HH:00");
   }
