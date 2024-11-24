@@ -28,6 +28,7 @@ export default function Grid({
   const [dragging, setDragging] = useState(false);
 
   const prevDayWidth = useRef(0);
+
   const { events, editEvent, getEventById } = useEventStore();
   const { settings } = useSettingStore();
   const {
