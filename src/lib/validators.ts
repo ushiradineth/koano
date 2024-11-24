@@ -8,8 +8,7 @@ const timezones = useDataStore.getState().timezones;
 const TimeSchema = z
   .string()
   .refine((value) => times.some((time) => time === value), {
-    message:
-      "Invalid time value. Must be in 15-minute intervals from 00:00 to 24:00",
+    message: `Invalid time value. Must be in 15-minute intervals between ${times[0]} and ${times[times.length - 1]}.`,
   });
 
 const TimeZoneSchema = z
@@ -28,10 +27,10 @@ export const EventSchema = z.object({
   title: z
     .string()
     .min(2, {
-      message: "Title must be at least 2 characters.",
+      message: "Title must have at least 2 characters.",
     })
     .max(256, {
-      message: "Title must be at most 256 characters.",
+      message: "Title must not exceed 256 characters.",
     }),
   repeat: repeatValueSchema,
   start: TimeSchema,
