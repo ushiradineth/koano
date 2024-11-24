@@ -19,7 +19,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(weekOfYear);
 
 export const metadata: Metadata = {
-  title: `${dayjs().format("MMM DD, YYYY")} · Cron`,
+  title: `${dayjs().format("MMMM, YYYY")} · Cron`,
   description: "By Ushira Dineth",
 };
 
