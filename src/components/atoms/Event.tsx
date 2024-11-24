@@ -129,15 +129,17 @@ export function formatTime(
   showPeriod: boolean = false,
   noSpace: boolean = false,
 ) {
-  return (
-    dayjs(time).format(clock === 12 ? "h" : "HH") +
-    (dayjs(time).minute() !== 0 ? dayjs(time).format(":mm") : "") +
-    (showPeriod && clock === 12
-      ? noSpace
-        ? dayjs(time).format("A")
-        : dayjs(time).format(" A")
-      : "")
-  );
+  let timeFormat = "";
+
+  if (clock === 12) {
+    timeFormat = "h";
+    timeFormat += dayjs(time).minute() !== 0 ? ":mm" : "";
+    timeFormat += showPeriod ? (noSpace ? "A" : " A") : "";
+  } else {
+    timeFormat = "HH:mm";
+  }
+
+  return dayjs(time).format(timeFormat);
 }
 
 export function generateEventTime(start: Date, end: Date, clock: Clock) {

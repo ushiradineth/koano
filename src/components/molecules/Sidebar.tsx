@@ -28,7 +28,7 @@ import {
 import { sidebarWidth } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -60,6 +60,10 @@ export default function Sidebar() {
       date: new Date(),
     },
   });
+
+  const timeFormat = useMemo(() => {
+    return settings.clock === 12 ? "hh:mm A" : "HH:mm";
+  }, [settings]);
 
   const onSubmit = useCallback(
     (values: z.infer<typeof EventSchema>) => {
@@ -104,12 +108,28 @@ export default function Sidebar() {
     form.setValue("date", dayjs(activeEvent.start).startOf("day").toDate());
 
     setStartTimes(
-      times.filter((time) => time < dayjs(activeEvent.end).format("HH:mm")),
+      times.filter((time) =>
+        dayjs(time, timeFormat).isBefore(
+          dayjs(dayjs(activeEvent.end).format(timeFormat), timeFormat),
+        ),
+      ),
     );
     setEndTimes(
-      times.filter((time) => time > dayjs(activeEvent.start).format("HH:mm")),
+      times.filter((time) =>
+        dayjs(time, timeFormat).isAfter(
+          dayjs(dayjs(activeEvent.start).format(timeFormat), timeFormat),
+        ),
+      ),
     );
-  }, [activeEvent, form, repeated, times, settings.timezone, previewing]);
+  }, [
+    activeEvent,
+    form,
+    repeated,
+    times,
+    settings.timezone,
+    previewing,
+    timeFormat,
+  ]);
 
   return (
     <div
