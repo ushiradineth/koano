@@ -109,6 +109,13 @@ export default function Grid({
         )
           return;
 
+        if (
+          dayjs(start).format("MM/DD/YYYY") !==
+            dayjs(end).format("MM/DD/YYYY") &&
+          dayjs(end).format("h:mm A") !== "12:00 AM"
+        )
+          return;
+
         editEvent({ ...event, start, end });
       }
 
