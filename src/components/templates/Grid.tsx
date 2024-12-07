@@ -91,7 +91,7 @@ export default function Grid({
           return;
         }
 
-        const pixelOffset = active.data.current?.y * pixelPerMinute ?? 0;
+        const pixelOffset = active.data.current?.y * pixelPerMinute;
         const start = getTimeFromYOffsetAndTime(
           pixelOffset,
           event.start,
