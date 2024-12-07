@@ -49,7 +49,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
           ]}
         />
         <Button
-          className="text-text-primary shadow-text-tertiary shadow-sm bg-text-tertiary/20"
+          className="text-text-primary shadow-text-tertiary shadow-sm bg-text-tertiary/20 hover:bg-text-tertiary/30 w-fit"
           onClick={() => scrollToCurrentDate()}>
           <p>Today</p>
         </Button>
