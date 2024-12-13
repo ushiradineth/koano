@@ -98,11 +98,11 @@ export default function Home() {
                 className="flex items-center justify-center text-xs border-b">
                 {timezoneString}
               </p>
-              <span className="flex flex-col">
+              <div className="flex flex-col">
                 {new Array(24 * 1).fill(0).map((_, index) => (
                   <TimeBlock key={index} hour={index} />
                 ))}
-              </span>
+              </div>
             </div>
             <Grid
               gridRef={gridRef}

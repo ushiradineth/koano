@@ -17,11 +17,11 @@ const textHeight = 16;
 export default memo(function TimeBlock({ hour }: Props) {
   const { settings } = useSettingStore();
   const { time, updateTime } = useDataStore();
-  const [isMounted, setIsMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     // Set the component as mounted after the first render
-    setIsMounted(true);
+    setIsClient(true);
 
     updateTime(settings.clock);
 
@@ -38,7 +38,11 @@ export default memo(function TimeBlock({ hour }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings, hour]);
 
-  if (!isMounted) {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
     return null;
   }
 
