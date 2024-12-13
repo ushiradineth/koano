@@ -3,6 +3,7 @@ import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
 import { EventSchema } from "@/lib/validators";
+import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
 import { ArrowRight, Clock9 } from "lucide-react";
 
@@ -51,6 +52,7 @@ export default function Sidebar() {
   const { repeated, times } = useDataStore();
 
   const form = useForm<z.infer<typeof EventSchema>>({
+    resolver: zodResolver(EventSchema),
     defaultValues: {
       title: "",
       repeat: "None",

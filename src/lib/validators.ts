@@ -2,14 +2,7 @@ import { repeatValues } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { z } from "zod";
 
-const times = useDataStore.getState().times;
 const timezones = useDataStore.getState().timezones;
-
-const TimeSchema = z
-  .string()
-  .refine((value) => times.some((time) => time === value), {
-    message: `Invalid time value. Must be in 15-minute intervals between ${times[0]} and ${times[times.length - 1]}.`,
-  });
 
 const TimeZoneSchema = z
   .string()
@@ -33,8 +26,8 @@ export const EventSchema = z.object({
       message: "Title must not exceed 256 characters.",
     }),
   repeat: repeatValueSchema,
-  start: TimeSchema,
-  end: TimeSchema,
+  start: z.string(),
+  end: z.string(),
   timezone: TimeZoneSchema,
   date: z.date(),
 });
