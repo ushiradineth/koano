@@ -44,7 +44,7 @@ export default function Sidebar() {
   const [startTimes, setStartTimes] = useState<string[]>([]);
   const [endTimes, setEndTimes] = useState<string[]>([]);
 
-  const { editEvent } = useEventStore();
+  const { addEvent, editEvent, getEventById } = useEventStore();
   const { activeEvent, setActiveEvent, previewing, setPreviewing } =
     useContextStore();
   const { settings } = useSettingStore();
@@ -79,7 +79,9 @@ export default function Sidebar() {
       setPreviewing(false);
       if (!activeEvent) return;
 
-      editEvent({
+      const event = getEventById(activeEvent.id);
+
+      const newEvent = {
         id: activeEvent.id,
         title: values.title,
         start: dayjs(values.date)
@@ -92,13 +94,15 @@ export default function Sidebar() {
           .toDate(),
         timezone: values.timezone,
         repeated: values.repeat,
-      });
+      };
+
+      event ? editEvent(newEvent) : addEvent(newEvent);
     },
-    [activeEvent, editEvent, setPreviewing, timeFormat],
+    [activeEvent, addEvent, editEvent, getEventById, setPreviewing, timeFormat],
   );
 
   useEffect(() => {
-    if (!activeEvent || previewing) return;
+    if (!activeEvent) return;
 
     form.setValue("title", activeEvent.title);
     form.setValue("repeat", repeated[0]);
@@ -121,15 +125,7 @@ export default function Sidebar() {
         ),
       ),
     );
-  }, [
-    activeEvent,
-    form,
-    repeated,
-    times,
-    settings.timezone,
-    previewing,
-    timeFormat,
-  ]);
+  }, [activeEvent]);
 
   return (
     <div
@@ -148,8 +144,10 @@ export default function Sidebar() {
                     <FormItem>
                       <FormControl>
                         <input
+                          autoFocus
                           className={ButtonStyle}
-                          placeholder={activeEvent.title}
+                          placeholder={activeEvent.title || "Title"}
+                          defaultValue={activeEvent.title}
                           {...field}
                         />
                       </FormControl>

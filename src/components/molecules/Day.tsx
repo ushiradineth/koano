@@ -50,10 +50,12 @@ export default function Day({
   const [preview, setPreview] = useState({ height: 0, top: 0 });
   const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
 
-  const { addEvent, getEventById, editEvent } = useEventStore();
+  const { getEventById, editEvent } = useEventStore();
   const {
     activeEvent,
     setActiveEvent,
+    activeDay,
+    setActiveDay,
     extending,
     setExtending,
     selecting,
@@ -85,7 +87,17 @@ export default function Day({
 
   const handleMouseDown = useCallback(
     (mouseEvent: React.MouseEvent<HTMLDivElement>) => {
-      if (selecting || extending || previewing) return;
+      if (selecting || extending || previewing) {
+        resetState();
+        setActiveEvent(null);
+        return;
+      }
+
+      if (activeDay !== day) {
+        setActiveDay(day);
+        resetState();
+        setActiveEvent(null);
+      }
 
       const rect = mouseEvent.currentTarget.getBoundingClientRect();
       const divX = mouseEvent.clientX - rect.left;
@@ -94,6 +106,7 @@ export default function Day({
         gridHeight + 1,
       );
 
+      setActiveDay(day);
       setClickPosition({ x: divX, y: divY });
 
       const target = mouseEvent.target as MouseEventTarget;
@@ -123,27 +136,31 @@ export default function Day({
       setSelecting(dragging ? false : true);
     },
     [
-      dragging,
-      getEventById,
-      setSelecting,
-      setExtending,
-      setActiveEvent,
+      day,
       selecting,
+      setExtending,
       extending,
+      setSelecting,
       previewing,
+      dragging,
+      activeDay,
+      setActiveDay,
+      setActiveEvent,
+      resetState,
+      getEventById,
     ],
   );
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
+      if (dragging || previewing || (!selecting && !extending)) return;
+
       const rect = event.currentTarget.getBoundingClientRect();
       const currentMouseX = event.clientX - rect.left;
       const currentMouseY = Math.min(
         Math.max(event.clientY - rect.top, -1),
         gridHeight + 1,
       );
-
-      if (dragging) return;
 
       if (selecting || extending) {
         // Dragging upwards
@@ -218,9 +235,10 @@ export default function Day({
       day,
       selecting,
       extending,
+      previewing,
       dragging,
-      clickPosition,
       activeEvent,
+      clickPosition,
       resetState,
     ],
   );
@@ -238,9 +256,9 @@ export default function Day({
         return;
       }
 
-      addEvent({
+      setActiveEvent({
         id: String(window.performance.now()),
-        title: "This Title needs to be changed",
+        title: "",
         start: getTimeFromPixelOffset(start.y, day),
         end: getTimeFromPixelOffset(
           Math.max(end.y, start.y + pixelPerQuarter),
@@ -249,6 +267,16 @@ export default function Day({
         repeated: "None",
         timezone: settings.timezone,
       });
+
+      setStart({ x: -1, y: -1 });
+      setEnd({ x: -1, y: -1 });
+      setClickPosition({ x: -1, y: -1 });
+      setPreview({ height: 0, top: 0 });
+      setSelecting(false);
+      setExtending(false);
+      setPreviewing(true);
+
+      return;
     }
 
     // When extending an existing event
@@ -264,16 +292,19 @@ export default function Day({
   }, [
     start,
     end,
-    dragging,
-    addEvent,
     day,
-    preview,
     editEvent,
-    selecting,
-    extending,
     activeEvent,
-    resetState,
+    setActiveEvent,
+    preview,
+    setPreviewing,
+    dragging,
+    selecting,
+    setSelecting,
+    extending,
+    setExtending,
     settings.timezone,
+    resetState,
   ]);
 
   useEffect(() => {
@@ -315,7 +346,8 @@ export default function Day({
         }}
         className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b border-border-vertical">
         <Time today={today} />
-        {selecting ? (
+        {selecting &&
+        dayjs(activeDay).startOf("day").isSame(dayjs(day).startOf("day")) ? (
           <div
             style={preview}
             className="absolute w-full flex items-center justify-center bg-orange-500 bg-opacity-25">

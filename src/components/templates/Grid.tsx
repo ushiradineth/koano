@@ -156,6 +156,7 @@ export default function Grid({
         setSelecting(false);
         setExtending(false);
         setPreviewing(false);
+        setActiveEvent(null);
       }
     };
 
@@ -164,7 +165,7 @@ export default function Grid({
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [setSelecting, setExtending, setPreviewing]);
+  }, [setSelecting, setExtending, setPreviewing, setActiveEvent]);
 
   return (
     <DndContext
