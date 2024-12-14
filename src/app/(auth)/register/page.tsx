@@ -1,13 +1,183 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default function Home() {
-  redirect("/dashboard");
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import Logo from "@/components/atoms/Logo";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { env } from "@/env.mjs";
+import { RegisterSchema } from "@/lib/validators";
+import { useMutation } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+export default function Register() {
+  const { status } = useSession();
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  const register = useMutation({
+    mutationFn: (formData: z.infer<typeof RegisterSchema>) => {
+      return fetch(
+        env.NEXT_PUBLIC_API_URL + "/users?" + new URLSearchParams(formData),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    },
+    onMutate: () => {
+      setError(null);
+    },
+  });
+
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof RegisterSchema>) {
+    const res = await register.mutateAsync(data);
+
+    if (res.status === 200) {
+      toast.success("You have registered successfully");
+      router.push("/login");
+    } else {
+      setError("Failed to register");
+    }
+  }
+
+  useEffect(() => {
+    if (error) setError(null);
+  }, [form.watch("name"), form.watch("email"), form.watch("password")]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      redirect("/");
+    }
+  }, [status]);
+
+  if (status === "loading")
+    return (
+      <div className="flex items-center justify-center h-screen w-screen">
+        <Logo />
+      </div>
+    );
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between bg-background p-24">
-      <div className="w-full max-w-5xl items-center justify-between text-sm lg:flex">
-        register
-      </div>
-    </main>
+    <div className="flex h-screen w-screen items-center justify-center px-4 bg-black">
+      <Card className="mx-auto max-w-sm min-w-[320px] bg-black">
+        <CardHeader>
+          <CardTitle className="text-2xl">Register</CardTitle>
+          <CardDescription>
+            Enter your details below to register
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl className="flex items-center">
+                      <Input
+                        className="w-full bg-black placeholder-white"
+                        placeholder="John Doe"
+                        autoComplete="name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl className="flex items-center">
+                      <Input
+                        className="w-full bg-black placeholder-white"
+                        placeholder="user@email.com"
+                        autoComplete="email"
+                        type="email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center">
+                      <p>Password</p>
+                    </FormLabel>
+                    <FormControl className="flex items-center">
+                      <Input
+                        className="w-full bg-black placeholder-white"
+                        placeholder="******"
+                        autoComplete="current-password"
+                        type="password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full">
+                Register
+              </Button>
+              <div className="text-sm text-red-500 font-semibold w-full text-center">
+                {error}
+              </div>
+            </form>
+            <div className="text-center text-sm">
+              Already have an account?{" "}
+              <Link href="/login" className="underline underline-offset-4">
+                Sign in
+              </Link>
+            </div>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/components/atoms/Header";
+import Logo from "@/components/atoms/Logo";
 import TimeBlock from "@/components/atoms/TimeBlock";
 import Sidebar from "@/components/molecules/Sidebar";
 import Grid from "@/components/templates/Grid";
@@ -16,8 +17,10 @@ import {
   getDayObjectWithDate,
 } from "@/lib/utils";
 import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export default function Home() {
   const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
@@ -25,6 +28,7 @@ export default function Home() {
 
   const gridRef = useRef<HTMLDivElement>(null);
 
+  const { status } = useSession();
   const { settings } = useSettingStore();
 
   const timezoneString = useMemo(
@@ -77,6 +81,19 @@ export default function Home() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      redirect("/login");
+    }
+  }, [status]);
+
+  if (status === "loading")
+    return (
+      <div className="flex items-center justify-center h-screen w-screen">
+        <Logo />
+      </div>
+    );
 
   return (
     <main className="flex">

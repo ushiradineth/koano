@@ -29,3 +29,15 @@ export type TimeObject = {
   minutes: number;
   time: string;
 };
+
+export type SuccessResponse = {
+  code: number;
+  status: string;
+  data: any;
+};
+
+export type ErrorResponse = {
+  code: number;
+  status: string;
+  error: any;
+};

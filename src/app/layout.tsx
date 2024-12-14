@@ -11,6 +11,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import { SessionProvider } from "next-auth/react";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -37,7 +38,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
       </head>
       <body className="dark min-h-screen max-w-[1440px] bg-background text-text-primary font-sans antialiased">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
         <Toaster />
       </body>
     </html>

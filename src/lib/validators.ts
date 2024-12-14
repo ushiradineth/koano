@@ -31,3 +31,14 @@ export const EventSchema = z.object({
   timezone: TimeZoneSchema,
   date: z.date(),
 });
+
+export const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8).max(20),
+});
+
+export const RegisterSchema = z.object({
+  name: z.string().min(2).max(256),
+  email: z.string().email(),
+  password: z.string().min(8).max(20),
+});
