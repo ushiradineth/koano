@@ -1,9 +1,20 @@
 import Logo from "@/components/atoms/Logo";
 import SettingPicker from "@/components/atoms/SettingPicker";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { headerHeight, sidebarWidth } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, View } from "@/lib/types";
+import { User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface Props {
   scrollToCurrentDate: () => void;
@@ -12,6 +23,7 @@ interface Props {
 }
 
 export default function Header({ scrollToCurrentDate, month, year }: Props) {
+  const { data: session, status } = useSession();
   const { settings, setSettings } = useSettingStore();
 
   return (
@@ -25,6 +37,25 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
         </p>
       </div>
       <span className="flex gap-2">
+        {status === "authenticated" && (
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Avatar>
+                <AvatarFallback className="bg-text-tertiary/20">
+                  <User className="h-4 w-4 shrink-0 opacity-50" />
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => signOut()}>
+                <p>Logout</p>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
         <SettingPicker
           defaultValue={settings.clock}
           setSetting={(value) =>
@@ -49,7 +80,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
           ]}
         />
         <Button
-          className="text-text-primary shadow-text-tertiary shadow-sm bg-text-tertiary/20 hover:bg-text-tertiary/30 w-fit"
+          className="text-text-primary bg-text-tertiary/20 hover:bg-text-tertiary/30 w-fit"
           onClick={() => scrollToCurrentDate()}>
           <p>Today</p>
         </Button>
