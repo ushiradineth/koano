@@ -1,10 +1,10 @@
-# 📅 Cron (In Development)
+# Cron (In Development)
 
 - An Calander Management App made to learn Advanced UI Use Cases and Golang with Test Driven Development.
 
 - Backend can be found [here](https://github.com/ushiradineth/cron-be).
 
-## 📦 Technologies
+## Technologies
 
 ### Frontend
 
@@ -33,7 +33,7 @@
 - `Vercel`
 - `GitHub Container Registry`
 
-## 📚 Features
+## Features
 
 - Here's what I learned and implemented on this project:
 
@@ -63,12 +63,12 @@
 - I used `Test Containers` to run the tests in a containerized environment.
 - This allowed me to run the tests in a headless environment, which is important for the CI/CD pipeline.
 
-## 🔎 The Process
+## The Process
 
 - This project took a while to complete due to work.
 - I wanted to use this project as a canvas to try new technologies, which I was able to.
 
-## 💭 Todo List
+## Todo List
 
 ### Frontend
 
@@ -100,7 +100,7 @@
 - [ ] Google Contacts integration.
 - [ ] Google Auth integration.
 
-## 🚦 Running the Project
+## Running the Project
 
 - To run the project in your local environment, follow these steps:
   - Clone the repository to your local machine.
