@@ -12,6 +12,7 @@ import {
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
+import { Repeated } from "@/lib/types";
 import {
   cn,
   getDayObjectWithDate,
@@ -203,15 +204,15 @@ export default function Day({
       // When extending an existing event
       if (extending && activeEvent) {
         if (
-          !dayjs(activeEvent?.start)
+          !dayjs(activeEvent?.start_time)
             .startOf("day")
             .isSame(dayjs(day).startOf("day"))
         ) {
           return;
         }
 
-        const startOffset = getPixelOffsetFromTime(activeEvent.start, day);
-        const endOffset = getPixelOffsetFromTime(activeEvent.end, day);
+        const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
+        const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
         const currentMouseQuarter = getQuarter(currentMouseY);
         const clickPositionQuarter = getQuarter(clickPosition.y);
         const anchorOffset =
@@ -259,12 +260,12 @@ export default function Day({
       setActiveEvent({
         id: String(window.performance.now()),
         title: "",
-        start: getTimeFromPixelOffset(start.y, day),
-        end: getTimeFromPixelOffset(
+        start_time: getTimeFromPixelOffset(start.y, day),
+        end_time: getTimeFromPixelOffset(
           Math.max(end.y, start.y + pixelPerQuarter),
           day,
         ),
-        repeated: "None",
+        repeated: Repeated.Never,
         timezone: settings.timezone,
       });
 
@@ -283,8 +284,8 @@ export default function Day({
     if (extending && activeEvent) {
       editEvent({
         ...activeEvent,
-        start: getTimeFromPixelOffset(preview.top, day),
-        end: getTimeFromPixelOffset(preview.top + preview.height, day),
+        start_time: getTimeFromPixelOffset(preview.top, day),
+        end_time: getTimeFromPixelOffset(preview.top + preview.height, day),
       });
     }
 
@@ -309,8 +310,8 @@ export default function Day({
 
   useEffect(() => {
     if (previewing && activeEvent) {
-      const start = getPixelOffsetFromTime(activeEvent.start, day);
-      const end = getPixelOffsetFromTime(activeEvent.end, day);
+      const start = getPixelOffsetFromTime(activeEvent.start_time, day);
+      const end = getPixelOffsetFromTime(activeEvent.end_time, day);
 
       setPreview({
         height: Math.max(end - start, pixelPerQuarter),

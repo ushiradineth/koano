@@ -30,8 +30,8 @@ export default function Event({ event, active }: Props) {
         y: dragOffset,
         height,
         title: event.title,
-        start: event.start,
-        end: event.end,
+        start: event.start_time,
+        end: event.end_time,
       },
     });
 
@@ -50,14 +50,18 @@ export default function Event({ event, active }: Props) {
 
   useEffect(() => {
     setY(
-      dayjs(event.start).diff(dayjs(event.start).startOf("d"), "m") *
+      dayjs(event.start_time).diff(dayjs(event.start_time).startOf("d"), "m") *
         pixelPerMinute,
     );
-    setHeight(dayjs(event.end).diff(event.start, "minute") * pixelPerMinute);
+    setHeight(
+      dayjs(event.end_time).diff(event.start_time, "minute") * pixelPerMinute,
+    );
   }, [event]);
 
   useEffect(() => {
-    setLabel(generateEventTime(event.start, event.end, settings.clock));
+    setLabel(
+      generateEventTime(event.start_time, event.end_time, settings.clock),
+    );
   }, [settings, event]);
 
   useEffect(() => {

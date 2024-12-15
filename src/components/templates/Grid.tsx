@@ -92,31 +92,31 @@ export default function Grid({
         }
 
         const pixelOffset = active.data.current?.y * pixelPerMinute;
-        const start = getTimeFromYOffsetAndTime(
+        const start_time = getTimeFromYOffsetAndTime(
           pixelOffset,
-          event.start,
+          event.start_time,
           new Date(over.id),
         );
-        const end = getTimeFromYOffsetAndTime(
+        const end_time = getTimeFromYOffsetAndTime(
           pixelOffset,
-          event.end,
+          event.end_time,
           new Date(over.id),
         );
 
         if (
-          dayjs(start).isSame(dayjs(event.start)) &&
-          dayjs(end).isSame(dayjs(event.end))
+          dayjs(start_time).isSame(dayjs(event.start_time)) &&
+          dayjs(end_time).isSame(dayjs(event.end_time))
         )
           return;
 
         if (
-          dayjs(start).format("MM/DD/YYYY") !==
-            dayjs(end).format("MM/DD/YYYY") &&
-          dayjs(end).format("h:mm A") !== "12:00 AM"
+          dayjs(start_time).format("MM/DD/YYYY") !==
+            dayjs(end_time).format("MM/DD/YYYY") &&
+          dayjs(end_time).format("h:mm A") !== "12:00 AM"
         )
           return;
 
-        editEvent({ ...event, start, end });
+        editEvent({ ...event, start_time, end_time });
       }
 
       setDragging(false);
@@ -194,7 +194,7 @@ export default function Grid({
               {events
                 .filter(
                   (event) =>
-                    dayjs(event.start).format("DD/MM/YYYY") ===
+                    dayjs(event.start_time).format("DD/MM/YYYY") ===
                     dayjs(date).format("DD/MM/YYYY"),
                 )
                 .map((event) => (

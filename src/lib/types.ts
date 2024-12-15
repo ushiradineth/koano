@@ -10,11 +10,21 @@ export type User = {
 export type Event = {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
+  start_time: Date;
+  end_time: Date;
   timezone: string;
-  repeated: string;
+  repeated: Repeated;
+  user_id?: string;
+  created_at?: string;
 };
+
+export enum Repeated {
+  Never = "never",
+  Daily = "daily",
+  Weekly = "weekly",
+  Monthly = "monthly",
+  Yearly = "yearly",
+}
 
 export type Picker = {
   label: string;

@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { sidebarWidth } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
+import { Event, Repeated } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -46,8 +47,7 @@ export default function Sidebar() {
   const [endTimes, setEndTimes] = useState<string[]>([]);
 
   const { addEvent, editEvent, getEventById } = useEventStore();
-  const { activeEvent, setActiveEvent, previewing, setPreviewing } =
-    useContextStore();
+  const { activeEvent, setActiveEvent, setPreviewing } = useContextStore();
   const { settings } = useSettingStore();
   const { repeated, times } = useDataStore();
 
@@ -55,7 +55,7 @@ export default function Sidebar() {
     resolver: zodResolver(EventSchema),
     defaultValues: {
       title: "",
-      repeat: "None",
+      repeat: Repeated.Never,
       start: settings.clock === 12 ? "12:00 AM" : "00:00",
       end: settings.clock === 12 ? "12:00 AM" : "00:00",
       timezone: "Etc/GMT",
@@ -65,37 +65,30 @@ export default function Sidebar() {
 
   const timeFormat = useMemo(() => {
     return settings.clock === 12 ? "hh:mm A" : "HH:mm";
-  }, [settings]);
+  }, [settings.clock]);
 
   const onSubmit = useCallback(
     (values: z.infer<typeof EventSchema>) => {
-      //if (
-      //  !isStartDateBeforeEndDate(
-      //    new Date(values.start.value),
-      //    new Date(values.end.value),
-      //  )
-      //) {
-      //  return;
-      //}
-
       setPreviewing(false);
       if (!activeEvent) return;
 
       const event = getEventById(activeEvent.id);
 
-      const newEvent = {
+      const newEvent: Event = {
         id: activeEvent.id,
         title: values.title,
-        start: dayjs(values.date)
+        start_time: dayjs(values.date)
           .hour(dayjs(values.start, timeFormat).hour())
           .minute(dayjs(values.start, timeFormat).minute())
           .toDate(),
-        end: dayjs(values.date)
+        end_time: dayjs(values.date)
           .hour(dayjs(values.end, timeFormat).hour())
           .minute(dayjs(values.end, timeFormat).minute())
           .toDate(),
         timezone: values.timezone,
-        repeated: values.repeat,
+        repeated: values.repeat as Repeated,
+        user_id: activeEvent.user_id,
+        created_at: activeEvent.created_at,
       };
 
       event ? editEvent(newEvent) : addEvent(newEvent);
@@ -107,26 +100,31 @@ export default function Sidebar() {
     if (!activeEvent) return;
 
     form.setValue("title", activeEvent.title);
-    form.setValue("repeat", repeated[0]);
+    form.setValue("repeat", Repeated.Never);
     form.setValue("timezone", settings.timezone);
-    form.setValue("start", dayjs(activeEvent.start).format(timeFormat));
-    form.setValue("end", dayjs(activeEvent.end).format(timeFormat));
-    form.setValue("date", dayjs(activeEvent.start).startOf("day").toDate());
+    form.setValue("start", dayjs(activeEvent.start_time).format(timeFormat));
+    form.setValue("end", dayjs(activeEvent.end_time).format(timeFormat));
+    form.setValue(
+      "date",
+      dayjs(activeEvent.start_time).startOf("day").toDate(),
+    );
 
     setStartTimes(
       times.filter((time) =>
         dayjs(time, timeFormat).isBefore(
-          dayjs(dayjs(activeEvent.end).format(timeFormat), timeFormat),
+          dayjs(dayjs(activeEvent.end_time).format(timeFormat), timeFormat),
         ),
       ),
     );
     setEndTimes(
       times.filter((time) =>
         dayjs(time, timeFormat).isAfter(
-          dayjs(dayjs(activeEvent.start).format(timeFormat), timeFormat),
+          dayjs(dayjs(activeEvent.start_time).format(timeFormat), timeFormat),
         ),
       ),
     );
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEvent]);
 
   return (
@@ -202,7 +200,7 @@ export default function Sidebar() {
                                   setPreviewing(true);
                                   setActiveEvent({
                                     ...activeEvent,
-                                    start: dayjs(form.getValues().date)
+                                    start_time: dayjs(form.getValues().date)
                                       .hour(dayjs(time, timeFormat).hour())
                                       .minute(dayjs(time, timeFormat).minute())
                                       .toDate(),
@@ -273,7 +271,7 @@ export default function Sidebar() {
                                   setPreviewing(true);
                                   setActiveEvent({
                                     ...activeEvent,
-                                    end: dayjs(form.getValues().date)
+                                    end_time: dayjs(form.getValues().date)
                                       .hour(dayjs(time, timeFormat).hour())
                                       .minute(dayjs(time, timeFormat).minute())
                                       .toDate(),

@@ -1,11 +1,11 @@
-export type Repeat = "none" | "daily" | "weekly" | "monthly" | "yearly";
+import { Repeated } from "@/lib/types";
 
-export const repeatValues: Repeat[] = [
-  "none",
-  "daily",
-  "weekly",
-  "monthly",
-  "yearly",
+export const repeatValues: Repeated[] = [
+  Repeated.Never,
+  Repeated.Daily,
+  Repeated.Weekly,
+  Repeated.Monthly,
+  Repeated.Yearly,
 ];
 
 const ratio = 1;
