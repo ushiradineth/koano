@@ -29,7 +29,7 @@ import { LoaderCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function Register() {
@@ -38,15 +38,13 @@ export default function Register() {
 
   const { mutateAsync: register, isPending: isRegistering } = useMutation({
     mutationFn: (formData: z.infer<typeof RegisterSchema>) => {
-      return fetch(
-        env.NEXT_PUBLIC_API_URL + "/users?" + new URLSearchParams(formData),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      return fetch(env.NEXT_PUBLIC_API_URL + "/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(formData),
+      });
     },
     onError: (error) => {
       toast.error(error.message);

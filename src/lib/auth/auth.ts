@@ -17,14 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
 
       async authorize({ email, password }) {
-        const url =
-          env.NEXT_PUBLIC_API_URL +
-          "/auth/login?" +
-          new URLSearchParams({
-            email: email as string,
-            password: password as string,
-          });
-
+        const url = env.NEXT_PUBLIC_API_URL + "/auth/login";
         let response: Response;
 
         try {
@@ -33,6 +26,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             headers: {
               "Content-Type": "application/json",
             },
+            body: JSON.stringify({
+              email: email as string,
+              password: password as string,
+            }),
           });
         } catch (error) {
           console.error("Server Error");
@@ -60,6 +57,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, account, user }) {
       if (account) {
+        console.log("first login");
         return {
           ...token,
           access_token: user.access_token,
@@ -68,8 +66,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           refresh_token: user.refresh_token,
         };
       } else if (Date.now() < (token.expires_at ?? 0) * 1000) {
+        console.log("token still valid");
         return token;
       } else {
+        console.log("token expired");
         return await refreshAccessToken(token);
       }
     },
@@ -90,16 +90,16 @@ async function refreshAccessToken(token: any) {
   if (!token.refresh_token) throw new TypeError("Missing refresh_token");
 
   try {
-    const url =
-      env.NEXT_PUBLIC_API_URL +
-      "/auth/refresh?" +
-      new URLSearchParams({
-        refresh_token: token.refreshToken as string,
-      });
-
+    const url = env.NEXT_PUBLIC_API_URL + "/auth/refresh";
     const response = await fetch(url, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token.access_token}`,
+      },
       method: "POST",
+      body: JSON.stringify({
+        refresh_token: token.refresh_token as string,
+      }),
     });
 
     const body: SuccessResponse = await response.json();
@@ -110,6 +110,7 @@ async function refreshAccessToken(token: any) {
     token.expires_at = body.data.expires_at;
     token.expires_in = body.data.expires_in;
     token.refresh_token = body.data.refresh_token;
+    token.error = undefined;
 
     return token;
   } catch (error) {
