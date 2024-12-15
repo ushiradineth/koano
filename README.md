@@ -8,7 +8,7 @@
 
 ### Frontend
 
-- Proper t `TypeScript`
+- `TypeScript`
 - `Next.js`
 - `Dnd-kit`
 - `Zustand`
