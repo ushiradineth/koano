@@ -13,6 +13,8 @@ type ContextStore = {
   setExtending: (extending: boolean) => void;
   previewing: boolean;
   setPreviewing: (previewing: boolean) => void;
+  accessToken: string | null;
+  setAccessToken: (accessToken: string | null) => void;
 };
 
 export const useContextStore = create<ContextStore>()((set) => ({
@@ -26,4 +28,6 @@ export const useContextStore = create<ContextStore>()((set) => ({
   setExtending: (extending: boolean) => set({ extending }),
   previewing: false,
   setPreviewing: (previewing: boolean) => set({ previewing }),
+  accessToken: null,
+  setAccessToken: (accessToken: string | null) => set({ accessToken }),
 }));

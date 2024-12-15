@@ -10,6 +10,7 @@ import {
   secondaryHeaderHeight,
   sidebarWidth,
 } from "@/lib/consts";
+import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 import {
   calculateDaysToPreviousMonday,
@@ -22,13 +23,19 @@ import { redirect } from "next/navigation";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 export default function Home() {
   const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
   const [year, setYear] = useState(dayjs(new Date()).format("YYYY"));
 
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+
+  const { setAccessToken } = useContextStore();
   const { settings } = useSettingStore();
 
   const timezoneString = useMemo(
@@ -86,6 +93,12 @@ export default function Home() {
     if (status === "unauthenticated") {
       redirect("/login");
     }
+
+    if (status === "authenticated") {
+      setAccessToken(session?.user?.access_token ?? "");
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   if (status === "loading")
@@ -96,46 +109,48 @@ export default function Home() {
     );
 
   return (
-    <main className="flex">
-      <Sidebar />
-      <div style={{ width: `calc(100vw - ${sidebarWidth}px)` }}>
-        <Header
-          scrollToCurrentDate={scrollToCurrentDate}
-          month={month}
-          year={year}
-        />
+    <QueryClientProvider client={queryClient}>
+      <main className="flex">
+        <Sidebar />
+        <div style={{ width: `calc(100vw - ${sidebarWidth}px)` }}>
+          <Header
+            scrollToCurrentDate={scrollToCurrentDate}
+            month={month}
+            year={year}
+          />
 
-        {settings.view !== 30 ? (
-          <div className="flex">
-            <div
-              style={{ marginTop: headerHeight }}
-              className="flex flex-col w-[60px]">
-              <p
-                style={{ height: secondaryHeaderHeight }}
-                className="flex items-center justify-center text-xs border-b">
-                {timezoneString}
-              </p>
-              <div className="flex flex-col">
-                {new Array(24 * 1).fill(0).map((_, index) => (
-                  <TimeBlock key={index} hour={index} />
-                ))}
+          {settings.view !== 30 ? (
+            <div className="flex">
+              <div
+                style={{ marginTop: headerHeight }}
+                className="flex flex-col w-[60px]">
+                <p
+                  style={{ height: secondaryHeaderHeight }}
+                  className="flex items-center justify-center text-xs border-b">
+                  {timezoneString}
+                </p>
+                <div className="flex flex-col">
+                  {new Array(24 * 1).fill(0).map((_, index) => (
+                    <TimeBlock key={index} hour={index} />
+                  ))}
+                </div>
               </div>
+              <Grid
+                gridRef={gridRef}
+                scrollToCurrentDate={scrollToCurrentDate}
+                setCurrentMonth={setCurrentMonth}
+              />
             </div>
-            <Grid
-              gridRef={gridRef}
-              scrollToCurrentDate={scrollToCurrentDate}
-              setCurrentMonth={setCurrentMonth}
-            />
-          </div>
-        ) : (
-          <p
-            style={{ height: `calc(100vh - ${headerHeight}px)` }}
-            className="flex items-center justify-center font-semibold text-2xl">
-            Month view coming soon
-          </p>
-        )}
-      </div>
-    </main>
+          ) : (
+            <p
+              style={{ height: `calc(100vh - ${headerHeight}px)` }}
+              className="flex items-center justify-center font-semibold text-2xl">
+              Month view coming soon
+            </p>
+          )}
+        </div>
+      </main>
+    </QueryClientProvider>
   );
 }
 

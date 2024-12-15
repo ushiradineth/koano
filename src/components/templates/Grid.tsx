@@ -6,11 +6,16 @@ import dayjs from "dayjs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
+import { get as GetEvent } from "@/lib/api/event";
+import { ErrorResponse } from "@/lib/api/types";
 import { gridHeight, headerHeight, pixelPerMinute } from "@/lib/consts";
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
 import { getQuarter } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface Props {
   gridRef: React.RefObject<HTMLDivElement>;
@@ -29,7 +34,9 @@ export default function Grid({
 
   const prevDayWidth = useRef(0);
 
-  const { events, editEvent, getEventById } = useEventStore();
+  const { data: session, status } = useSession();
+  const { events, setEvents, editEvent, removeEvent, getEventById } =
+    useEventStore();
   const { settings } = useSettingStore();
   const {
     activeEvent,
@@ -47,6 +54,38 @@ export default function Grid({
 
   const initialRange = 60;
   const bufferRange = 30;
+
+  useEffect(() => {
+    console.log(events);
+  }, [events]);
+
+  const { data, isError } = useQuery({
+    queryKey: ["events", session?.user?.access_token], // Unique cache key
+    queryFn: () =>
+      GetEvent({
+        start_day: dayjs()
+          .startOf("day")
+          .subtract(15, "day")
+          .format("YYYY-MM-DD"),
+        end_day: dayjs().startOf("day").add(15, "day").format("YYYY-MM-DD"),
+        access_token: session?.user?.access_token ?? "",
+      }),
+    enabled: status === "authenticated",
+    staleTime: 1000, // Refresh data every 10 second
+  });
+
+  useEffect(() => {
+    if (data) {
+      setEvents(data.data);
+    }
+  }, [data, setEvents]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !isError) return;
+    toast.error(
+      (data as any as ErrorResponse).error ?? "Failed to fetch events",
+    );
+  }, [isError, data, status]);
 
   const handleScroll = useCallback(() => {
     debouncedSetCurrentMonth();
@@ -88,6 +127,7 @@ export default function Grid({
 
         if (!event) {
           setActiveEvent(null);
+          setDragging(false);
           return;
         }
 
@@ -106,15 +146,19 @@ export default function Grid({
         if (
           dayjs(start_time).isSame(dayjs(event.start_time)) &&
           dayjs(end_time).isSame(dayjs(event.end_time))
-        )
+        ) {
+          setDragging(false);
           return;
+        }
 
         if (
           dayjs(start_time).format("MM/DD/YYYY") !==
             dayjs(end_time).format("MM/DD/YYYY") &&
           dayjs(end_time).format("h:mm A") !== "12:00 AM"
-        )
+        ) {
+          setDragging(false);
           return;
+        }
 
         editEvent({ ...event, start_time, end_time });
       }
@@ -158,6 +202,12 @@ export default function Grid({
         setPreviewing(false);
         setActiveEvent(null);
       }
+
+      if (event.key === "Backspace") {
+        if (activeEvent) {
+          removeEvent(activeEvent.id);
+        }
+      }
     };
 
     window.addEventListener("keydown", handleKeyPress);
@@ -165,7 +215,14 @@ export default function Grid({
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [setSelecting, setExtending, setPreviewing, setActiveEvent]);
+  }, [
+    activeEvent,
+    setSelecting,
+    setExtending,
+    setPreviewing,
+    removeEvent,
+    setActiveEvent,
+  ]);
 
   return (
     <DndContext

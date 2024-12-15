@@ -5,7 +5,7 @@ import { useSettingStore } from "@/lib/stores/settings";
 import { EventSchema } from "@/lib/validators";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
-import { ArrowRight, Clock9 } from "lucide-react";
+import { ArrowRight, Clock9, TrashIcon } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -46,7 +46,7 @@ export default function Sidebar() {
   const [startTimes, setStartTimes] = useState<string[]>([]);
   const [endTimes, setEndTimes] = useState<string[]>([]);
 
-  const { addEvent, editEvent, getEventById } = useEventStore();
+  const { addEvent, editEvent, removeEvent, getEventById } = useEventStore();
   const { activeEvent, setActiveEvent, setPreviewing } = useContextStore();
   const { settings } = useSettingStore();
   const { repeated, times } = useDataStore();
@@ -136,7 +136,15 @@ export default function Sidebar() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="text-sm">
               <span className="flex flex-col w-full px-2 py-4 gap-2">
-                <h2 className="font-semibold px-2">Event</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-semibold px-2">Event</h2>
+                  <button
+                    type="button"
+                    className="ml-auto"
+                    onClick={() => removeEvent(activeEvent.id)}>
+                    <TrashIcon className="h-4 w-4 text-red-500" />
+                  </button>
+                </div>
                 <FormField
                   control={form.control}
                   name="title"
