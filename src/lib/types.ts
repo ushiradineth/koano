@@ -1,5 +1,12 @@
 import dayjs from "dayjs";
 
+export type User = {
+  id: string;
+  email: string;
+  name: string;
+  created_at: string;
+};
+
 export type Event = {
   id: string;
   title: string;
@@ -28,16 +35,4 @@ export type TimeObject = {
   hour: number;
   minutes: number;
   time: string;
-};
-
-export type SuccessResponse = {
-  code: number;
-  status: string;
-  data: any;
-};
-
-export type ErrorResponse = {
-  code: number;
-  status: string;
-  error: any;
 };

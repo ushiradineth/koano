@@ -1,6 +1,6 @@
-import { env } from "@/env.mjs";
+import { authenticate, refreshAccessToken } from "@/lib/api/auth";
+import { ErrorResponse, HttpCode } from "@/lib/api/types";
 import { InvalidCredentialsError, ServerError } from "@/lib/auth/errors";
-import { SuccessResponse } from "@/lib/types";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
@@ -17,47 +17,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
 
       async authorize({ email, password }) {
-        const url = env.NEXT_PUBLIC_API_URL + "/auth/login";
-        let response: Response;
-
         try {
-          response = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: email as string,
-              password: password as string,
-            }),
+          const response = await authenticate({
+            email: email as string,
+            password: password as string,
           });
-        } catch (error) {
-          console.error("Server Error");
-          throw new ServerError();
-        }
 
-        if (response.status !== 200) {
+          if (response.code !== HttpCode.Success) {
+            throw new Error(String((response as any as ErrorResponse).code));
+          }
+
+          return {
+            id: response.data.user.id,
+            email: response.data.user.email,
+            name: response.data.user.name,
+            access_token: response.data.access_token,
+            refresh_token: response.data.refresh_token,
+            expires_at: response.data.expires_at,
+            expires_in: response.data.expires_in,
+          };
+        } catch (error: any) {
+          if (error.message !== "401") {
+            throw new ServerError();
+          }
+
           throw new InvalidCredentialsError();
         }
-
-        const body: SuccessResponse = await response.json();
-
-        return {
-          id: body.data.user.id,
-          email: body.data.user.email,
-          name: body.data.user.name,
-          access_token: body.data.access_token,
-          refresh_token: body.data.refresh_token,
-          expires_at: body.data.expires_at,
-          expires_in: body.data.expires_in,
-        };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, account, user }) {
       if (account) {
-        console.log("first login");
         return {
           ...token,
           access_token: user.access_token,
@@ -66,11 +57,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           refresh_token: user.refresh_token,
         };
       } else if (Date.now() < (token.expires_at ?? 0) * 1000) {
-        console.log("token still valid");
         return token;
       } else {
-        console.log("token expired");
-        return await refreshAccessToken(token);
+        if (!token.refresh_token) throw new TypeError("Missing refresh_token");
+        if (!token.access_token) throw new TypeError("Missing access_token");
+
+        try {
+          const response = await refreshAccessToken({
+            refresh_token: token.refresh_token,
+            access_token: token.access_token,
+          });
+
+          if (response.code !== HttpCode.Success) {
+            throw new Error((response as any as ErrorResponse).error);
+          }
+
+          token.access_token = response.data.access_token;
+          token.expires_at = response.data.expires_at;
+          token.expires_in = response.data.expires_in;
+          token.refresh_token = response.data.refresh_token;
+          token.error = undefined;
+
+          return token;
+        } catch (error) {
+          console.error("Error refreshing access_token", error);
+          token.error = "RefreshTokenError";
+          return token;
+        }
       }
     },
     async session({ session, token }) {
@@ -85,37 +98,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
-
-async function refreshAccessToken(token: any) {
-  if (!token.refresh_token) throw new TypeError("Missing refresh_token");
-
-  try {
-    const url = env.NEXT_PUBLIC_API_URL + "/auth/refresh";
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token.access_token}`,
-      },
-      method: "POST",
-      body: JSON.stringify({
-        refresh_token: token.refresh_token as string,
-      }),
-    });
-
-    const body: SuccessResponse = await response.json();
-
-    if (!response.ok) throw body;
-
-    token.access_token = body.data.access_token;
-    token.expires_at = body.data.expires_at;
-    token.expires_in = body.data.expires_in;
-    token.refresh_token = body.data.refresh_token;
-    token.error = undefined;
-
-    return token;
-  } catch (error) {
-    console.error("Error refreshing access_token", error);
-    token.error = "RefreshTokenError";
-    return token;
-  }
-}
