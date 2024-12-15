@@ -23,15 +23,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/validators";
+import { LoaderCircle } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Login() {
+  const [loading, setLoading] = useState(false);
+
   const { status } = useSession();
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -41,29 +44,32 @@ export default function Login() {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof LoginSchema>) {
-    const res = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+  const onSubmit = useCallback(
+    async (data: z.infer<typeof LoginSchema>) => {
+      setLoading(true);
 
-    if (res?.error !== null) {
-      if (res?.code === "404") {
-        setError("Server not found");
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (res?.error !== null) {
+        if (res?.code === "404") {
+          toast.error("Server not found");
+        }
+
+        if (res?.code === "401") {
+          toast.error("Invalid credentials");
+        }
+      } else {
+        router.push("/");
       }
 
-      if (res?.code === "401") {
-        setError("Invalid credentials");
-      }
-    } else {
-      router.push("/");
-    }
-  }
-
-  useEffect(() => {
-    if (error) setError(null);
-  }, [form.watch("email"), form.watch("password")]);
+      setLoading(false);
+    },
+    [router],
+  );
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -126,11 +132,10 @@ export default function Login() {
                         //</Link>
                       }
                     </FormLabel>
-
                     <FormControl className="flex items-center">
                       <Input
                         className="w-full bg-black placeholder-white"
-                        placeholder="******"
+                        placeholder="********"
                         autoComplete="current-password"
                         type="password"
                         {...field}
@@ -140,19 +145,16 @@ export default function Login() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <LoaderCircle className="animate-spin" /> : "Login"}
               </Button>
-              <div className="text-sm text-red-500 font-semibold w-full text-center">
-                {error}
+              <div className="text-center text-sm">
+                Don&apos;t have an account?{" "}
+                <Link href="/register" className="underline underline-offset-4">
+                  Sign up
+                </Link>
               </div>
             </form>
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="underline underline-offset-4">
-                Sign up
-              </Link>
-            </div>
           </Form>
         </CardContent>
       </Card>

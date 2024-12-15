@@ -25,18 +25,18 @@ import { Input } from "@/components/ui/input";
 import { env } from "@/env.mjs";
 import { RegisterSchema } from "@/lib/validators";
 import { useMutation } from "@tanstack/react-query";
+import { LoaderCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 export default function Register() {
   const { status } = useSession();
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
 
-  const register = useMutation({
+  const { mutateAsync: register, isPending: isRegistering } = useMutation({
     mutationFn: (formData: z.infer<typeof RegisterSchema>) => {
       return fetch(
         env.NEXT_PUBLIC_API_URL + "/users?" + new URLSearchParams(formData),
@@ -48,8 +48,8 @@ export default function Register() {
         },
       );
     },
-    onMutate: () => {
-      setError(null);
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -62,20 +62,19 @@ export default function Register() {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof RegisterSchema>) {
-    const res = await register.mutateAsync(data);
+  const onSubmit = useCallback(
+    async function onSubmit(data: z.infer<typeof RegisterSchema>) {
+      const res = await register(data);
 
-    if (res.status === 200) {
-      toast.success("You have registered successfully");
-      router.push("/login");
-    } else {
-      setError("Failed to register");
-    }
-  }
-
-  useEffect(() => {
-    if (error) setError(null);
-  }, [form.watch("name"), form.watch("email"), form.watch("password")]);
+      if (res.status === 200) {
+        toast.success("You have registered successfully");
+        router.push("/login");
+      } else {
+        toast.error((await res.json()).error);
+      }
+    },
+    [register, router],
+  );
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -152,7 +151,7 @@ export default function Register() {
                     <FormControl className="flex items-center">
                       <Input
                         className="w-full bg-black placeholder-white"
-                        placeholder="******"
+                        placeholder="********"
                         autoComplete="current-password"
                         type="password"
                         {...field}
@@ -162,19 +161,20 @@ export default function Register() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Register
+              <Button type="submit" className="w-full" disabled={isRegistering}>
+                {isRegistering ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  "Register"
+                )}
               </Button>
-              <div className="text-sm text-red-500 font-semibold w-full text-center">
-                {error}
+              <div className="text-center text-sm">
+                Already have an account?{" "}
+                <Link href="/login" className="underline underline-offset-4">
+                  Sign in
+                </Link>
               </div>
             </form>
-            <div className="text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/login" className="underline underline-offset-4">
-                Sign in
-              </Link>
-            </div>
           </Form>
         </CardContent>
       </Card>
