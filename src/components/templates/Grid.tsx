@@ -55,10 +55,6 @@ export default function Grid({
   const initialRange = 60;
   const bufferRange = 30;
 
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
-
   const { data, isError } = useQuery({
     queryKey: ["events", session?.user?.access_token], // Unique cache key
     queryFn: () =>
