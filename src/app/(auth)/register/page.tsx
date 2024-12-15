@@ -22,7 +22,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { env } from "@/env.mjs";
+import { ErrorResponse, Status } from "@/lib/api/types";
+import { post as CreateUser } from "@/lib/api/user";
 import { RegisterSchema } from "@/lib/validators";
 import { useMutation } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
@@ -38,13 +39,7 @@ export default function Register() {
 
   const { mutateAsync: register, isPending: isRegistering } = useMutation({
     mutationFn: (formData: z.infer<typeof RegisterSchema>) => {
-      return fetch(env.NEXT_PUBLIC_API_URL + "/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      return CreateUser(formData);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -64,11 +59,11 @@ export default function Register() {
     async function onSubmit(data: z.infer<typeof RegisterSchema>) {
       const res = await register(data);
 
-      if (res.status === 200) {
+      if (res.status === Status.Success) {
         toast.success("You have registered successfully");
         router.push("/login");
       } else {
-        toast.error((await res.json()).error);
+        toast.error((res as any as ErrorResponse).error);
       }
     },
     [register, router],
