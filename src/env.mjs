@@ -3,8 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    NEXTAUTH_URL: z.string().url(),
-    NEXTAUTH_SECRET: z.string().min(1),
+    AUTH_SECRET: z.string().min(1),
   },
 
   client: {
