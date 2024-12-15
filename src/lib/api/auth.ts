@@ -28,7 +28,7 @@ export const authenticate = async ({
   email,
   password,
 }: AuthenticateRequest): Promise<AuthenticateResponse> => {
-  const url = BASE_URL + "/login";
+  const url = `${BASE_URL}/login`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -63,7 +63,7 @@ export const refreshAccessToken = async ({
   refresh_token,
   access_token,
 }: RefreshAccessTokenRequest): Promise<RefreshAccessTokenResponse> => {
-  const url = BASE_URL + "/refresh";
+  const url = `${BASE_URL}/refresh`;
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
@@ -77,5 +77,3 @@ export const refreshAccessToken = async ({
 
   return await response.json();
 };
-
-// ---
