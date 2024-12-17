@@ -37,7 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             expires_in: response.data.expires_in,
           };
         } catch (error: any) {
-          if (error.message !== "401") {
+          if (error.message !== "401" && error.message !== "400") {
             throw new ServerError();
           }
 
@@ -82,6 +82,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         } catch (error) {
           console.error("Error refreshing access_token", error);
           token.error = "RefreshTokenError";
+          await signOut();
           return token;
         }
       }
@@ -95,6 +96,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.name = token.name;
       session.user.access_token = token.access_token ?? "";
       return session;
+    },
+    async authorized({ auth }) {
+      return !!auth;
     },
   },
 });

@@ -19,7 +19,6 @@ import {
 } from "@/lib/utils";
 import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -90,10 +89,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      redirect("/login");
-    }
-
     if (status === "authenticated") {
       setAccessToken(session?.user?.access_token ?? "");
     }
