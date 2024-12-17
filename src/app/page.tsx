@@ -17,12 +17,10 @@ import {
   getDayObjectFromId,
   getDayObjectWithDate,
 } from "@/lib/utils";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
 
