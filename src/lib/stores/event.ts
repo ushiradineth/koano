@@ -49,6 +49,8 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         return reset();
       }
 
+      useContextStore.getState().setActiveEvent(response.data);
+
       return set((state) => ({
         events: state.events.map((e) =>
           e.id === event.id ? response.data : e,
@@ -93,6 +95,8 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         console.error((response as any as ErrorResponse).error);
         return reset();
       }
+
+      useContextStore.getState().setActiveEvent(response.data);
 
       return set((state) => ({
         events: state.events.map((e) =>
