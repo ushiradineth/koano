@@ -83,8 +83,8 @@ export default function Register() {
     );
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center px-4 bg-black">
-      <Card className="mx-auto max-w-sm min-w-[320px] bg-black">
+    <div className="flex h-screen w-screen items-center justify-center px-4">
+      <Card className="mx-auto max-w-sm min-w-[320px]">
         <CardHeader>
           <CardTitle className="text-2xl">Register</CardTitle>
           <CardDescription>
@@ -104,7 +104,7 @@ export default function Register() {
                     <FormLabel>Name</FormLabel>
                     <FormControl className="flex items-center">
                       <Input
-                        className="w-full bg-black placeholder-white"
+                        className="w-full"
                         placeholder="John Doe"
                         autoComplete="name"
                         {...field}
@@ -122,7 +122,7 @@ export default function Register() {
                     <FormLabel>Email</FormLabel>
                     <FormControl className="flex items-center">
                       <Input
-                        className="w-full bg-black placeholder-white"
+                        className="w-full"
                         placeholder="user@email.com"
                         autoComplete="email"
                         type="email"
@@ -143,7 +143,7 @@ export default function Register() {
                     </FormLabel>
                     <FormControl className="flex items-center">
                       <Input
-                        className="w-full bg-black placeholder-white"
+                        className="w-full"
                         placeholder="********"
                         autoComplete="current-password"
                         type="password"
