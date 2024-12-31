@@ -54,7 +54,7 @@ export default memo(function TimeBlock({ hour }: Props) {
       <p
         style={{ top: pixelPerHour - textHeight / 2, height: textHeight }}
         className={cn(
-          "absolute text-text-tertiary",
+          "absolute text-foreground-tertiary",
           hour === 23 && "hidden",
           time.hour - 1 === hour && time.minutes < 15 && "hidden",
           time.hour === hour && time.minutes > 45 && "hidden",

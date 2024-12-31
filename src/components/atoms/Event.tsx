@@ -82,7 +82,7 @@ export default function Event({ event, active }: Props) {
       <Dragger className="top-0" compact={height <= 30 * pixelPerMinute} />
       <span
         className={cn(
-          "flex h-full text-text-primary font-medium",
+          "flex h-full text-foreground font-medium",
           isDragging
             ? "cursor-grabbing"
             : active

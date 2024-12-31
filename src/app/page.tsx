@@ -116,7 +116,7 @@ export default function Home() {
             <div className="flex">
               <div
                 style={{ marginTop: headerHeight }}
-                className="flex flex-col w-[60px]">
+                className="flex flex-col w-[60px] border-r">
                 <p
                   style={{ height: secondaryHeaderHeight }}
                   className="flex items-center justify-center text-xs border-b">

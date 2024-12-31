@@ -23,7 +23,7 @@ export default function SettingPicker({
 }: SettingPickerProps) {
   return (
     <Select onValueChange={setSetting} value={String(defaultValue)}>
-      <SelectTrigger className="bg-text-tertiary/20 w-fit">
+      <SelectTrigger className="bg-foreground-tertiary w-fit">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

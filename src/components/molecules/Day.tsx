@@ -341,11 +341,11 @@ export default function Day({
           height,
           width,
           backgroundImage:
-            "linear-gradient(to bottom, hsl(var(--border-horizontal)) 1px, transparent 1px)",
+            "linear-gradient(to bottom, hsl(var(--border)/20) 1px, transparent 1px)",
           backgroundSize: `100% ${pixelPerHour}px`,
           backgroundPosition: `0 ${pixelPerHour}px`,
         }}
-        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b border-border-vertical">
+        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b border-border/20">
         <Time today={today} />
         {selecting &&
         dayjs(activeDay).startOf("day").isSame(dayjs(day).startOf("day")) ? (

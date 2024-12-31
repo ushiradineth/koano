@@ -35,11 +35,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const ButtonStyle = cn(
-  "w-full text-sm text-primary font-medium rounded-sm p-2",
+  "w-full text-sm text-foreground font-medium rounded-sm p-2",
   "appearance-none forced-colors:hidden bg-background",
   "hover:outline hover:outline-offset-2 hover:outline-1",
-  "aria-expanded:outline-none aria-expanded:bg-text-tertiary/20",
-  "focus:outline-none focus:bg-text-tertiary/20",
+  "aria-expanded:outline-none aria-expanded:bg-foreground-tertiary",
+  "focus:outline-none focus:bg-foreground-tertiary",
 );
 
 export default function Sidebar() {
@@ -183,7 +183,7 @@ export default function Sidebar() {
                           <FormControl>
                             <SelectUnstyledTrigger
                               className={cn(ButtonStyle, "gap-1 p-1 text-sm")}>
-                              <Clock9 className="h-4 w-4 text-text-tertiary" />
+                              <Clock9 className="h-4 w-4 text-foreground-tertiary" />
                               <p>
                                 {formatTime(
                                   dayjs(form.getValues().date)
@@ -240,7 +240,7 @@ export default function Sidebar() {
                           <FormControl>
                             <SelectUnstyledTrigger
                               className={cn(ButtonStyle, "gap-1 p-1 text-sm")}>
-                              <ArrowRight className="h-4 w-4 text-text-tertiary" />
+                              <ArrowRight className="h-4 w-4 text-foreground-tertiary" />
                               <p>
                                 {formatTime(
                                   dayjs(form.getValues().date)
@@ -254,7 +254,7 @@ export default function Sidebar() {
                                   true,
                                 )}
                               </p>
-                              <p className="text-text-tertiary">
+                              <p className="text-foreground-tertiary">
                                 {formatDuration(
                                   dayjs(
                                     form.getValues().start,

@@ -37,7 +37,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
       </head>
-      <body className="dark min-h-screen max-w-[1440px] bg-background text-text-primary font-sans antialiased">
+      <body className="dark min-h-screen max-w-[1440px] font-sans antialiased">
         <SessionProvider>{children}</SessionProvider>
         <Toaster />
       </body>
