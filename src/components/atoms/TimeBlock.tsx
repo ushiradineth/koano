@@ -1,6 +1,6 @@
 "use client";
 
-import { pixelPerHour } from "@/lib/consts";
+import { PIXEL_PER_HOUR } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock } from "@/lib/types";
@@ -49,10 +49,10 @@ export default memo(function TimeBlock({ hour }: Props) {
   return (
     <div
       id={`timeblock-${hour + 1}`}
-      style={{ height: pixelPerHour }}
+      style={{ height: PIXEL_PER_HOUR }}
       className="flex relative justify-end px-1 font-mono font-medium text-xs">
       <p
-        style={{ top: pixelPerHour - textHeight / 2, height: textHeight }}
+        style={{ top: PIXEL_PER_HOUR - textHeight / 2, height: textHeight }}
         className={cn(
           "absolute text-foreground-tertiary",
           hour === 23 && "hidden",

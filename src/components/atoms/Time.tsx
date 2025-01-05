@@ -1,4 +1,4 @@
-import { pixelPerHour, pixelPerMinute } from "@/lib/consts";
+import { PIXEL_PER_HOUR, PIXEL_PER_MINUTE } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ export default function Time({ today }: Props) {
     <div
       className="flex absolute w-full"
       style={{
-        top: time.hour * pixelPerHour + time.minutes * pixelPerMinute,
+        top: time.hour * PIXEL_PER_HOUR + time.minutes * PIXEL_PER_MINUTE,
       }}>
       {today && <p className="absolute -top-3 -left-1">•</p>}
       <div

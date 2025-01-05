@@ -1,6 +1,6 @@
 "use client";
 
-import { draggerId, pixelPerMinute, pixelPerQuarter } from "@/lib/consts";
+import { DRAGGER_ID, PIXEL_PER_MINUTE, PIXEL_PER_QUARTER } from "@/lib/consts";
 import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
@@ -41,7 +41,7 @@ export default function Event({ event, active }: Props) {
         ? `translate3d(${transform.x}px, ${transform.y + y}px, 0)`
         : `translate3d(0px, ${y}px, 0)`,
       position: "absolute",
-      height: Math.max(height, pixelPerQuarter),
+      height: Math.max(height, PIXEL_PER_QUARTER),
       touchAction: "none",
       opacity: isDragging ? 0.4 : undefined,
       zIndex: isDragging ? 10 : undefined,
@@ -51,10 +51,10 @@ export default function Event({ event, active }: Props) {
   useEffect(() => {
     setY(
       dayjs(event.start_time).diff(dayjs(event.start_time).startOf("d"), "m") *
-        pixelPerMinute,
+        PIXEL_PER_MINUTE,
     );
     setHeight(
-      dayjs(event.end_time).diff(event.start_time, "minute") * pixelPerMinute,
+      dayjs(event.end_time).diff(event.start_time, "minute") * PIXEL_PER_MINUTE,
     );
   }, [event]);
 
@@ -79,7 +79,7 @@ export default function Event({ event, active }: Props) {
         active ? "bg-orange-300" : "bg-orange-500",
       )}
       style={style}>
-      <Dragger className="top-0" compact={height <= 30 * pixelPerMinute} />
+      <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
       <span
         className={cn(
           "flex h-full text-foreground font-medium",
@@ -88,8 +88,8 @@ export default function Event({ event, active }: Props) {
             : active
               ? "cursor-grab"
               : "cursor-default",
-          height > 30 * pixelPerMinute ? "p-1" : "px-1",
-          height <= 15 * pixelPerMinute
+          height > 30 * PIXEL_PER_MINUTE ? "p-1" : "px-1",
+          height <= 15 * PIXEL_PER_MINUTE
             ? "flex-row gap-2 items-center truncate"
             : "flex-col",
         )}
@@ -101,7 +101,7 @@ export default function Event({ event, active }: Props) {
         <p className="truncate text-sm">{event.title}</p>
         <p className="text-xs opacity-75">{label}</p>
       </span>
-      <Dragger className="bottom-0" compact={height <= 30 * pixelPerMinute} />
+      <Dragger className="bottom-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
     </div>
   );
 }
@@ -115,9 +115,9 @@ function Dragger({
 }) {
   return (
     <span
-      id={draggerId}
+      id={DRAGGER_ID}
       style={{
-        height: compact ? pixelPerMinute * 2.5 : pixelPerQuarter,
+        height: compact ? PIXEL_PER_MINUTE * 2.5 : PIXEL_PER_QUARTER,
       }}
       className={cn(
         "flex items-center justify-center absolute cursor-row-resize w-full",

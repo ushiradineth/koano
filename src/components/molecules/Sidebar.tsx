@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectUnstyledTrigger,
 } from "@/components/ui/select";
-import { sidebarWidth } from "@/lib/consts";
+import { SIDEBAR_WIDTH } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { Event, Repeated } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -129,7 +129,7 @@ export default function Sidebar() {
 
   return (
     <div
-      style={{ width: sidebarWidth }}
+      style={{ width: SIDEBAR_WIDTH }}
       className={"flex flex-col h-screen fixed right-0 bg-background border-l"}>
       {activeEvent ? (
         <>

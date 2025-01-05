@@ -2,7 +2,7 @@ import Logo from "@/components/atoms/Logo";
 import SettingPicker from "@/components/atoms/SettingPicker";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { headerHeight, sidebarWidth } from "@/lib/consts";
+import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, View } from "@/lib/types";
 import { User } from "lucide-react";
@@ -28,7 +28,10 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
 
   return (
     <nav
-      style={{ height: headerHeight, width: `calc(100vw - ${sidebarWidth}px)` }}
+      style={{
+        height: HEADER_HEIGHT,
+        width: `calc(100vw - ${SIDEBAR_WIDTH}px)`,
+      }}
       className="flex fixed left-0 top-0 items-center justify-between border-b bg-background px-2 z-50 gap-4">
       <div className="flex flex-row items-center justify-center gap-4">
         <Logo />

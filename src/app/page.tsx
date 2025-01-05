@@ -6,9 +6,9 @@ import TimeBlock from "@/components/atoms/TimeBlock";
 import Sidebar from "@/components/molecules/Sidebar";
 import Grid from "@/components/templates/Grid";
 import {
-  headerHeight,
-  secondaryHeaderHeight,
-  sidebarWidth,
+  HEADER_HEIGHT,
+  SECONDARY_HEADER_HEIGHT,
+  SIDEBAR_WIDTH,
 } from "@/lib/consts";
 import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
@@ -105,7 +105,7 @@ export default function Home() {
     <QueryClientProvider client={queryClient}>
       <main className="flex">
         <Sidebar />
-        <div style={{ width: `calc(100vw - ${sidebarWidth}px)` }}>
+        <div style={{ width: `calc(100vw - ${SIDEBAR_WIDTH}px)` }}>
           <Header
             scrollToCurrentDate={scrollToCurrentDate}
             month={month}
@@ -115,10 +115,10 @@ export default function Home() {
           {settings.view !== 30 ? (
             <div className="flex">
               <div
-                style={{ marginTop: headerHeight }}
+                style={{ marginTop: HEADER_HEIGHT }}
                 className="flex flex-col w-[60px] border-r">
                 <p
-                  style={{ height: secondaryHeaderHeight }}
+                  style={{ height: SECONDARY_HEADER_HEIGHT }}
                   className="flex items-center justify-center text-xs border-b">
                   {timezoneString}
                 </p>
@@ -136,7 +136,7 @@ export default function Home() {
             </div>
           ) : (
             <p
-              style={{ height: `calc(100vh - ${headerHeight}px)` }}
+              style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
               className="flex items-center justify-center font-semibold text-2xl">
               Month view coming soon
             </p>

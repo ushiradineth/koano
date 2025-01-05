@@ -1,13 +1,13 @@
 import PreviewEvent from "@/components/atoms/PreviewEvent";
 import Time from "@/components/atoms/Time";
 import {
-  draggerId,
-  gridHeight,
-  headerHeight,
-  pixelPerHour,
-  pixelPerMinute,
-  pixelPerQuarter,
-  secondaryHeaderHeight,
+  DRAGGER_ID,
+  GRID_HEIGHT,
+  HEADER_HEIGHT,
+  PIXEL_PER_HOUR,
+  PIXEL_PER_MINUTE,
+  PIXEL_PER_QUARTER,
+  SECONDARY_HEADER_HEIGHT,
 } from "@/lib/consts";
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
@@ -104,7 +104,7 @@ export default function Day({
       const divX = mouseEvent.clientX - rect.left;
       const divY = Math.min(
         Math.max(mouseEvent.clientY - rect.top, -1),
-        gridHeight + 1,
+        GRID_HEIGHT + 1,
       );
 
       setActiveDay(day);
@@ -124,7 +124,7 @@ export default function Day({
 
         setActiveEvent(event);
 
-        if ((target.id ?? "") === draggerId) {
+        if ((target.id ?? "") === DRAGGER_ID) {
           setExtending(true);
         }
 
@@ -160,7 +160,7 @@ export default function Day({
       const currentMouseX = event.clientX - rect.left;
       const currentMouseY = Math.min(
         Math.max(event.clientY - rect.top, -1),
-        gridHeight + 1,
+        GRID_HEIGHT + 1,
       );
 
       if (selecting || extending) {
@@ -181,7 +181,7 @@ export default function Day({
         // Dragging upwards
         if (currentMouseY < clickPosition.y) {
           const previewHeight = getQuarter(
-            Math.max(clickPosition.y - currentMouseY, pixelPerQuarter),
+            Math.max(clickPosition.y - currentMouseY, PIXEL_PER_QUARTER),
           );
           setPreview({
             height: previewHeight,
@@ -192,7 +192,7 @@ export default function Day({
         else {
           setPreview({
             height: getQuarter(
-              Math.max(currentMouseY - clickPosition.y, pixelPerQuarter),
+              Math.max(currentMouseY - clickPosition.y, PIXEL_PER_QUARTER),
             ),
             top: getQuarter(clickPosition.y),
           });
@@ -225,7 +225,7 @@ export default function Day({
         const top = Math.min(anchorOffset - previewHeight, anchorOffset);
         const height = Math.abs(previewHeight);
 
-        top + height !== gridHeight && setPreview({ height, top });
+        top + height !== GRID_HEIGHT && setPreview({ height, top });
 
         return;
       }
@@ -262,7 +262,7 @@ export default function Day({
         title: "",
         start_time: getTimeFromPixelOffset(start.y, day),
         end_time: getTimeFromPixelOffset(
-          Math.max(end.y, start.y + pixelPerQuarter),
+          Math.max(end.y, start.y + PIXEL_PER_QUARTER),
           day,
         ),
         repeated: Repeated.Never,
@@ -314,7 +314,7 @@ export default function Day({
       const end = getPixelOffsetFromTime(activeEvent.end_time, day);
 
       setPreview({
-        height: Math.max(end - start, pixelPerQuarter),
+        height: Math.max(end - start, PIXEL_PER_QUARTER),
         top: start,
       });
     }
@@ -323,9 +323,9 @@ export default function Day({
   return (
     <div
       id={`${dayObject.day}-${dayObject.date}-${dayObject.month}-${dayObject.year}-${dayObject.week}`}
-      style={{ marginTop: headerHeight }}>
+      style={{ marginTop: HEADER_HEIGHT }}>
       <span
-        style={{ height: secondaryHeaderHeight }}
+        style={{ height: SECONDARY_HEADER_HEIGHT }}
         className="flex flex-row w-full sticky items-center justify-center gap-1 font-bold border-b text-sm">
         <p>{dayObject.day}</p>
         <p className={cn(today && "rounded-sm bg-[#EF4B46] px-1")}>
@@ -342,8 +342,8 @@ export default function Day({
           width,
           backgroundImage:
             "linear-gradient(to bottom, hsl(var(--border)/20) 1px, transparent 1px)",
-          backgroundSize: `100% ${pixelPerHour}px`,
-          backgroundPosition: `0 ${pixelPerHour}px`,
+          backgroundSize: `100% ${PIXEL_PER_HOUR}px`,
+          backgroundPosition: `0 ${PIXEL_PER_HOUR}px`,
         }}
         className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b border-border/20">
         <Time today={today} />
@@ -354,7 +354,7 @@ export default function Day({
             className="absolute w-full flex items-center justify-center bg-orange-500 bg-opacity-25">
             <p className="text-center text-lg font-bold"></p>
           </div>
-        ) : extending && activeEvent && preview.height >= pixelPerMinute ? (
+        ) : extending && activeEvent && preview.height >= PIXEL_PER_MINUTE ? (
           <PreviewEvent preview={preview} title={activeEvent.title} day={day} />
         ) : (
           previewing &&

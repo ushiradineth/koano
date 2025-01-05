@@ -1,4 +1,4 @@
-import { pixelPerHour, pixelPerQuarter } from "@/lib/consts";
+import { PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
 import { Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import dayjs from "dayjs";
@@ -100,8 +100,8 @@ export function getDateAndTimeFromSelection(
   date: Date,
 ): Date {
   const startDateTime = dayjs(date);
-  const hoursToAdd = Math.floor(selection / pixelPerHour);
-  const minutesToAdd = (selection % pixelPerHour) * 15;
+  const hoursToAdd = Math.floor(selection / PIXEL_PER_HOUR);
+  const minutesToAdd = (selection % PIXEL_PER_HOUR) * 15;
 
   const selectedDateTime = startDateTime
     .add(hoursToAdd, "hour")
@@ -214,5 +214,5 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 }
 
 export function getQuarter(value: number): number {
-  return Math.floor(value / pixelPerQuarter) * pixelPerQuarter;
+  return Math.floor(value / PIXEL_PER_QUARTER) * PIXEL_PER_QUARTER;
 }

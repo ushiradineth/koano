@@ -1,5 +1,5 @@
 import { generateEventTime } from "@/components/atoms/Event";
-import { pixelPerQuarter } from "@/lib/consts";
+import { PIXEL_PER_QUARTER } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
 import { cn, getTimeFromPixelOffset } from "@/lib/utils";
 
@@ -16,11 +16,11 @@ export default function PreviewEvent({ preview, title, day }: Props) {
     <div
       style={{
         top: preview.top,
-        height: Math.max(preview.height, pixelPerQuarter),
+        height: Math.max(preview.height, PIXEL_PER_QUARTER),
       }}
       className={cn(
         "flex flex-col h-full w-full text-foreground font-medium absolute z-50 bg-orange-400",
-        Math.max(preview.height, pixelPerQuarter) > 30 ? "p-1" : "px-1",
+        Math.max(preview.height, PIXEL_PER_QUARTER) > 30 ? "p-1" : "px-1",
       )}>
       <p className="truncate text-sm">{title}</p>
       <p className="text-xs opacity-75">

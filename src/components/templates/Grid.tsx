@@ -8,7 +8,13 @@ import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
 import { get as GetEvent } from "@/lib/api/event";
 import { ErrorResponse } from "@/lib/api/types";
-import { gridHeight, headerHeight, pixelPerMinute } from "@/lib/consts";
+import {
+  DATE_BUFFER_RANGE,
+  GRID_HEIGHT,
+  HEADER_HEIGHT,
+  INITIAL_DATE_RANGE,
+  PIXEL_PER_MINUTE,
+} from "@/lib/consts";
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
@@ -52,18 +58,18 @@ export default function Grid({
   });
   const debouncedSetCurrentMonth = useDebounceCallback(setCurrentMonth, 100);
 
-  const initialRange = 60;
-  const bufferRange = 30;
-
   const { data, isError } = useQuery({
     queryKey: ["events", session?.user?.access_token], // Unique cache key
     queryFn: () =>
       GetEvent({
         start_day: dayjs()
           .startOf("day")
-          .subtract(15, "day")
+          .subtract(DATE_BUFFER_RANGE, "day")
           .format("YYYY-MM-DD"),
-        end_day: dayjs().startOf("day").add(15, "day").format("YYYY-MM-DD"),
+        end_day: dayjs()
+          .startOf("day")
+          .add(DATE_BUFFER_RANGE, "day")
+          .format("YYYY-MM-DD"),
         access_token: session?.user?.access_token ?? "",
       }),
     enabled: status === "authenticated",
@@ -83,7 +89,7 @@ export default function Grid({
     );
   }, [isError, data, status]);
 
-  const handleScroll = useCallback(() => {
+  const handleScroll = useCallback(async () => {
     debouncedSetCurrentMonth();
 
     if (gridRef.current) {
@@ -96,7 +102,7 @@ export default function Grid({
         const lastDay = days[days.length - 1];
         const newDays = getDateRange(
           dayjs(lastDay).add(1, "day").toDate(),
-          dayjs(lastDay).add(bufferRange, "day").toDate(),
+          dayjs(lastDay).add(DATE_BUFFER_RANGE, "day").toDate(),
         );
         setDays((prevDays) => [...prevDays, ...newDays]);
       }
@@ -105,13 +111,13 @@ export default function Grid({
       if (scrollPosition < dayWidth * 5) {
         const firstDay = days[0];
         const newDays = getDateRange(
-          dayjs(firstDay).subtract(bufferRange, "day").toDate(),
+          dayjs(firstDay).subtract(DATE_BUFFER_RANGE, "day").toDate(),
           dayjs(firstDay).subtract(1, "day").toDate(),
         );
         setDays((prevDays) => [...newDays, ...prevDays]);
       }
     }
-  }, [days, dayWidth, debouncedSetCurrentMonth, gridRef]);
+  }, [days, dayWidth, debouncedSetCurrentMonth, gridRef, session]);
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -127,7 +133,7 @@ export default function Grid({
           return;
         }
 
-        const pixelOffset = active.data.current?.y * pixelPerMinute;
+        const pixelOffset = active.data.current?.y * PIXEL_PER_MINUTE;
         const start_time = getTimeFromYOffsetAndTime(
           pixelOffset,
           event.start_time,
@@ -183,8 +189,8 @@ export default function Grid({
   useEffect(() => {
     const currentDay = dayjs().startOf("day").toDate();
     const initialDays = getDateRange(
-      dayjs(currentDay).subtract(initialRange, "day").toDate(),
-      dayjs(currentDay).add(initialRange, "day").toDate(),
+      dayjs(currentDay).subtract(INITIAL_DATE_RANGE, "day").toDate(),
+      dayjs(currentDay).add(INITIAL_DATE_RANGE, "day").toDate(),
     );
 
     setDays(initialDays);
@@ -231,7 +237,7 @@ export default function Grid({
         onScroll={gridRef.current ? handleScroll : undefined}>
         {dayWidth === 0 ? (
           <div
-            style={{ height: `calc(100vh - ${headerHeight}px)` }}
+            style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
             className="flex w-full justify-center items-center">
             <Logo />
           </div>
@@ -240,7 +246,7 @@ export default function Grid({
             <Day
               key={date.toString()}
               id={date.toString()}
-              height={gridHeight}
+              height={GRID_HEIGHT}
               width={dayWidth}
               dragging={dragging}
               day={dayjs(date).startOf("day").toDate()}>
@@ -270,7 +276,7 @@ export function getTimeFromYOffsetAndTime(
   time: Date,
   day: Date,
 ): Date {
-  const minutes = getQuarter(offset * pixelPerMinute);
+  const minutes = getQuarter(offset * PIXEL_PER_MINUTE);
 
   const i = dayjs(time)
     .set("date", dayjs(day).date())
