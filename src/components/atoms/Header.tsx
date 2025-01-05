@@ -49,7 +49,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Avatar>
-                <AvatarFallback className="bg-foreground-tertiary">
+                <AvatarFallback className="bg-primary text-primary-foreground">
                   <User className="h-4 w-4 shrink-0 opacity-50" />
                 </AvatarFallback>
               </Avatar>
@@ -87,9 +87,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
             { value: 30, label: "Month" },
           ]}
         />
-        <Button
-          className="text-foreground bg-foreground-tertiary hover:bg-background/30 w-fit"
-          onClick={() => scrollToCurrentDate()}>
+        <Button className="w-fit" onClick={() => scrollToCurrentDate()}>
           <p>Today</p>
         </Button>
       </span>

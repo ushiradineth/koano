@@ -145,7 +145,11 @@ export default function Login() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button
+                type="submit"
+                variant="secondary"
+                className="w-full"
+                disabled={loading}>
                 {loading ? <LoaderCircle className="animate-spin" /> : "Login"}
               </Button>
               <div className="text-center text-sm">

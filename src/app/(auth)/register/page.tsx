@@ -154,7 +154,11 @@ export default function Register() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isRegistering}>
+              <Button
+                type="submit"
+                variant="secondary"
+                className="w-full"
+                disabled={isRegistering}>
                 {isRegistering ? (
                   <LoaderCircle className="animate-spin" />
                 ) : (

@@ -47,6 +47,10 @@ const config = {
           tertiary: "hsl(var(--foreground)/25%)",
         },
         border: "hsl(var(--border))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
