@@ -59,7 +59,11 @@ export default function Grid({
   });
   const debouncedSetCurrentMonth = useDebounceCallback(setCurrentMonth, 100);
 
-  const { data, isError } = useQuery({
+  const {
+    data,
+    isLoading: isLoadingEvents,
+    isError,
+  } = useQuery({
     queryKey: ["events", session?.user?.access_token], // Unique cache key
     queryFn: () =>
       GetEvent({
@@ -279,7 +283,7 @@ export default function Grid({
         className="flex w-full scroll-smooth snap-x snap-mandatory overflow-scroll no-scrollbar"
         ref={gridRef}
         onScroll={gridRef.current ? debouncedHandleScroll : undefined}>
-        {dayWidth === 0 ? (
+        {dayWidth === 0 || isLoadingEvents ? (
           <div
             style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
             className="flex w-full justify-center items-center">
@@ -294,19 +298,20 @@ export default function Grid({
               width={dayWidth}
               dragging={dragging}
               day={dayjs(date).startOf("day").toDate()}>
-              {events
-                .filter(
-                  (event) =>
-                    dayjs(event.start_time).format("DD/MM/YYYY") ===
-                    dayjs(date).format("DD/MM/YYYY"),
-                )
-                .map((event) => (
-                  <Event
-                    key={event.id}
-                    event={event}
-                    active={event.id === activeEvent?.id}
-                  />
-                ))}
+              {events.length > 0 &&
+                events
+                  .filter(
+                    (event) =>
+                      dayjs(event.start_time).format("DD/MM/YYYY") ===
+                      dayjs(date).format("DD/MM/YYYY"),
+                  )
+                  .map((event) => (
+                    <Event
+                      key={event.id}
+                      event={event}
+                      active={event.id === activeEvent?.id}
+                    />
+                  ))}
             </Day>
           ))
         )}
