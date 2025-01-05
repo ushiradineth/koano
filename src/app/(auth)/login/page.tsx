@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/validators";
-import { LoaderCircle } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
@@ -32,6 +32,7 @@ import { toast } from "sonner";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { status } = useSession();
   const router = useRouter();
@@ -132,14 +133,22 @@ export default function Login() {
                         //</Link>
                       }
                     </FormLabel>
-                    <FormControl className="flex items-center">
-                      <Input
-                        className="w-full"
-                        placeholder="********"
-                        autoComplete="current-password"
-                        type="password"
-                        {...field}
-                      />
+                    <FormControl>
+                      <div className="flex w-full max-w-sm items-center relative">
+                        <Input
+                          className="w-full"
+                          placeholder="********"
+                          autoComplete="current-password"
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-0 top-0 p-2 text-primary-foreground"
+                          onClick={() => setShowPassword(!showPassword)}>
+                          {showPassword ? <EyeOff /> : <Eye />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

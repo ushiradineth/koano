@@ -26,14 +26,16 @@ import { ErrorResponse, Status } from "@/lib/api/types";
 import { post as CreateUser } from "@/lib/api/user";
 import { RegisterSchema } from "@/lib/validators";
 import { useMutation } from "@tanstack/react-query";
-import { LoaderCircle } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Register() {
+  const [showPassword, setShowPassword] = useState(false);
+
   const { status } = useSession();
   const router = useRouter();
 
@@ -141,14 +143,22 @@ export default function Register() {
                     <FormLabel className="flex items-center">
                       <p>Password</p>
                     </FormLabel>
-                    <FormControl className="flex items-center">
-                      <Input
-                        className="w-full"
-                        placeholder="********"
-                        autoComplete="current-password"
-                        type="password"
-                        {...field}
-                      />
+                    <FormControl>
+                      <div className="flex w-full max-w-sm items-center relative">
+                        <Input
+                          className="w-full"
+                          placeholder="********"
+                          autoComplete="current-password"
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-0 top-0 p-2 text-primary-foreground"
+                          onClick={() => setShowPassword(!showPassword)}>
+                          {showPassword ? <EyeOff /> : <Eye />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
