@@ -2,12 +2,6 @@ import Logo from "@/components/atoms/Logo";
 import SettingPicker from "@/components/atoms/SettingPicker";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/lib/consts";
-import { useContextStore } from "@/lib/stores/context";
-import { useSettingStore } from "@/lib/stores/settings";
-import { Clock, View } from "@/lib/types";
-import { LoaderCircle, User } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +9,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
+import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/lib/consts";
+import { useContextStore } from "@/lib/stores/context";
+import { useSettingStore } from "@/lib/stores/settings";
+import { Clock, View } from "@/lib/types";
+import { LoaderCircle, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 
 interface Props {
   scrollToCurrentDate: () => void;
