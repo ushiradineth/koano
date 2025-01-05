@@ -60,10 +60,11 @@ export default function Home() {
               dayObjectWithCurrentDate.day,
             );
           }
-          gridRef.current.scrollTo(
-            gridRef.current.children[i].clientWidth * (i + reduce),
-            0,
-          );
+          gridRef.current.scrollTo({
+            left: gridRef.current.children[i].clientWidth * (i + reduce),
+            top: 0,
+            behavior: "instant",
+          });
         }
       }
     }
