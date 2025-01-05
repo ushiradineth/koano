@@ -84,8 +84,12 @@ export default function Grid({
   useEffect(() => {
     if (data) {
       setEvents(data.data);
+      if (prevDayWidth.current === 0) {
+        prevDayWidth.current = dayWidth;
+        scrollToCurrentDate();
+      }
     }
-  }, [data, setEvents]);
+  }, [data, setEvents, dayWidth, scrollToCurrentDate]);
 
   useEffect(() => {
     const dateRange = INITIAL_DATE_RANGE / 2;
@@ -227,13 +231,6 @@ export default function Grid({
     },
     [getEventById, editEvent, setActiveEvent],
   );
-
-  useEffect(() => {
-    if (prevDayWidth.current === 0) {
-      prevDayWidth.current = dayWidth;
-      scrollToCurrentDate();
-    }
-  }, [dayWidth, scrollToCurrentDate]);
 
   useEffect(() => {
     if (gridRef.current) {
