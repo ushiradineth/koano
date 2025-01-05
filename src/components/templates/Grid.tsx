@@ -50,6 +50,7 @@ export default function Grid({
     setSelecting,
     setExtending,
     setPreviewing,
+    setGlobalLoading,
   } = useContextStore();
 
   const { width: windowWidth } = useWindowSize({
@@ -83,41 +84,94 @@ export default function Grid({
   }, [data, setEvents]);
 
   useEffect(() => {
+    const dateRange = INITIAL_DATE_RANGE / 2;
+    const currentDay = dayjs().startOf("day").toDate();
+    const initialDays = getDateRange(
+      dayjs(currentDay).subtract(dateRange, "day").toDate(),
+      dayjs(currentDay).add(dateRange, "day").toDate(),
+    );
+
+    setDays(initialDays);
+  }, []);
+
+  useEffect(() => {
     if (status !== "authenticated" || !isError) return;
     toast.error(
       (data as any as ErrorResponse).error ?? "Failed to fetch events",
     );
   }, [isError, data, status]);
 
-  const handleScroll = useCallback(async () => {
-    debouncedSetCurrentMonth();
+  const debouncedHandleScroll = useDebounceCallback(
+    useCallback(async () => {
+      setGlobalLoading(true);
+      debouncedSetCurrentMonth();
 
-    if (gridRef.current) {
-      const scrollPosition = gridRef.current.scrollLeft;
-      const maxScroll =
-        gridRef.current.scrollWidth - gridRef.current.clientWidth;
+      if (gridRef.current) {
+        const scrollPosition = gridRef.current.scrollLeft;
+        const maxScroll =
+          gridRef.current.scrollWidth - gridRef.current.clientWidth;
 
-      // If the user is close to the right end (future dates), add more future days
-      if (scrollPosition > maxScroll - dayWidth * 5) {
-        const lastDay = days[days.length - 1];
-        const newDays = getDateRange(
-          dayjs(lastDay).add(1, "day").toDate(),
-          dayjs(lastDay).add(DATE_BUFFER_RANGE, "day").toDate(),
-        );
-        setDays((prevDays) => [...prevDays, ...newDays]);
+        // If the user is close to the right end (future dates), add more future days
+        if (scrollPosition > maxScroll - dayWidth * 5) {
+          const lastDay = days[days.length - 1];
+          const newDays = getDateRange(
+            dayjs(lastDay).add(1, "day").toDate(),
+            dayjs(lastDay).add(DATE_BUFFER_RANGE, "day").toDate(),
+          );
+          setDays((prevDays) => [...prevDays, ...newDays]);
+
+          const { data } = await GetEvent({
+            start_day: dayjs(lastDay)
+              .startOf("day")
+              .add(1, "day")
+              .format("YYYY-MM-DD"),
+            end_day: dayjs(lastDay)
+              .startOf("day")
+              .add(DATE_BUFFER_RANGE, "day")
+              .format("YYYY-MM-DD"),
+            access_token: session?.user?.access_token ?? "",
+          });
+
+          setEvents([...events, ...data]);
+        }
+
+        // If the user is close to the left end (past dates), add more past days
+        if (scrollPosition < dayWidth * 5) {
+          const firstDay = days[0];
+          const newDays = getDateRange(
+            dayjs(firstDay).subtract(DATE_BUFFER_RANGE, "day").toDate(),
+            dayjs(firstDay).subtract(1, "day").toDate(),
+          );
+          setDays((prevDays) => [...newDays, ...prevDays]);
+
+          const { data } = await GetEvent({
+            start_day: dayjs(firstDay)
+              .startOf("day")
+              .subtract(DATE_BUFFER_RANGE, "day")
+              .format("YYYY-MM-DD"),
+            end_day: dayjs(firstDay)
+              .startOf("day")
+              .subtract(1, "day")
+              .format("YYYY-MM-DD"),
+            access_token: session?.user?.access_token ?? "",
+          });
+
+          setEvents([...data, ...events]);
+        }
       }
-
-      // If the user is close to the left end (past dates), add more past days
-      if (scrollPosition < dayWidth * 5) {
-        const firstDay = days[0];
-        const newDays = getDateRange(
-          dayjs(firstDay).subtract(DATE_BUFFER_RANGE, "day").toDate(),
-          dayjs(firstDay).subtract(1, "day").toDate(),
-        );
-        setDays((prevDays) => [...newDays, ...prevDays]);
-      }
-    }
-  }, [days, dayWidth, debouncedSetCurrentMonth, gridRef, session]);
+      setGlobalLoading(false);
+    }, [
+      days,
+      dayWidth,
+      debouncedSetCurrentMonth,
+      gridRef,
+      session,
+      events,
+      setEvents,
+      setGlobalLoading,
+    ]),
+    100,
+  );
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -187,16 +241,6 @@ export default function Grid({
   }, [settings.view, windowWidth]);
 
   useEffect(() => {
-    const currentDay = dayjs().startOf("day").toDate();
-    const initialDays = getDateRange(
-      dayjs(currentDay).subtract(INITIAL_DATE_RANGE, "day").toDate(),
-      dayjs(currentDay).add(INITIAL_DATE_RANGE, "day").toDate(),
-    );
-
-    setDays(initialDays);
-  }, []);
-
-  useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSelecting(false);
@@ -234,7 +278,7 @@ export default function Grid({
       <div
         className="flex w-full scroll-smooth snap-x snap-mandatory overflow-scroll no-scrollbar"
         ref={gridRef}
-        onScroll={gridRef.current ? handleScroll : undefined}>
+        onScroll={gridRef.current ? debouncedHandleScroll : undefined}>
         {dayWidth === 0 ? (
           <div
             style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}

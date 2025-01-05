@@ -15,6 +15,8 @@ type ContextStore = {
   setPreviewing: (previewing: boolean) => void;
   accessToken: string | null;
   setAccessToken: (accessToken: string | null) => void;
+  globalLoading: boolean;
+  setGlobalLoading: (loading: boolean) => void;
 };
 
 export const useContextStore = create<ContextStore>()((set) => ({
@@ -30,4 +32,6 @@ export const useContextStore = create<ContextStore>()((set) => ({
   setPreviewing: (previewing: boolean) => set({ previewing }),
   accessToken: null,
   setAccessToken: (accessToken: string | null) => set({ accessToken }),
+  globalLoading: false,
+  setGlobalLoading: (loading: boolean) => set({ globalLoading: loading }),
 }));

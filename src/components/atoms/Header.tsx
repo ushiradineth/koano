@@ -3,9 +3,10 @@ import SettingPicker from "@/components/atoms/SettingPicker";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/lib/consts";
+import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, View } from "@/lib/types";
-import { User } from "lucide-react";
+import { LoaderCircle, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import {
   DropdownMenu,
@@ -25,6 +26,7 @@ interface Props {
 export default function Header({ scrollToCurrentDate, month, year }: Props) {
   const { data: session, status } = useSession();
   const { settings, setSettings } = useSettingStore();
+  const { globalLoading } = useContextStore();
 
   return (
     <nav
@@ -38,6 +40,9 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
         <p className="font-semibold mt-1">
           {month} {year}
         </p>
+        {globalLoading && (
+          <LoaderCircle className="animate-spin h-4 w-4 text-foreground-secondary" />
+        )}
       </div>
       <span className="flex gap-2">
         {status === "authenticated" && (
