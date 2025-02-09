@@ -6,6 +6,7 @@ import "dayjs/plugin/relativeTime";
 import "dayjs/plugin/utc";
 import type { Metadata } from "next";
 
+import QueryClientProviderWrapper from "@/components/atoms/QueryClientProvider";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
@@ -28,6 +29,7 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html lang="en" className="no-scrollbar select-none">
@@ -36,9 +38,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
+        <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
       </head>
       <body className="dark min-h-screen max-w-[1440px] font-sans antialiased">
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <QueryClientProviderWrapper>{children}</QueryClientProviderWrapper>
+        </SessionProvider>
         <Toaster />
       </body>
     </html>

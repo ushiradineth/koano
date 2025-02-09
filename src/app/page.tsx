@@ -17,12 +17,9 @@ import {
   getDayObjectFromId,
   getDayObjectWithDate,
 } from "@/lib/utils";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-const queryClient = new QueryClient();
 
 export default function Home() {
   const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
@@ -103,48 +100,46 @@ export default function Home() {
     );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <main className="flex">
-        <Sidebar />
-        <div style={{ width: `calc(100vw - ${SIDEBAR_WIDTH}px)` }}>
-          <Header
-            scrollToCurrentDate={scrollToCurrentDate}
-            month={month}
-            year={year}
-          />
+    <main className="flex">
+      <Sidebar />
+      <div style={{ width: `calc(100vw - ${SIDEBAR_WIDTH}px)` }}>
+        <Header
+          scrollToCurrentDate={scrollToCurrentDate}
+          month={month}
+          year={year}
+        />
 
-          {settings.view !== 30 ? (
-            <div className="flex">
-              <div
-                style={{ marginTop: HEADER_HEIGHT }}
-                className="flex flex-col w-[60px] border-r">
-                <p
-                  style={{ height: SECONDARY_HEADER_HEIGHT }}
-                  className="flex items-center justify-center text-xs border-b">
-                  {timezoneString}
-                </p>
-                <div className="flex flex-col">
-                  {new Array(24 * 1).fill(0).map((_, index) => (
-                    <TimeBlock key={index} hour={index} />
-                  ))}
-                </div>
+        {settings.view !== 30 ? (
+          <div className="flex">
+            <div
+              style={{ marginTop: HEADER_HEIGHT }}
+              className="flex flex-col w-[60px] border-r">
+              <p
+                style={{ height: SECONDARY_HEADER_HEIGHT }}
+                className="flex items-center justify-center text-xs border-b">
+                {timezoneString}
+              </p>
+              <div className="flex flex-col">
+                {new Array(24 * 1).fill(0).map((_, index) => (
+                  <TimeBlock key={index} hour={index} />
+                ))}
               </div>
-              <Grid
-                gridRef={gridRef}
-                scrollToCurrentDate={scrollToCurrentDate}
-                setCurrentMonth={setCurrentMonth}
-              />
             </div>
-          ) : (
-            <p
-              style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
-              className="flex items-center justify-center font-semibold text-2xl">
-              Month view coming soon
-            </p>
-          )}
-        </div>
-      </main>
-    </QueryClientProvider>
+            <Grid
+              gridRef={gridRef}
+              scrollToCurrentDate={scrollToCurrentDate}
+              setCurrentMonth={setCurrentMonth}
+            />
+          </div>
+        ) : (
+          <p
+            style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
+            className="flex items-center justify-center font-semibold text-2xl">
+            Month view coming soon
+          </p>
+        )}
+      </div>
+    </main>
   );
 }
 

@@ -3,6 +3,7 @@ import { ErrorResponse, HttpCode } from "@/lib/api/types";
 import { InvalidCredentialsError, ServerError } from "@/lib/auth/errors";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { useContextStore } from "../stores/context";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -95,6 +96,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.email = token.email;
       session.user.name = token.name;
       session.user.access_token = token.access_token ?? "";
+      useContextStore.getState().setAccessToken(token.access_token ?? "");
       return session;
     },
     async authorized({ auth }) {
