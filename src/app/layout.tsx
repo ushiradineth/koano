@@ -37,7 +37,6 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/icon/cron.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icon/cron.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icon/cron.png" />
-        <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
       </head>
       <body className="dark min-h-screen max-w-[1440px] font-sans antialiased">
         <SessionProvider>
