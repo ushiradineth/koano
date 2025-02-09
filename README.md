@@ -1,4 +1,4 @@
-# Cron (In Development)
+# Cron
 
 - An Calander Management App made to learn Advanced UI Use Cases and Golang with Test Driven Development.
 
@@ -70,6 +70,8 @@
 
 ## Todo List
 
+- Unfortunatly, this project is on hold as I am working on a few other projects that I would like to focus more on, however, this list would act as a roadmap if I do come back to this project.
+
 ### Frontend
 
 - [ ] Light mode.
@@ -78,16 +80,16 @@
 - [ ] Add custom color palette for events.
 - [ ] Events that span multiple days.
 - [ ] Repeated events.
-- [ ] Timezone support.
+- [x] Timezone support.
 - [ ] Monthly and yearly view.
 
 ### Backend
 
 - [ ] Rate limiting.
-- [ ] Logging.
-- [ ] Metrics.
-- [ ] Tracing.
-- [ ] Kubernetes deployment with Flux and Helm.
+- [x] Logging.
+- [x] Metrics.
+- [x] Tracing.
+- [x] Kubernetes deployment with ArgoCD.
 - [ ] Architecture Documentation.
 
 ### General
@@ -99,6 +101,9 @@
 - [ ] Google Calendar integration.
 - [ ] Google Contacts integration.
 - [ ] Google Auth integration.
+- [ ] Migrate from AuthJS to Better Auth.
+- [ ] NextJS 15.
+- [ ] React Suspense.
 
 ## Running the Project
 
