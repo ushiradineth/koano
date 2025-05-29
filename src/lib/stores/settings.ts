@@ -25,7 +25,7 @@ export const useSettingStore = create<SettingStore>()(
       },
     }),
     {
-      name: "cron-settings",
+      name: "koano-settings",
       storage: createJSONStorage(() => localStorage),
     },
   ),

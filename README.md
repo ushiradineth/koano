@@ -1,115 +1,42 @@
-# Cron
+# Koano
 
-- An Calander Management App made to learn Advanced UI Use Cases and Golang with Test Driven Development.
+[![License: BSL](https://img.shields.io/badge/license-BSL--1.1-blue.svg)](LICENSE)
 
-- Backend can be found [here](https://github.com/ushiradineth/cron-be).
+> A calendar management app born out of frustration with Jira and Clockify 😔
 
-## Technologies
+- Koano is a modern calendar management tool built to eliminate the friction of juggling work tools like Jira, Notion, and Clockify. Designed with powerful UI interactions and developer-first principles, Koano centralizes your schedule, tasks, and time tracking into a single intuitive interface.
 
-### Frontend
+## Why Koano?
 
-- `TypeScript`
-- `Next.js`
-- `Dnd-kit`
-- `Zustand`
-- `NextAuth`
-- `TanStack Query`
-- `Tailwind CSS`
-- `Zod`
+Juggling multiple tools for time management, project planning, and tracking is painful. Koano brings your calendars, tasks, and timesheets into one powerful and minimal interface — freeing you from the mess of switching between Jira, Notion, Clockify, and others.
 
-### Backend
+## 🔍 Demo
 
-- `Go`
-- `net/http`
-- `PostgreSQL`
-- `Test Containers`
-- `Swaggo`
-- `sqlx`
-
-### Infrastructure
-
-- `Docker`
-- `Github Actions`
-- `Vercel`
-- `GitHub Container Registry`
+> Coming soon! A live preview of Koano in action will be available here.
 
 ## Features
 
-- Here's what I learned and implemented on this project:
+- **Smart Drag & Drop Interface** – Create, resize, or move events effortlessly using advanced DnD-kit interactions.
+- **Event Previews & Customization** – Get instant feedback before saving changes, and personalize events with colors and timezones.
+- **Integrated Productivity** – Coming soon: Sync with Google Calendar, Notion, Jira, Clockify, and more.
+- **Time-Zone Aware** – Manage and display events across different timezones.
 
-### Advanced UI drag and drop with Dnd-kit.
+## Integrations **Upcoming**
 
-- Drag through a day to create a new event.
-- Drag from the top or bottom of an event to extend or shorten it.
-- Drag the event from the middle to move it to another day.
-- Show previews of the changes done through the sidebar.
-- Show previews of the changes done before create a new event.
-- Show previews of the changes done through resizing an event.
-- Lots of performance testing and bug fixes due to the complexity of the UI.
+- **Google Calendar Integration** – Sync your Google Calendar with Koano to access your events across multiple devices.
+- **Notion Integration** – Sync your Notion database with Koano to access your tasks and notes.
+- **Jira Integration** – Sync your Jira tasks with Koano to access your work items.
+- **Clockify Integration** – Sync your Clockify tasks with Koano to access your time entries.
+- **Linear Integration** – Sync your Linear tasks with Koano to access your work items.
 
-### State management with Zustand.
+## Features and Roadmap
 
-- I have not used state management libraries before on a personal project, so I used this opportunity to learn it.
-- Manage the state of the events, settings and prerendered data with Zustand.
-- Share state between the sidebar and calander view for previewing.
+Please refer to the [feature roadmap](docs/FEATURES.md) for a list of features that I would like to implement in to the complete product.
 
-### TDD with Go.
+## Installation
 
-- The flow of TDD is to write the test first, then write the code to make the test pass.
-- The main goal of this project is to learn TDD, so I wrote the tests first.
+Please refer to the [installation guide](docs/INSTALLATION.md) for instructions on how to set up and run the project.
 
-### Test Containers.
+## Process
 
-- I used `Test Containers` to run the tests in a containerized environment.
-- This allowed me to run the tests in a headless environment, which is important for the CI/CD pipeline.
-
-## The Process
-
-- This project took a while to complete due to work.
-- I wanted to use this project as a canvas to try new technologies, which I was able to.
-
-## Todo List
-
-- Unfortunatly, this project is on hold as I am working on a few other projects that I would like to focus more on, however, this list would act as a roadmap if I do come back to this project.
-
-### Frontend
-
-- [ ] Light mode.
-- [ ] Context menu to save changes.
-- [ ] Settings page for user and calander settings.
-- [ ] Add custom color palette for events.
-- [ ] Events that span multiple days.
-- [ ] Repeated events.
-- [x] Timezone support.
-- [ ] Monthly and yearly view.
-
-### Backend
-
-- [ ] Rate limiting.
-- [x] Logging.
-- [x] Metrics.
-- [x] Tracing.
-- [x] Kubernetes deployment with ArgoCD.
-- [ ] Architecture Documentation.
-
-### General
-
-- [ ] Forget Password Flow.
-- [ ] Email verification.
-- [ ] Email only signup.
-- [ ] Notion integration.
-- [ ] Google Calendar integration.
-- [ ] Google Contacts integration.
-- [ ] Google Auth integration.
-- [ ] Migrate from AuthJS to Better Auth.
-- [ ] NextJS 15.
-- [ ] React Suspense.
-
-## Running the Project
-
-- To run the project in your local environment, follow these steps:
-  - Clone the repository to your local machine.
-  - Clone the [backend](https://github.com/ushiradineth/cron-be) repository, and follow the instructions to run the backend.
-  - Copy the `.env.example` file to `.env` and fill in the required environment variables.
-  - Run `pnpm install` in the project directory to install the required dependencies.
-  - Run `pnpm dev` to get the project running.
+Please refer to the [process documentation](docs/PROCESS.md) for a detailed explanation of the personal motive, technologies, and my learning process throughout the development of the project.

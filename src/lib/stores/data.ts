@@ -30,7 +30,7 @@ export const useDataStore = create<DataStore>()(
         }),
     }),
     {
-      name: "cron-data",
+      name: "koano-data",
       storage: createJSONStorage(() => sessionStorage),
     },
   ),
