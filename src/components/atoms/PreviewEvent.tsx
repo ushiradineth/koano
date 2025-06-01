@@ -19,7 +19,7 @@ export default function PreviewEvent({ preview, title, day }: Props) {
         height: Math.max(preview.height, PIXEL_PER_QUARTER),
       }}
       className={cn(
-        "flex flex-col h-full w-full text-foreground font-medium absolute z-50 bg-orange-400",
+        "absolute z-50 flex h-full w-full flex-col bg-orange-400 font-medium text-foreground",
         Math.max(preview.height, PIXEL_PER_QUARTER) > 30 ? "p-1" : "px-1",
       )}>
       <p className="truncate text-sm">{title}</p>

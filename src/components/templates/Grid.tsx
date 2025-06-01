@@ -277,13 +277,13 @@ export default function Grid({
       onDragEnd={handleDragEnd}
       collisionDetection={closestCenter}>
       <div
-        className="flex w-full scroll-smooth snap-x snap-mandatory overflow-scroll no-scrollbar"
+        className="no-scrollbar flex w-full snap-x snap-mandatory overflow-scroll scroll-smooth"
         ref={gridRef}
         onScroll={gridRef.current ? debouncedHandleScroll : undefined}>
         {dayWidth === 0 || isLoadingEvents ? (
           <div
             style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
-            className="flex w-full justify-center items-center">
+            className="flex w-full items-center justify-center">
             <Logo />
           </div>
         ) : (

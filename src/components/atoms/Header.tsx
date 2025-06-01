@@ -34,14 +34,14 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
         height: HEADER_HEIGHT,
         width: `calc(100vw - ${SIDEBAR_WIDTH}px)`,
       }}
-      className="flex fixed left-0 top-0 items-center justify-between border-b bg-background px-2 z-50 gap-4">
+      className="fixed left-0 top-0 z-50 flex items-center justify-between gap-4 border-b bg-background px-2">
       <div className="flex flex-row items-center justify-center gap-4">
         <Logo />
-        <p className="font-semibold mt-1">
+        <p className="mt-1 font-semibold">
           {month} {year}
         </p>
         {globalLoading && (
-          <LoaderCircle className="animate-spin h-4 w-4 text-foreground-secondary" />
+          <LoaderCircle className="h-4 w-4 animate-spin text-foreground-secondary" />
         )}
       </div>
       <span className="flex gap-2">

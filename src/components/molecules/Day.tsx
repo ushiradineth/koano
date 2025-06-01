@@ -326,7 +326,7 @@ export default function Day({
       style={{ marginTop: HEADER_HEIGHT }}>
       <span
         style={{ height: SECONDARY_HEADER_HEIGHT }}
-        className="flex flex-row w-full sticky items-center justify-center gap-1 font-bold border-b text-sm">
+        className="sticky flex w-full flex-row items-center justify-center gap-1 border-b text-sm font-bold">
         <p>{dayObject.day}</p>
         <p className={cn(today && "rounded-sm bg-[#EF4B46] px-1")}>
           {dayObject.date}
@@ -345,14 +345,14 @@ export default function Day({
           backgroundSize: `100% ${PIXEL_PER_HOUR}px`,
           backgroundPosition: `0 ${PIXEL_PER_HOUR}px`,
         }}
-        className="flex flex-col items-center justify-between gap-2 relative snap-start border-x border-b border-border/20">
+        className="relative flex snap-start flex-col items-center justify-between gap-2 border-x border-b border-border/20">
         <Time today={today} />
         {selecting &&
         dayjs(activeDay).startOf("day").isSame(dayjs(day).startOf("day")) ? (
           <div
             style={preview}
-            className="absolute w-full flex items-center justify-center bg-orange-500 bg-opacity-25">
-            <p className="text-center text-lg font-bold"></p>
+            className="absolute flex w-full items-center justify-center bg-orange-500 bg-opacity-25">
+            <p className="text-lg text-center font-bold"></p>
           </div>
         ) : extending && activeEvent && preview.height >= PIXEL_PER_MINUTE ? (
           <PreviewEvent preview={preview} title={activeEvent.title} day={day} />

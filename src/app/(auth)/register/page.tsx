@@ -79,14 +79,14 @@ export default function Register() {
 
   if (status === "loading")
     return (
-      <div className="flex items-center justify-center h-screen w-screen">
+      <div className="flex h-screen w-screen items-center justify-center">
         <Logo />
       </div>
     );
 
   return (
     <div className="flex h-screen w-screen items-center justify-center px-4">
-      <Card className="mx-auto max-w-sm min-w-[320px]">
+      <Card className="mx-auto min-w-[320px] max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Register</CardTitle>
           <CardDescription>
@@ -144,7 +144,7 @@ export default function Register() {
                       <p>Password</p>
                     </FormLabel>
                     <FormControl>
-                      <div className="flex w-full max-w-sm items-center relative">
+                      <div className="relative flex w-full max-w-sm items-center">
                         <Input
                           className="w-full"
                           placeholder="********"

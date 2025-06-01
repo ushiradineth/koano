@@ -41,7 +41,7 @@ export default function Picker({ name, label, form, options }: Props) {
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-col w-full">
+        <FormItem className="flex w-full flex-col">
           <FormLabel>{label}</FormLabel>
           <Popover>
             <PopoverTrigger asChild>

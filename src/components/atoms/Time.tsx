@@ -11,11 +11,11 @@ export default function Time({ today }: Props) {
 
   return (
     <div
-      className="flex absolute w-full"
+      className="absolute flex w-full"
       style={{
         top: time.hour * PIXEL_PER_HOUR + time.minutes * PIXEL_PER_MINUTE,
       }}>
-      {today && <p className="absolute -top-3 -left-1">•</p>}
+      {today && <p className="absolute -left-1 -top-3">•</p>}
       <div
         className={cn(
           "h-0.5 w-full bg-orange-400",

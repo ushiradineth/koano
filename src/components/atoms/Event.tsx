@@ -75,14 +75,14 @@ export default function Event({ event, active }: Props) {
       id={event.id}
       ref={setNodeRef}
       className={cn(
-        "flex flex-col w-full bg-opacity-75 relative border-l-4 border-orange-300 rounded-sm",
+        "relative flex w-full flex-col rounded-sm border-l-4 border-orange-300 bg-opacity-75",
         active ? "bg-orange-300" : "bg-orange-500",
       )}
       style={style}>
       <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
       <span
         className={cn(
-          "flex h-full text-foreground font-medium",
+          "flex h-full font-medium text-foreground",
           isDragging
             ? "cursor-grabbing"
             : active
@@ -90,7 +90,7 @@ export default function Event({ event, active }: Props) {
               : "cursor-default",
           height > 30 * PIXEL_PER_MINUTE ? "p-1" : "px-1",
           height <= 15 * PIXEL_PER_MINUTE
-            ? "flex-row gap-2 items-center truncate"
+            ? "flex-row items-center gap-2 truncate"
             : "flex-col",
         )}
         onMouseDown={() => {
@@ -120,7 +120,7 @@ function Dragger({
         height: compact ? PIXEL_PER_MINUTE * 2.5 : PIXEL_PER_QUARTER,
       }}
       className={cn(
-        "flex items-center justify-center absolute cursor-row-resize w-full",
+        "absolute flex w-full cursor-row-resize items-center justify-center",
         className,
       )}
     />

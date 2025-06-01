@@ -23,7 +23,7 @@ export default function SettingPicker({
 }: SettingPickerProps) {
   return (
     <Select onValueChange={setSetting} value={String(defaultValue)}>
-      <SelectTrigger className="bg-primary text-primary-foreground font-semibold w-fit">
+      <SelectTrigger className="w-fit bg-primary font-semibold text-primary-foreground">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -130,14 +130,14 @@ export default function Sidebar() {
   return (
     <div
       style={{ width: SIDEBAR_WIDTH }}
-      className={"flex flex-col h-screen fixed right-0 bg-background border-l"}>
+      className={"fixed right-0 flex h-screen flex-col border-l bg-background"}>
       {activeEvent ? (
         <>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="text-sm">
-              <span className="flex flex-col w-full px-2 py-4 gap-2">
+              <span className="flex w-full flex-col gap-2 px-2 py-4">
                 <div className="flex items-center gap-2">
-                  <h2 className="font-semibold px-2">Event</h2>
+                  <h2 className="px-2 font-semibold">Event</h2>
                   <button
                     type="button"
                     className="ml-auto"
@@ -164,8 +164,8 @@ export default function Sidebar() {
                   )}
                 />
               </span>
-              <span className="flex flex-col border-t px-2 py-4 gap-2">
-                <div className="flex gap-2 font-semibold items-center">
+              <span className="flex flex-col gap-2 border-t px-2 py-4">
+                <div className="flex items-center gap-2 font-semibold">
                   <FormField
                     control={form.control}
                     name="start"
@@ -330,7 +330,7 @@ export default function Sidebar() {
           </Form>
         </>
       ) : (
-        <p className="flex items-center justify-center h-full w-full text-lg font-semibold">
+        <p className="text-lg flex h-full w-full items-center justify-center font-semibold">
           No event selected
         </p>
       )}

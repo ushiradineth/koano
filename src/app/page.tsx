@@ -12,6 +12,7 @@ import {
 } from "@/lib/consts";
 import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
+
 import {
   calculateDaysToPreviousMonday,
   getDayObjectFromId,
@@ -94,7 +95,7 @@ export default function Home() {
 
   if (status === "loading")
     return (
-      <div className="flex items-center justify-center h-screen w-screen">
+      <div className="flex h-screen w-screen items-center justify-center">
         <Logo />
       </div>
     );
@@ -113,10 +114,10 @@ export default function Home() {
           <div className="flex">
             <div
               style={{ marginTop: HEADER_HEIGHT }}
-              className="flex flex-col w-[60px] border-r">
+              className="flex w-[60px] flex-col border-r">
               <p
                 style={{ height: SECONDARY_HEADER_HEIGHT }}
-                className="flex items-center justify-center text-xs border-b">
+                className="flex items-center justify-center border-b text-xs">
                 {timezoneString}
               </p>
               <div className="flex flex-col">
@@ -134,7 +135,7 @@ export default function Home() {
         ) : (
           <p
             style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
-            className="flex items-center justify-center font-semibold text-2xl">
+            className="flex items-center justify-center text-2xl font-semibold">
             Month view coming soon
           </p>
         )}
