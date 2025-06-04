@@ -2,7 +2,7 @@ import Event from "@/components/atoms/Event";
 import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 

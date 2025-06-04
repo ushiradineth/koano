@@ -1,24 +1,10 @@
 import "@/app/globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import dayjs from "dayjs";
-import "dayjs/plugin/duration";
-import "dayjs/plugin/relativeTime";
-import "dayjs/plugin/utc";
+import dayjs from "@/lib/dayjs";
 import type { Metadata } from "next";
 
 import QueryClientProviderWrapper from "@/components/atoms/QueryClientProvider";
-import duration from "dayjs/plugin/duration";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import weekOfYear from "dayjs/plugin/weekOfYear";
 import { SessionProvider } from "next-auth/react";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
-dayjs.extend(weekOfYear);
 
 export const metadata: Metadata = {
   title: `${dayjs().format("MMMM, YYYY")} · Koano`,

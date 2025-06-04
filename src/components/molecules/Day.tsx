@@ -21,7 +21,7 @@ import {
   getTimeFromPixelOffset,
 } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Props {

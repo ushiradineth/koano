@@ -4,7 +4,7 @@ import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
 import { EventSchema } from "@/lib/validators";
 import { zodResolver } from "@hookform/resolvers/zod";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { ArrowRight, Clock9, TrashIcon } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";

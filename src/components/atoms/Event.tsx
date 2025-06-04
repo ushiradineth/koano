@@ -6,7 +6,7 @@ import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 
 interface Props {

@@ -1,6 +1,6 @@
 import { useDataStore } from "@/lib/stores/data";
 import { Settings } from "@/lib/types";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

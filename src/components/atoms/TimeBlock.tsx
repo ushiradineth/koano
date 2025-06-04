@@ -5,7 +5,7 @@ import { useDataStore } from "@/lib/stores/data";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import { memo, useEffect, useState } from "react";
 
 interface Props {
