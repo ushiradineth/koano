@@ -2,7 +2,7 @@
 
 This is a list of features that I would like to implement in to the complete product.
 
-## Calander Functionality
+## Calender Functionality
 
 - [x] Drag to create events.
 - [x] Resize events by dragging the top or bottom.

@@ -47,7 +47,7 @@
 
 - I have not used state management libraries before on a personal project, so I used this opportunity to learn it.
 - Manage the state of the events, settings and prerendered data with Zustand.
-- Share state between the sidebar and calander view for previewing.
+- Share state between the sidebar and calender view for previewing.
 
 ### TDD with Go.
 
