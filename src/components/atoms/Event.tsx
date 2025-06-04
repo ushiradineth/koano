@@ -12,9 +12,11 @@ import { CSSProperties, useEffect, useMemo, useState } from "react";
 interface Props {
   event: EventType;
   active: boolean;
+  displayStart: Date;
+  displayEnd: Date;
 }
 
-export default function Event({ event, active }: Props) {
+export default function Event({ event, active, displayStart, displayEnd }: Props) {
   const [y, setY] = useState(0);
   const [label, setLabel] = useState("");
   const [height, setHeight] = useState(0);
@@ -50,19 +52,19 @@ export default function Event({ event, active }: Props) {
 
   useEffect(() => {
     setY(
-      dayjs(event.start_time).diff(dayjs(event.start_time).startOf("d"), "m") *
+      dayjs(displayStart).diff(dayjs(displayStart).startOf("d"), "m") *
         PIXEL_PER_MINUTE,
     );
     setHeight(
-      dayjs(event.end_time).diff(event.start_time, "minute") * PIXEL_PER_MINUTE,
+      dayjs(displayEnd).diff(displayStart, "minute") * PIXEL_PER_MINUTE,
     );
-  }, [event]);
+  }, [displayStart, displayEnd]);
 
   useEffect(() => {
     setLabel(
-      generateEventTime(event.start_time, event.end_time, settings.clock),
+      generateEventTime(displayStart, displayEnd, settings.clock),
     );
-  }, [settings, event]);
+  }, [settings, displayStart, displayEnd]);
 
   useEffect(() => {
     if (transform) {
@@ -79,7 +81,11 @@ export default function Event({ event, active }: Props) {
         active ? "bg-orange-300" : "bg-orange-500",
       )}
       style={style}>
-      <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
+      <Dragger
+        className="top-0"
+        type="start"
+        compact={height <= 30 * PIXEL_PER_MINUTE}
+      />
       <span
         className={cn(
           "flex h-full font-medium text-foreground",
@@ -101,7 +107,11 @@ export default function Event({ event, active }: Props) {
         <p className="truncate text-sm">{event.title}</p>
         <p className="text-xs opacity-75">{label}</p>
       </span>
-      <Dragger className="bottom-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
+      <Dragger
+        className="bottom-0"
+        type="end"
+        compact={height <= 30 * PIXEL_PER_MINUTE}
+      />
     </div>
   );
 }
@@ -109,13 +119,16 @@ export default function Event({ event, active }: Props) {
 function Dragger({
   className,
   compact,
+  type,
 }: {
   className?: string;
   compact: boolean;
+  type: "start" | "end";
 }) {
   return (
     <span
       id={DRAGGER_ID}
+      data-dragger={type}
       style={{
         height: compact ? PIXEL_PER_MINUTE * 2.5 : PIXEL_PER_QUARTER,
       }}

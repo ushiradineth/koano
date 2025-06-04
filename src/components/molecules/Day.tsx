@@ -50,6 +50,7 @@ export default function Day({
   const [end, setEnd] = useState({ x: -1, y: -1 });
   const [preview, setPreview] = useState({ height: 0, top: 0 });
   const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
+  const [anchor, setAnchor] = useState<"start" | "end" | null>(null);
 
   const { getEventById, editEvent } = useEventStore();
   const {
@@ -81,6 +82,7 @@ export default function Day({
     setEnd({ x: -1, y: -1 });
     setClickPosition({ x: -1, y: -1 });
     setPreview({ height: 0, top: 0 });
+    setAnchor(null);
     setSelecting(false);
     setExtending(false);
     setPreviewing(false);
@@ -110,7 +112,7 @@ export default function Day({
       setActiveDay(day);
       setClickPosition({ x: divX, y: divY });
 
-      const target = mouseEvent.target as MouseEventTarget;
+      const target = mouseEvent.target as HTMLElement & MouseEventTarget;
       const eventId = target.offsetParent?.id;
 
       // When extending an existing event
@@ -126,6 +128,7 @@ export default function Day({
 
         if ((target.id ?? "") === DRAGGER_ID) {
           setExtending(true);
+          setAnchor((target.dataset.dragger as "start" | "end") ?? null);
         }
 
         return;
@@ -202,30 +205,29 @@ export default function Day({
       }
 
       // When extending an existing event
-      if (extending && activeEvent) {
-        if (
-          !dayjs(activeEvent?.start_time)
-            .startOf("day")
-            .isSame(dayjs(day).startOf("day"))
-        ) {
+      if (extending && activeEvent && anchor) {
+        const isStartDay = dayjs(activeEvent.start_time)
+          .startOf("day")
+          .isSame(dayjs(day).startOf("day"));
+        const isEndDay = dayjs(activeEvent.end_time)
+          .startOf("day")
+          .isSame(dayjs(day).startOf("day"));
+
+        if ((anchor === "start" && !isStartDay) || (anchor === "end" && !isEndDay)) {
           return;
         }
 
-        const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
-        const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
-        const currentMouseQuarter = getQuarter(currentMouseY);
-        const clickPositionQuarter = getQuarter(clickPosition.y);
-        const anchorOffset =
-          clickPositionQuarter === startOffset
-            ? Math.abs(endOffset - clickPositionQuarter) <= 15
-              ? startOffset
-              : endOffset
-            : startOffset;
-        const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
-        const top = Math.min(anchorOffset - previewHeight, anchorOffset);
-        const height = Math.abs(previewHeight);
-
-        top + height !== GRID_HEIGHT && setPreview({ height, top });
+        const currentQuarter = getQuarter(currentMouseY);
+        if (anchor === "start") {
+          const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
+          const top = Math.min(currentQuarter, endOffset - PIXEL_PER_QUARTER);
+          const height = endOffset - top;
+          setPreview({ top, height });
+        } else {
+          const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
+          const height = Math.max(currentQuarter - startOffset, PIXEL_PER_QUARTER);
+          setPreview({ top: startOffset, height });
+        }
 
         return;
       }
@@ -241,6 +243,7 @@ export default function Day({
       activeEvent,
       clickPosition,
       resetState,
+      anchor,
     ],
   );
 
@@ -281,12 +284,17 @@ export default function Day({
     }
 
     // When extending an existing event
-    if (extending && activeEvent) {
-      editEvent({
-        ...activeEvent,
-        start_time: getTimeFromPixelOffset(preview.top, day),
-        end_time: getTimeFromPixelOffset(preview.top + preview.height, day),
-      });
+    if (extending && activeEvent && anchor) {
+      const newStart =
+        anchor === "start"
+          ? getTimeFromPixelOffset(preview.top, day)
+          : activeEvent.start_time;
+      const newEnd =
+        anchor === "end"
+          ? getTimeFromPixelOffset(preview.top + preview.height, day)
+          : activeEvent.end_time;
+
+      editEvent({ ...activeEvent, start_time: newStart, end_time: newEnd });
     }
 
     resetState();
@@ -304,6 +312,7 @@ export default function Day({
     setSelecting,
     extending,
     setExtending,
+    anchor,
     settings.timezone,
     resetState,
   ]);

@@ -215,14 +215,7 @@ export default function Grid({
           return;
         }
 
-        if (
-          dayjs(start_time).format("MM/DD/YYYY") !==
-            dayjs(end_time).format("MM/DD/YYYY") &&
-          dayjs(end_time).format("h:mm A") !== "12:00 AM"
-        ) {
-          setDragging(false);
-          return;
-        }
+
 
         editEvent({ ...event, start_time, end_time });
       }
@@ -297,18 +290,34 @@ export default function Grid({
               day={dayjs(date).startOf("day").toDate()}>
               {events.length > 0 &&
                 events
-                  .filter(
-                    (event) =>
-                      dayjs(event.start_time).format("DD/MM/YYYY") ===
-                      dayjs(date).format("DD/MM/YYYY"),
-                  )
-                  .map((event) => (
-                    <Event
-                      key={event.id}
-                      event={event}
-                      active={event.id === activeEvent?.id}
-                    />
-                  ))}
+                  .filter((event) => {
+                    const start = dayjs(event.start_time);
+                    const end = dayjs(event.end_time);
+                    const dayStart = dayjs(date).startOf("day");
+                    const dayEnd = dayjs(date).endOf("day");
+                    return start.isBefore(dayEnd) && end.isAfter(dayStart);
+                  })
+                  .map((event) => {
+                    const dayStart = dayjs(date).startOf("day");
+                    const dayEnd = dayjs(date).endOf("day");
+                    const displayStart =
+                      dayjs(event.start_time).isAfter(dayStart)
+                        ? event.start_time
+                        : dayStart.toDate();
+                    const displayEnd =
+                      dayjs(event.end_time).isBefore(dayEnd)
+                        ? event.end_time
+                        : dayEnd.toDate();
+                    return (
+                      <Event
+                        key={`${event.id}-${dayStart.format("YYYY-MM-DD")}`}
+                        event={event}
+                        displayStart={displayStart}
+                        displayEnd={displayEnd}
+                        active={event.id === activeEvent?.id}
+                      />
+                    );
+                  })}
             </Day>
           ))
         )}

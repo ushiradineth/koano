@@ -9,7 +9,7 @@ This is a list of features that I would like to implement in to the complete pro
 - [x] Drag and drop events to move them to another day.
 - [x] Real-time previews while creating, editing, or moving events.
 - [x] Timezone support across views and events.
-- [ ] Multi-day spanning events.
+- [x] Multi-day spanning events.
 - [ ] Recurring events (daily/weekly/monthly/custom)
 - [ ] Monthly and yearly calendar views.
 - [ ] Context menu for quick actions (e.g., save/discard)
