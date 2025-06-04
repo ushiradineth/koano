@@ -1,18 +1,8 @@
 import { PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
 import { Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
-import dayjs from "dayjs";
-import "dayjs/plugin/duration";
-import "dayjs/plugin/relativeTime";
-import "dayjs/plugin/utc";
+import dayjs from "@/lib/dayjs";
 import { twMerge } from "tailwind-merge";
-
-dayjs.extend(require("dayjs/plugin/utc"));
-dayjs.extend(require("dayjs/plugin/timezone"));
-dayjs.extend(require("dayjs/plugin/duration"));
-dayjs.extend(require("dayjs/plugin/relativeTime"));
-dayjs.extend(require("dayjs/plugin/weekOfYear"));
-dayjs.extend(require("dayjs/plugin/customParseFormat"));
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
