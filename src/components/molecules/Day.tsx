@@ -347,6 +347,7 @@ export default function Day({
         }}
         className="relative flex snap-start flex-col items-center justify-between gap-2 border-x border-b border-border/20">
         <Time today={today} />
+        {/* Show preview when creating a new event */}
         {selecting &&
         dayjs(activeDay).startOf("day").isSame(dayjs(day).startOf("day")) ? (
           <div
@@ -355,6 +356,7 @@ export default function Day({
             <p className="text-lg text-center font-bold"></p>
           </div>
         ) : (
+          // Show preview when extending an existing event
           (extending || previewing) &&
           activeEvent &&
           preview.height >= PIXEL_PER_MINUTE && (
