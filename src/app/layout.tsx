@@ -21,7 +21,10 @@ export default function RootLayout({
     <html lang="en" className="no-scrollbar select-none">
       <head>
         {env.ENVIRONMENT === "development" && (
-          <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
+          <script
+            async
+            src="https://unpkg.com/react-scan/dist/auto.global.js"
+          />
         )}
         <link rel="shortcut icon" href="/icon/koano.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icon/koano.png" />

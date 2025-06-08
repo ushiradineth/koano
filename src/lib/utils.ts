@@ -1,7 +1,7 @@
 import { PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
+import dayjs from "@/lib/dayjs";
 import { Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
-import dayjs from "@/lib/dayjs";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {

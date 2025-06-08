@@ -1,11 +1,11 @@
 "use client";
 
 import { PIXEL_PER_HOUR } from "@/lib/consts";
+import dayjs from "@/lib/dayjs";
 import { useDataStore } from "@/lib/stores/data";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import dayjs from "@/lib/dayjs";
 import { memo, useEffect, useState } from "react";
 
 interface Props {

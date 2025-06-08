@@ -13,12 +13,12 @@ import {
 import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 
+import dayjs from "@/lib/dayjs";
 import {
   calculateDaysToPreviousMonday,
   getDayObjectFromId,
   getDayObjectWithDate,
 } from "@/lib/utils";
-import dayjs from "@/lib/dayjs";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

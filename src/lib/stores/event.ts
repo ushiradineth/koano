@@ -6,8 +6,8 @@ import {
   put as PutEvent,
 } from "@/lib/api/event";
 import { ErrorResponse, Status } from "@/lib/api/types";
-import { useContextStore } from "@/lib/stores/context";
 import dayjs from "@/lib/dayjs";
+import { useContextStore } from "@/lib/stores/context";
 import { create } from "zustand";
 
 type EventStore = {
