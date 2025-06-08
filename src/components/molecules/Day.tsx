@@ -91,7 +91,6 @@ export default function Day({
       if (selecting || extending || previewing) {
         resetState();
         setActiveEvent(null);
-        return;
       }
 
       if (activeDay !== day) {
