@@ -1,4 +1,3 @@
-import { formatTime } from "@/components/atoms/Event";
 import dayjs from "@/lib/dayjs";
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
@@ -29,7 +28,7 @@ import {
 import { SIDEBAR_WIDTH } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { Event, Repeated } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, formatTime } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -49,7 +48,7 @@ export default function Sidebar() {
   const { addEvent, editEvent, removeEvent, getEventById } = useEventStore();
   const { activeEvent, setActiveEvent, setPreviewing } = useContextStore();
   const { settings } = useSettingStore();
-  const { repeated, times } = useDataStore();
+  const { times } = useDataStore();
 
   const form = useForm<z.infer<typeof EventSchema>>({
     resolver: zodResolver(EventSchema),

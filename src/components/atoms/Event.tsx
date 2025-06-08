@@ -4,8 +4,8 @@ import { DRAGGER_ID, PIXEL_PER_MINUTE, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
 import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Clock, Event as EventType } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { Event as EventType } from "@/lib/types";
+import { cn, generateEventTime } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 
@@ -134,35 +134,4 @@ function Dragger({
       )}
     />
   );
-}
-
-export function formatTime(
-  time: Date,
-  clock: Clock,
-  showPeriod: boolean = false,
-  noSpace: boolean = false,
-) {
-  let timeFormat = "";
-
-  if (clock === 12) {
-    timeFormat = "h";
-    timeFormat += dayjs(time).minute() !== 0 ? ":mm" : "";
-    timeFormat += showPeriod ? (noSpace ? "A" : " A") : "";
-  } else {
-    timeFormat = "HH:mm";
-  }
-
-  return dayjs(time).format(timeFormat);
-}
-
-export function generateEventTime(start: Date, end: Date, clock: Clock) {
-  const startTime = formatTime(start, clock);
-  const conditional =
-    clock === 12 && dayjs(start).format("A") !== dayjs(end).format("A")
-      ? dayjs(start).format(" A")
-      : "";
-
-  const endTime = formatTime(end, clock, true);
-
-  return `${startTime}${conditional} - ${endTime}`;
 }

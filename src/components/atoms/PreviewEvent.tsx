@@ -1,7 +1,6 @@
-import { generateEventTime } from "@/components/atoms/Event";
 import { PIXEL_PER_QUARTER } from "@/lib/consts";
 import { useSettingStore } from "@/lib/stores/settings";
-import { cn, getTimeFromPixelOffset } from "@/lib/utils";
+import { cn, generateEventTime, getTimeFromPixelOffset } from "@/lib/utils";
 
 interface Props {
   preview: { height: number; top: number };

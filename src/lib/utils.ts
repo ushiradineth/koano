@@ -1,6 +1,6 @@
 import { PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
-import { Picker } from "@/lib/types";
+import { Clock, Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -205,4 +205,35 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 
 export function getQuarter(value: number): number {
   return Math.floor(value / PIXEL_PER_QUARTER) * PIXEL_PER_QUARTER;
+}
+
+export function formatTime(
+  time: Date,
+  clock: Clock,
+  showPeriod: boolean = false,
+  noSpace: boolean = false,
+) {
+  let timeFormat = "";
+
+  if (clock === 12) {
+    timeFormat = "h";
+    timeFormat += dayjs(time).minute() !== 0 ? ":mm" : "";
+    timeFormat += showPeriod ? (noSpace ? "A" : " A") : "";
+  } else {
+    timeFormat = "HH:mm";
+  }
+
+  return dayjs(time).format(timeFormat);
+}
+
+export function generateEventTime(start: Date, end: Date, clock: Clock) {
+  const startTime = formatTime(start, clock);
+  const conditional =
+    clock === 12 && dayjs(start).format("A") !== dayjs(end).format("A")
+      ? dayjs(start).format(" A")
+      : "";
+
+  const endTime = formatTime(end, clock, true);
+
+  return `${startTime}${conditional} - ${endTime}`;
 }
