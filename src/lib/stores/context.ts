@@ -5,8 +5,10 @@ import { create } from "zustand";
 type ContextStore = {
   activeEvent: Event | null;
   setActiveEvent: (event: Event | null) => void;
-  activeDay: Date | null;
-  setActiveDay: (day: Date | null) => void;
+  dragStart: Date | null;
+  setDragStart: (day: Date | null) => void;
+  dragEnd: Date | null;
+  setDragEnd: (day: Date | null) => void;
   selecting: boolean;
   setSelecting: (selecting: boolean) => void;
   extending: boolean;
@@ -22,8 +24,10 @@ type ContextStore = {
 export const useContextStore = create<ContextStore>()((set) => ({
   activeEvent: null,
   setActiveEvent: (event: Event | null) => set({ activeEvent: event }),
-  activeDay: null,
-  setActiveDay: (day: Date | null) => set({ activeDay: day }),
+  dragStart: null,
+  setDragStart: (day: Date | null) => set({ dragStart: day }),
+  dragEnd: null,
+  setDragEnd: (day: Date | null) => set({ dragEnd: day }),
   selecting: false,
   setSelecting: (selecting: boolean) => set({ selecting }),
   extending: false,
