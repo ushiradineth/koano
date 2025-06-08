@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     AUTH_SECRET: z.string().min(1),
+    ENVIRONMENT: z.enum(["DEV", "PROD"]),
   },
 
   client: {
@@ -13,5 +14,6 @@ export const env = createEnv({
   runtimeEnv: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,
+    ENVIRONMENT: process.env.ENVIRONMENT ?? "DEV",
   },
 });
