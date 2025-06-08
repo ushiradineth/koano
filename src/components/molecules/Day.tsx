@@ -9,6 +9,7 @@ import {
   PIXEL_PER_QUARTER,
   SECONDARY_HEADER_HEIGHT,
 } from "@/lib/consts";
+import dayjs from "@/lib/dayjs";
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
@@ -21,7 +22,6 @@ import {
   getTimeFromPixelOffset,
 } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
-import dayjs from "@/lib/dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Props {
@@ -354,11 +354,10 @@ export default function Day({
             className="absolute flex w-full items-center justify-center bg-orange-500 bg-opacity-25">
             <p className="text-lg text-center font-bold"></p>
           </div>
-        ) : extending && activeEvent && preview.height >= PIXEL_PER_MINUTE ? (
-          <PreviewEvent preview={preview} title={activeEvent.title} day={day} />
         ) : (
-          previewing &&
-          activeEvent && (
+          (extending || previewing) &&
+          activeEvent &&
+          preview.height >= PIXEL_PER_MINUTE && (
             <PreviewEvent
               preview={preview}
               title={activeEvent.title}

@@ -1,12 +1,12 @@
 "use client";
 
 import { DRAGGER_ID, PIXEL_PER_MINUTE, PIXEL_PER_QUARTER } from "@/lib/consts";
+import dayjs from "@/lib/dayjs";
 import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, Event as EventType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
-import dayjs from "@/lib/dayjs";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 
 interface Props {
@@ -21,7 +21,7 @@ export default function Event({ event, active }: Props) {
   const [dragOffset, setDragOffset] = useState(0);
 
   const { settings } = useSettingStore();
-  const { setActiveEvent } = useContextStore();
+  const { setActiveEvent, extending } = useContextStore();
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -77,6 +77,7 @@ export default function Event({ event, active }: Props) {
       className={cn(
         "relative flex w-full flex-col rounded-sm border-l-4 border-orange-300 bg-opacity-75",
         active ? "bg-orange-300" : "bg-orange-500",
+        extending ? "bg-opacity-75" : "bg-opacity-100",
       )}
       style={style}>
       <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
@@ -98,8 +99,16 @@ export default function Event({ event, active }: Props) {
         }}
         {...listeners}
         {...attributes}>
-        <p className="truncate text-sm">{event.title}</p>
-        <p className="text-xs opacity-75">{label}</p>
+        <p
+          className={cn(
+            "truncate text-sm",
+            extending ? "opacity-50" : "opacity-75",
+          )}>
+          {event.title}
+        </p>
+        <p className={cn("text-xs", extending ? "opacity-50" : "opacity-75")}>
+          {label}
+        </p>
       </span>
       <Dragger className="bottom-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
     </div>
