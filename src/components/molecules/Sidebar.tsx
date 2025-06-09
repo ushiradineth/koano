@@ -58,7 +58,8 @@ export default function Sidebar() {
       start: settings.clock === 12 ? "12:00 AM" : "00:00",
       end: settings.clock === 12 ? "12:00 AM" : "00:00",
       timezone: "Etc/GMT",
-      date: new Date(),
+      startDate: new Date(),
+      endDate: new Date(),
     },
   });
 
@@ -76,11 +77,11 @@ export default function Sidebar() {
       const newEvent: Event = {
         id: activeEvent.id,
         title: values.title,
-        start_time: dayjs(values.date)
+        start_time: dayjs(values.startDate)
           .hour(dayjs(values.start, timeFormat).hour())
           .minute(dayjs(values.start, timeFormat).minute())
           .toDate(),
-        end_time: dayjs(values.date)
+        end_time: dayjs(values.endDate)
           .hour(dayjs(values.end, timeFormat).hour())
           .minute(dayjs(values.end, timeFormat).minute())
           .toDate(),
@@ -104,8 +105,12 @@ export default function Sidebar() {
     form.setValue("start", dayjs(activeEvent.start_time).format(timeFormat));
     form.setValue("end", dayjs(activeEvent.end_time).format(timeFormat));
     form.setValue(
-      "date",
+      "startDate",
       dayjs(activeEvent.start_time).startOf("day").toDate(),
+    );
+    form.setValue(
+      "endDate",
+      dayjs(activeEvent.end_time).startOf("day").toDate(),
     );
 
     setStartTimes(
@@ -164,7 +169,7 @@ export default function Sidebar() {
                 />
               </span>
               <span className="flex flex-col gap-2 border-t px-2 py-4">
-                <div className="flex items-center gap-2 font-semibold">
+                <div className="flex items-center justify-around gap-2 font-semibold">
                   <FormField
                     control={form.control}
                     name="start"
@@ -185,7 +190,7 @@ export default function Sidebar() {
                               <Clock9 className="h-4 w-4 text-foreground-tertiary" />
                               <p>
                                 {formatTime(
-                                  dayjs(form.getValues().date)
+                                  dayjs(form.getValues().startDate)
                                     .hour(dayjs(field.value, timeFormat).hour())
                                     .minute(
                                       dayjs(field.value, timeFormat).minute(),
@@ -207,7 +212,9 @@ export default function Sidebar() {
                                   setPreviewing(true);
                                   setActiveEvent({
                                     ...activeEvent,
-                                    start_time: dayjs(form.getValues().date)
+                                    start_time: dayjs(
+                                      form.getValues().startDate,
+                                    )
                                       .hour(dayjs(time, timeFormat).hour())
                                       .minute(dayjs(time, timeFormat).minute())
                                       .toDate(),
@@ -242,7 +249,7 @@ export default function Sidebar() {
                               <ArrowRight className="h-4 w-4 text-foreground-tertiary" />
                               <p>
                                 {formatTime(
-                                  dayjs(form.getValues().date)
+                                  dayjs(form.getValues().endDate)
                                     .hour(dayjs(field.value, timeFormat).hour())
                                     .minute(
                                       dayjs(field.value, timeFormat).minute(),
@@ -265,6 +272,8 @@ export default function Sidebar() {
                                     timeFormat,
                                     false,
                                   ).toISOString(),
+                                  dayjs(form.getValues().startDate).toDate(),
+                                  dayjs(form.getValues().endDate).toDate(),
                                 )}
                               </p>
                             </SelectUnstyledTrigger>
@@ -278,7 +287,7 @@ export default function Sidebar() {
                                   setPreviewing(true);
                                   setActiveEvent({
                                     ...activeEvent,
-                                    end_time: dayjs(form.getValues().date)
+                                    end_time: dayjs(form.getValues().endDate)
                                       .hour(dayjs(time, timeFormat).hour())
                                       .minute(dayjs(time, timeFormat).minute())
                                       .toDate(),
@@ -294,36 +303,92 @@ export default function Sidebar() {
                     )}
                   />
                 </div>
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <p className={ButtonStyle}>
-                              {dayjs(field.value).format("ddd MMM D")}
-                            </p>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                              field.onChange(date);
-                              date && onSubmit({ ...form.getValues(), date });
-                            }}
-                            disabled={(date) => date < new Date("1900-01-01")}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex items-center justify-around gap-2 font-semibold">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <p className={ButtonStyle}>
+                                {dayjs(field.value).format("ddd MMM D")}
+                              </p>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              month={
+                                new Date(
+                                  dayjs(field.value).year(),
+                                  dayjs(field.value).month(),
+                                )
+                              }
+                              onSelect={(startDate) => {
+                                field.onChange(startDate);
+                                startDate &&
+                                  onSubmit({
+                                    ...form.getValues(),
+                                    startDate,
+                                  });
+                              }}
+                              disabled={(date) =>
+                                date > new Date(form.getValues().endDate)
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <p className={ButtonStyle}>
+                                {dayjs(field.value).format("ddd MMM D")}
+                              </p>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="end">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              month={
+                                new Date(
+                                  dayjs(field.value).year(),
+                                  dayjs(field.value).month(),
+                                )
+                              }
+                              onSelect={(endDate) => {
+                                field.onChange(endDate);
+                                endDate &&
+                                  onSubmit({
+                                    ...form.getValues(),
+                                    endDate,
+                                  });
+                              }}
+                              disabled={(date) =>
+                                date < new Date(form.getValues().startDate)
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </span>
             </form>
           </Form>
@@ -337,8 +402,20 @@ export default function Sidebar() {
   );
 }
 
-function formatDuration(start: string, end: string): string {
-  const durationMinutes = Math.abs(dayjs(end).diff(dayjs(start), "minute"));
+function formatDuration(
+  start: string,
+  end: string,
+  startDate: Date,
+  endDate: Date,
+): string {
+  const startDateTime = dayjs(startDate)
+    .hour(dayjs(start).hour())
+    .minute(dayjs(start).minute());
+  const endDateTime = dayjs(endDate)
+    .hour(dayjs(end).hour())
+    .minute(dayjs(end).minute());
+
+  const durationMinutes = Math.abs(endDateTime.diff(startDateTime, "minute"));
 
   const hours = Math.floor(durationMinutes / 60);
   const minutes = durationMinutes % 60;

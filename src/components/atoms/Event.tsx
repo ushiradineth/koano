@@ -106,9 +106,11 @@ export default function Event({ event, active }: Props) {
           )}>
           {event.title}
         </p>
-        <p className={cn("text-xs", extending ? "opacity-50" : "opacity-75")}>
-          {label}
-        </p>
+        {height > 30 * PIXEL_PER_MINUTE && (
+          <p className={cn("text-xs", extending ? "opacity-50" : "opacity-75")}>
+            {label}
+          </p>
+        )}
       </span>
       <Dragger className="bottom-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
     </div>

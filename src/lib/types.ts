@@ -46,3 +46,14 @@ export type TimeObject = {
   minutes: number;
   time: string;
 };
+
+export type Preview = {
+  start: {
+    quarter: number;
+    day: Date | null;
+  };
+  end: {
+    quarter: number;
+    day: Date | null;
+  };
+};

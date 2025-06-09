@@ -28,8 +28,9 @@ export const EventSchema = z.object({
   repeat: repeatValueSchema,
   start: z.string(),
   end: z.string(),
+  startDate: z.date(),
+  endDate: z.date(),
   timezone: TimeZoneSchema,
-  date: z.date(),
 });
 
 export const LoginSchema = z.object({

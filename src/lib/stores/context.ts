@@ -1,4 +1,4 @@
-import { Event } from "@/lib/types";
+import { Event, Preview } from "@/lib/types";
 
 import { create } from "zustand";
 
@@ -11,6 +11,8 @@ type ContextStore = {
   setSelecting: (selecting: boolean) => void;
   extending: boolean;
   setExtending: (extending: boolean) => void;
+  preview: Preview;
+  setPreview: (preview: Preview) => void;
   previewing: boolean;
   setPreviewing: (previewing: boolean) => void;
   accessToken: string | null;
@@ -28,6 +30,11 @@ export const useContextStore = create<ContextStore>()((set) => ({
   setSelecting: (selecting: boolean) => set({ selecting }),
   extending: false,
   setExtending: (extending: boolean) => set({ extending }),
+  preview: {
+    start: { quarter: -1, day: null },
+    end: { quarter: -1, day: null },
+  },
+  setPreview: (preview: Preview) => set({ preview }),
   previewing: false,
   setPreviewing: (previewing: boolean) => set({ previewing }),
   accessToken: null,

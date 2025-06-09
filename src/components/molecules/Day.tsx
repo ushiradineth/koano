@@ -1,41 +1,25 @@
-import PreviewEvent from "@/components/atoms/PreviewEvent";
 import Time from "@/components/atoms/Time";
 import {
-  DRAGGER_ID,
-  GRID_HEIGHT,
   HEADER_HEIGHT,
   PIXEL_PER_HOUR,
-  PIXEL_PER_MINUTE,
-  PIXEL_PER_QUARTER,
   SECONDARY_HEADER_HEIGHT,
 } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
 import { useContextStore } from "@/lib/stores/context";
-import { useEventStore } from "@/lib/stores/event";
-import { useSettingStore } from "@/lib/stores/settings";
-import { Repeated } from "@/lib/types";
-import {
-  cn,
-  getDayObjectWithDate,
-  getPixelOffsetFromTime,
-  getQuarter,
-  getTimeFromPixelOffset,
-} from "@/lib/utils";
+import { cn, getDayObjectWithDate } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import PreviewEvent from "../atoms/PreviewEvent";
 
 interface Props {
   id: string;
   height: number;
   width: number;
   children: React.ReactNode;
-  dragging: boolean;
   day: Date;
-}
-
-interface MouseEventTarget extends EventTarget {
-  id?: string;
-  offsetParent?: HTMLElement;
+  onMouseDown: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
+  onMouseMove: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
+  onMouseUp: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
 }
 
 export default function Day({
@@ -43,28 +27,12 @@ export default function Day({
   height,
   width,
   children,
-  dragging,
   day,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
 }: Props) {
-  const [start, setStart] = useState({ x: -1, y: -1 });
-  const [end, setEnd] = useState({ x: -1, y: -1 });
-  const [preview, setPreview] = useState({ height: 0, top: 0 });
-  const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
-
-  const { getEventById, editEvent } = useEventStore();
-  const {
-    activeEvent,
-    setActiveEvent,
-    activeDay,
-    setActiveDay,
-    extending,
-    setExtending,
-    selecting,
-    setSelecting,
-    previewing,
-    setPreviewing,
-  } = useContextStore();
-  const { settings } = useSettingStore();
+  const { activeEvent, preview } = useContextStore();
 
   const dayObject = useMemo(() => getDayObjectWithDate(day), [day]);
   const today = useMemo(
@@ -75,249 +43,6 @@ export default function Day({
   const { setNodeRef } = useDroppable({
     id,
   });
-
-  const resetState = useCallback(() => {
-    setStart({ x: -1, y: -1 });
-    setEnd({ x: -1, y: -1 });
-    setClickPosition({ x: -1, y: -1 });
-    setPreview({ height: 0, top: 0 });
-    setSelecting(false);
-    setExtending(false);
-    setPreviewing(false);
-  }, [setExtending, setSelecting, setPreviewing]);
-
-  const handleMouseDown = useCallback(
-    (mouseEvent: React.MouseEvent<HTMLDivElement>) => {
-      if (selecting || extending || previewing) {
-        resetState();
-        setActiveEvent(null);
-      }
-
-      if (activeDay !== day) {
-        setActiveDay(day);
-        resetState();
-        setActiveEvent(null);
-      }
-
-      const rect = mouseEvent.currentTarget.getBoundingClientRect();
-      const divX = mouseEvent.clientX - rect.left;
-      const divY = Math.min(
-        Math.max(mouseEvent.clientY - rect.top, -1),
-        GRID_HEIGHT + 1,
-      );
-
-      setActiveDay(day);
-      setClickPosition({ x: divX, y: divY });
-
-      const target = mouseEvent.target as MouseEventTarget;
-      const eventId = target.offsetParent?.id;
-
-      // When extending an existing event
-      if (eventId) {
-        const event = getEventById(eventId);
-        if (!event) {
-          console.error(`Event ${eventId} not found`);
-          setActiveEvent(null);
-          return;
-        }
-
-        setActiveEvent(event);
-
-        if ((target.id ?? "") === DRAGGER_ID) {
-          setExtending(true);
-        }
-
-        return;
-      }
-
-      setActiveEvent(null);
-
-      // When dragging a range to create a new event
-      setSelecting(dragging ? false : true);
-    },
-    [
-      day,
-      selecting,
-      setExtending,
-      extending,
-      setSelecting,
-      previewing,
-      dragging,
-      activeDay,
-      setActiveDay,
-      setActiveEvent,
-      resetState,
-      getEventById,
-    ],
-  );
-
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (dragging || previewing || (!selecting && !extending)) return;
-
-      const rect = event.currentTarget.getBoundingClientRect();
-      const currentMouseX = event.clientX - rect.left;
-      const currentMouseY = Math.min(
-        Math.max(event.clientY - rect.top, -1),
-        GRID_HEIGHT + 1,
-      );
-
-      if (selecting || extending) {
-        // Dragging upwards
-        if (currentMouseY < clickPosition.y) {
-          setStart({ x: currentMouseX, y: currentMouseY });
-          setEnd(clickPosition);
-        }
-        // Dragging downwards
-        else {
-          setStart(clickPosition);
-          setEnd({ x: currentMouseX, y: currentMouseY });
-        }
-      }
-
-      // When dragging a range to create a new event
-      if (selecting) {
-        // Dragging upwards
-        if (currentMouseY < clickPosition.y) {
-          const previewHeight = getQuarter(
-            Math.max(clickPosition.y - currentMouseY, PIXEL_PER_QUARTER),
-          );
-          setPreview({
-            height: previewHeight,
-            top: getQuarter(clickPosition.y - previewHeight),
-          });
-        }
-        // Dragging downwards
-        else {
-          setPreview({
-            height: getQuarter(
-              Math.max(currentMouseY - clickPosition.y, PIXEL_PER_QUARTER),
-            ),
-            top: getQuarter(clickPosition.y),
-          });
-        }
-
-        return;
-      }
-
-      // When extending an existing event
-      if (extending && activeEvent) {
-        if (
-          !dayjs(activeEvent?.start_time)
-            .startOf("day")
-            .isSame(dayjs(day).startOf("day"))
-        ) {
-          return;
-        }
-
-        const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
-        const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
-        const currentMouseQuarter = getQuarter(currentMouseY);
-        const clickPositionQuarter = getQuarter(clickPosition.y);
-        const anchorOffset =
-          clickPositionQuarter === startOffset
-            ? Math.abs(endOffset - clickPositionQuarter) <= 15
-              ? startOffset
-              : endOffset
-            : startOffset;
-        const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
-        const top = Math.min(anchorOffset - previewHeight, anchorOffset);
-        const height = Math.abs(previewHeight);
-
-        top + height !== GRID_HEIGHT && setPreview({ height, top });
-
-        return;
-      }
-
-      resetState();
-    },
-    [
-      day,
-      selecting,
-      extending,
-      previewing,
-      dragging,
-      activeEvent,
-      clickPosition,
-      resetState,
-    ],
-  );
-
-  const handleMouseUp = useCallback(() => {
-    if (start.y === -1 || end.y === -1) {
-      resetState();
-      return;
-    }
-
-    // When dragging a range to create a new event
-    if (selecting && !dragging) {
-      if (start.y === end.y) {
-        resetState();
-        return;
-      }
-
-      setActiveEvent({
-        id: String(window.performance.now()),
-        title: "",
-        start_time: getTimeFromPixelOffset(start.y, day),
-        end_time: getTimeFromPixelOffset(
-          Math.max(end.y, start.y + PIXEL_PER_QUARTER),
-          day,
-        ),
-        repeated: Repeated.Never,
-        timezone: settings.timezone,
-      });
-
-      setStart({ x: -1, y: -1 });
-      setEnd({ x: -1, y: -1 });
-      setClickPosition({ x: -1, y: -1 });
-      setPreview({ height: 0, top: 0 });
-      setSelecting(false);
-      setExtending(false);
-      setPreviewing(true);
-
-      return;
-    }
-
-    // When extending an existing event
-    if (extending && activeEvent) {
-      editEvent({
-        ...activeEvent,
-        start_time: getTimeFromPixelOffset(preview.top, day),
-        end_time: getTimeFromPixelOffset(preview.top + preview.height, day),
-      });
-    }
-
-    resetState();
-  }, [
-    start,
-    end,
-    day,
-    editEvent,
-    activeEvent,
-    setActiveEvent,
-    preview,
-    setPreviewing,
-    dragging,
-    selecting,
-    setSelecting,
-    extending,
-    setExtending,
-    settings.timezone,
-    resetState,
-  ]);
-
-  useEffect(() => {
-    if (previewing && activeEvent) {
-      const start = getPixelOffsetFromTime(activeEvent.start_time, day);
-      const end = getPixelOffsetFromTime(activeEvent.end_time, day);
-
-      setPreview({
-        height: Math.max(end - start, PIXEL_PER_QUARTER),
-        top: start,
-      });
-    }
-  }, [previewing, activeEvent, day]);
 
   return (
     <div
@@ -332,9 +57,9 @@ export default function Day({
         </p>
       </span>
       <div
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseDown={(event) => onMouseDown(event, day)}
+        onMouseMove={(event) => onMouseMove(event, day)}
+        onMouseUp={(event) => onMouseUp(event, day)}
         ref={setNodeRef}
         style={{
           height,
@@ -346,26 +71,13 @@ export default function Day({
         }}
         className="relative flex snap-start flex-col items-center justify-between gap-2 border-x border-b border-border/20">
         <Time today={today} />
-        {/* Show preview when creating a new event */}
-        {selecting &&
-        dayjs(activeDay).startOf("day").isSame(dayjs(day).startOf("day")) ? (
-          <div
-            style={preview}
-            className="absolute flex w-full items-center justify-center bg-orange-500 bg-opacity-25">
-            <p className="text-lg text-center font-bold"></p>
-          </div>
-        ) : (
-          // Show preview when extending an existing event
-          (extending || previewing) &&
-          activeEvent &&
-          preview.height >= PIXEL_PER_MINUTE && (
-            <PreviewEvent
-              preview={preview}
-              title={activeEvent.title}
-              day={day}
-            />
-          )
-        )}
+
+        <PreviewEvent
+          preview={preview}
+          day={day}
+          title={activeEvent?.title ?? ""}
+        />
+
         {children}
       </div>
     </div>

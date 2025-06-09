@@ -10,6 +10,7 @@ import { get as GetEvent } from "@/lib/api/event";
 import { ErrorResponse } from "@/lib/api/types";
 import {
   DATE_BUFFER_RANGE,
+  DRAGGER_ID,
   GRID_HEIGHT,
   HEADER_HEIGHT,
   INITIAL_DATE_RANGE,
@@ -18,7 +19,8 @@ import {
 import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
-import { getQuarter } from "@/lib/utils";
+import { Repeated } from "@/lib/types";
+import { getQuarter, getTimeFromPixelOffset } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -29,6 +31,11 @@ interface Props {
   setCurrentMonth: () => void;
 }
 
+interface MouseEventTarget extends EventTarget {
+  id?: string;
+  offsetParent?: HTMLElement;
+}
+
 export default function Grid({
   gridRef,
   scrollToCurrentDate,
@@ -36,7 +43,13 @@ export default function Grid({
 }: Props) {
   const [days, setDays] = useState<Date[]>([]);
   const [dayWidth, setDayWidth] = useState(0);
+
+  // Dragging State from Dndkit
   const [dragging, setDragging] = useState(false);
+
+  // Initial Click Position and Day for Selection and Extending
+  const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
+  const [clickDay, setClickDay] = useState<Date | null>(null);
 
   const prevDayWidth = useRef(0);
 
@@ -45,10 +58,15 @@ export default function Grid({
     useEventStore();
   const { settings } = useSettingStore();
   const {
+    preview,
     activeEvent,
     setActiveEvent,
+    selecting,
     setSelecting,
+    extending,
     setExtending,
+    setPreview,
+    previewing,
     setPreviewing,
     setGlobalLoading,
   } = useContextStore();
@@ -271,6 +289,255 @@ export default function Grid({
     setActiveEvent,
   ]);
 
+  const resetState = useCallback(() => {
+    setClickDay(null);
+    setClickPosition({ x: -1, y: -1 });
+    setSelecting(false);
+    setExtending(false);
+    setPreviewing(false);
+    setPreview({
+      start: { day: null, quarter: 0 },
+      end: { day: null, quarter: 0 },
+    });
+  }, [
+    setClickDay,
+    setClickPosition,
+    setSelecting,
+    setExtending,
+    setPreviewing,
+    setPreview,
+  ]);
+
+  const handleDayMouseDown = useCallback(
+    (mouseEvent: React.MouseEvent<HTMLDivElement>, day: Date) => {
+      // Reset previous state, in case the user starts a new selection while the previous one is still active
+      if (selecting || previewing) {
+        resetState();
+        setActiveEvent(null);
+      }
+
+      // Generate the initial click position
+      const rect = mouseEvent.currentTarget.getBoundingClientRect();
+      const divX = mouseEvent.clientX - rect.left;
+      const divY = Math.min(
+        Math.max(mouseEvent.clientY - rect.top, -1),
+        GRID_HEIGHT + 1,
+      );
+      setClickPosition({ x: divX, y: divY });
+      setClickDay(day);
+
+      const target = mouseEvent.target as MouseEventTarget;
+      const eventId = target.offsetParent?.id;
+
+      // When clicking on an existing event
+      if (eventId) {
+        const event = getEventById(eventId);
+        if (!event) {
+          console.error(`Event ${eventId} not found`);
+          setActiveEvent(null);
+          return;
+        }
+
+        setActiveEvent(event);
+
+        // When extending an existing event
+        if ((target.id ?? "") === DRAGGER_ID) {
+          setExtending(true);
+        }
+
+        return;
+      }
+
+      // When dragging a range to create a new event
+      setActiveEvent(null);
+      setSelecting(dragging ? false : true);
+    },
+    [
+      selecting,
+      previewing,
+      dragging,
+      resetState,
+      getEventById,
+      setActiveEvent,
+      setSelecting,
+      setExtending,
+    ],
+  );
+
+  const handleDayMouseMove = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>, day: Date) => {
+      // Ignore if dragging and event, or if the preview is active
+      if (dragging || previewing) return;
+
+      // Ignore if not selecting or extending
+      if (!selecting && !extending) return;
+
+      // Get the current mouse position
+      const rect = event.currentTarget.getBoundingClientRect();
+      const currentMouseY = Math.min(
+        Math.max(event.clientY - rect.top, -1),
+        GRID_HEIGHT + 1,
+      );
+
+      // Track selection if selecting or extending
+      if (selecting) {
+        // If dragging up on the same day
+        if (
+          clickPosition.y > currentMouseY &&
+          dayjs(clickDay).isSame(day, "day")
+        ) {
+          setPreview({
+            start: {
+              quarter: getQuarter(currentMouseY),
+              day: day,
+            },
+            end: {
+              quarter: getQuarter(clickPosition.y),
+              day: day,
+            },
+          });
+          return;
+          // If dragging down on the same day or after the current day
+        } else if (
+          clickPosition.y < currentMouseY &&
+          (dayjs(clickDay).isSame(day, "day") ||
+            dayjs(day).isAfter(clickDay, "day"))
+        ) {
+          setPreview({
+            start: {
+              quarter: getQuarter(clickPosition.y),
+              day: clickDay,
+            },
+            end: {
+              quarter: getQuarter(currentMouseY),
+              day: day,
+            },
+          });
+          return;
+        }
+
+        // If dragging before the current day
+        setPreview({
+          start: {
+            quarter: getQuarter(currentMouseY),
+            day: day,
+          },
+          end: {
+            quarter: getQuarter(clickPosition.y),
+            day: clickDay,
+          },
+        });
+
+        return;
+      }
+
+      // // When extending an existing event
+      // if (extending && activeEvent) {
+      //   const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
+      //   const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
+      //   const currentMouseQuarter = getQuarter(currentMouseY);
+      //   const clickPositionQuarter = getQuarter(clickPosition.y);
+      //   const anchorOffset =
+      //     clickPositionQuarter === startOffset
+      //       ? Math.abs(endOffset - clickPositionQuarter) <= 15
+      //         ? startOffset
+      //         : endOffset
+      //       : startOffset;
+      //   const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
+      //   const top = Math.min(anchorOffset - previewHeight, anchorOffset);
+      //   const height = Math.abs(previewHeight);
+      //   setPreview({
+      //     start: {
+      //       day: day,
+      //       quarter: getQuarter(top),
+      //     },
+      //     end: {
+      //       day: day,
+      //       quarter: getQuarter(top + height),
+      //     },
+      //   });
+      //
+      //   return;
+      // }
+
+      resetState();
+    },
+    [
+      selecting,
+      extending,
+      previewing,
+      dragging,
+      clickPosition,
+      setPreview,
+      clickDay,
+      resetState,
+    ],
+  );
+
+  const handleDayMouseUp = useCallback(
+    (_event: React.MouseEvent<HTMLDivElement>, _day: Date) => {
+      if (
+        preview.start.quarter === -1 ||
+        preview.end.quarter === -1 ||
+        !preview.start.day ||
+        !preview.end.day
+      ) {
+        resetState();
+        return;
+      }
+
+      // When selecting a range to create a new event
+      if (selecting && !dragging) {
+        // Create Temporary Event, this will be saved when the user enters a title
+        setActiveEvent({
+          id: String(window.performance.now()),
+          title: "",
+          start_time: getTimeFromPixelOffset(
+            preview.start.quarter,
+            preview.start.day,
+          ),
+          end_time: getTimeFromPixelOffset(
+            preview.end.quarter,
+            preview.end.day,
+          ),
+          repeated: Repeated.Never,
+          timezone: settings.timezone,
+        });
+
+        setClickDay(null);
+        setClickPosition({ x: -1, y: -1 });
+        setSelecting(false);
+        setExtending(false);
+        setPreviewing(true);
+
+        return;
+      }
+
+      // // When extending an existing event
+      // if (extending && activeEvent) {
+      //   editEvent({
+      //     ...activeEvent,
+      //     start_time: getTimeFromPixelOffset(preview.top, day),
+      //     end_time: getTimeFromPixelOffset(preview.top + preview.height, day),
+      //   });
+      // }
+
+      resetState();
+    },
+    [
+      resetState,
+      preview,
+      setActiveEvent,
+      setClickPosition,
+      dragging,
+      selecting,
+      setExtending,
+      setPreviewing,
+      setSelecting,
+      settings.timezone,
+    ],
+  );
+
   return (
     <DndContext
       onDragStart={() => setDragging(true)}
@@ -293,8 +560,10 @@ export default function Grid({
               id={date.toString()}
               height={GRID_HEIGHT}
               width={dayWidth}
-              dragging={dragging}
-              day={dayjs(date).startOf("day").toDate()}>
+              day={dayjs(date).startOf("day").toDate()}
+              onMouseDown={handleDayMouseDown}
+              onMouseMove={handleDayMouseMove}
+              onMouseUp={handleDayMouseUp}>
               {events.length > 0 &&
                 events
                   .filter(

@@ -1,34 +1,93 @@
-import { PIXEL_PER_QUARTER } from "@/lib/consts";
+import { GRID_HEIGHT, PIXEL_PER_QUARTER } from "@/lib/consts";
+import dayjs from "@/lib/dayjs";
 import { useSettingStore } from "@/lib/stores/settings";
+import { Preview } from "@/lib/types";
 import { cn, generateEventTime, getTimeFromPixelOffset } from "@/lib/utils";
+import { useMemo } from "react";
 
 interface Props {
-  preview: { height: number; top: number };
+  preview: Preview;
   title: string;
   day: Date;
 }
 
 export default function PreviewEvent({ preview, title, day }: Props) {
   const { settings } = useSettingStore();
+  const relativePreview = useMemo(
+    () => generateRelativePreview(preview, day),
+    [preview, day],
+  );
+
+  if (!relativePreview) {
+    return null;
+  }
 
   return (
     <div
       style={{
-        top: preview.top,
-        height: Math.max(preview.height, PIXEL_PER_QUARTER),
+        top: relativePreview.top,
+        height: relativePreview.height,
       }}
       className={cn(
         "absolute z-50 flex h-full w-full flex-col bg-orange-400 font-medium text-foreground",
-        Math.max(preview.height, PIXEL_PER_QUARTER) > 30 ? "p-1" : "px-1",
+        Math.max(relativePreview.height, PIXEL_PER_QUARTER) > 30
+          ? "p-1"
+          : "px-1",
       )}>
       <p className="truncate text-sm">{title}</p>
       <p className="text-xs opacity-75">
         {generateEventTime(
-          getTimeFromPixelOffset(preview.top, day),
-          getTimeFromPixelOffset(preview.top + preview.height, day),
+          getTimeFromPixelOffset(preview.start.quarter, preview.start.day!),
+          getTimeFromPixelOffset(preview.end.quarter, preview.end.day!),
           settings.clock,
         )}
       </p>
     </div>
   );
+}
+
+function generateRelativePreview(
+  preview: Preview,
+  day: Date,
+): {
+  top: number;
+  height: number;
+} | null {
+  const start = dayjs(preview.start.day);
+  const end = dayjs(preview.end.day);
+  const current = dayjs(day);
+
+  // The preview starts and ends on the current day
+  if (start.isSame(current, "day") && end.isSame(current, "day")) {
+    return {
+      top: preview.start.quarter,
+      height: preview.end.quarter - preview.start.quarter,
+    };
+  }
+
+  // The preview spans the whole day
+  if (start.isBefore(current, "day") && end.isAfter(current, "day")) {
+    return {
+      top: 0,
+      height: GRID_HEIGHT,
+    };
+  }
+
+  // The preview starts in the current day
+  if (start.isSame(current, "day") && end.isAfter(current, "day")) {
+    return {
+      top: preview.start.quarter,
+      height: GRID_HEIGHT - preview.start.quarter,
+    };
+  }
+
+  // The preview ends in the current day
+  if (start.isBefore(current, "day") && end.isSame(current, "day")) {
+    return {
+      top: 0,
+      height: preview.end.quarter,
+    };
+  }
+
+  return null;
 }
