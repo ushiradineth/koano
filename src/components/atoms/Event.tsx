@@ -1,27 +1,27 @@
 "use client";
 
 import { DRAGGER_ID, PIXEL_PER_MINUTE, PIXEL_PER_QUARTER } from "@/lib/consts";
-import dayjs from "@/lib/dayjs";
-import { useContextStore } from "@/lib/stores/context";
+import { useInteractionStore } from "@/lib/stores/interactions";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Event as EventType } from "@/lib/types";
+import { EventRender, Event as EventType } from "@/lib/types";
 import { cn, generateEventTime } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 
 interface Props {
   event: EventType;
+  render: EventRender;
   active: boolean;
 }
 
-export default function Event({ event, active }: Props) {
-  const [y, setY] = useState(0);
+export default function Event({ event, active, render }: Props) {
+  const [top, setTop] = useState(0);
   const [label, setLabel] = useState("");
   const [height, setHeight] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
 
   const { settings } = useSettingStore();
-  const { setActiveEvent, extending } = useContextStore();
+  const { setActiveEvent, extending } = useInteractionStore();
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -38,25 +38,20 @@ export default function Event({ event, active }: Props) {
   const style: CSSProperties = useMemo(() => {
     return {
       transform: transform
-        ? `translate3d(${transform.x}px, ${transform.y + y}px, 0)`
-        : `translate3d(0px, ${y}px, 0)`,
+        ? `translate3d(${transform.x}px, ${transform.y + top}px, 0)`
+        : `translate3d(0px, ${top}px, 0)`,
       position: "absolute",
       height: Math.max(height, PIXEL_PER_QUARTER),
       touchAction: "none",
       opacity: isDragging ? 0.4 : undefined,
       zIndex: isDragging ? 10 : undefined,
     };
-  }, [transform, y, height, isDragging]);
+  }, [transform, top, height, isDragging]);
 
   useEffect(() => {
-    setY(
-      dayjs(event.start_time).diff(dayjs(event.start_time).startOf("d"), "m") *
-        PIXEL_PER_MINUTE,
-    );
-    setHeight(
-      dayjs(event.end_time).diff(event.start_time, "minute") * PIXEL_PER_MINUTE,
-    );
-  }, [event]);
+    setTop(render.top);
+    setHeight(render.height);
+  }, [render]);
 
   useEffect(() => {
     setLabel(
@@ -75,7 +70,7 @@ export default function Event({ event, active }: Props) {
       id={event.id}
       ref={setNodeRef}
       className={cn(
-        "relative flex w-full flex-col rounded-sm border-l-4 border-orange-300 bg-opacity-75",
+        "relative flex w-[80%] flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300 bg-opacity-75",
         active ? "bg-orange-300" : "bg-orange-500",
         extending ? "bg-opacity-75" : "bg-opacity-100",
       )}

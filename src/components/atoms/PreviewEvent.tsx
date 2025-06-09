@@ -29,7 +29,7 @@ export default function PreviewEvent({ preview, title, day }: Props) {
         height: relativePreview.height,
       }}
       className={cn(
-        "absolute z-50 flex h-full w-full flex-col bg-orange-400 font-medium text-foreground",
+        "absolute flex h-full w-full flex-col bg-orange-400 bg-opacity-25 font-medium text-foreground",
         Math.max(relativePreview.height, PIXEL_PER_QUARTER) > 30
           ? "p-1"
           : "px-1",
@@ -61,7 +61,10 @@ function generateRelativePreview(
   if (start.isSame(current, "day") && end.isSame(current, "day")) {
     return {
       top: preview.start.quarter,
-      height: preview.end.quarter - preview.start.quarter,
+      height: Math.max(
+        preview.end.quarter - preview.start.quarter,
+        PIXEL_PER_QUARTER,
+      ),
     };
   }
 

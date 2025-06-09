@@ -1,3 +1,5 @@
+import Event from "@/components/atoms/Event";
+import PreviewEvent from "@/components/atoms/PreviewEvent";
 import Time from "@/components/atoms/Time";
 import {
   HEADER_HEIGHT,
@@ -5,34 +7,39 @@ import {
   SECONDARY_HEADER_HEIGHT,
 } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
-import { useContextStore } from "@/lib/stores/context";
-import { cn, getDayObjectWithDate } from "@/lib/utils";
+import { useEventStore } from "@/lib/stores/event";
+import { EventRender, Event as EventType } from "@/lib/types";
+import { cn, getDayObjectWithDate, getPixelOffsetFromTime } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
-import { useMemo } from "react";
-import PreviewEvent from "../atoms/PreviewEvent";
+import { memo, useMemo } from "react";
+
+import { useInteractionStore } from "@/lib/stores/interactions";
+import { useShallow } from "zustand/shallow";
 
 interface Props {
   id: string;
   height: number;
   width: number;
-  children: React.ReactNode;
   day: Date;
   onMouseDown: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
   onMouseMove: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
   onMouseUp: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
 }
 
-export default function Day({
+type Bucket = Array<{ event: EventType; render: EventRender }>;
+
+export default memo(function Day({
   id,
   height,
   width,
-  children,
   day,
   onMouseDown,
   onMouseMove,
   onMouseUp,
 }: Props) {
-  const { activeEvent, preview } = useContextStore();
+  const { activeEvent, preview } = useInteractionStore();
+  const selectEvents = useShallow((state: any) => state.events);
+  const events = useEventStore(selectEvents);
 
   const dayObject = useMemo(() => getDayObjectWithDate(day), [day]);
   const today = useMemo(
@@ -43,6 +50,50 @@ export default function Day({
   const { setNodeRef } = useDroppable({
     id,
   });
+
+  const bucket: Bucket = useMemo(() => {
+    const startOfDay = dayjs(day).startOf("day");
+    const endOfDay = dayjs(day).endOf("day");
+
+    return (
+      events
+        // only keep events that overlap this day at all
+        .filter((e: EventType) => {
+          const s0 = dayjs(e.start_time);
+          const t0 = dayjs(e.end_time);
+          return s0.isBefore(endOfDay) && t0.isAfter(startOfDay);
+        })
+        .map((e: EventType) => {
+          const origStart = dayjs(e.start_time);
+          const origEnd = dayjs(e.end_time);
+
+          // clamp to this day's window
+          const s = origStart.isBefore(startOfDay) ? startOfDay : origStart;
+          const t = origEnd.isAfter(endOfDay) ? endOfDay : origEnd;
+
+          // compute render offsets in minutes since midnight
+          const top = getPixelOffsetFromTime(s.toDate(), day);
+          const height = getPixelOffsetFromTime(t.toDate(), day) - top;
+
+          return {
+            event: e,
+            render: {
+              top,
+              height,
+            },
+          };
+        })
+        .sort((a: EventType, b: EventType) => {
+          const sa = dayjs(a.start_time).valueOf();
+          const sb = dayjs(b.start_time).valueOf();
+          if (sa !== sb) return sa - sb;
+
+          const da = dayjs(a.end_time).diff(dayjs(a.start_time));
+          const db = dayjs(b.end_time).diff(dayjs(b.start_time));
+          return db - da; // longer events underneath
+        })
+    );
+  }, [events, day]);
 
   return (
     <div
@@ -72,14 +123,25 @@ export default function Day({
         className="relative flex snap-start flex-col items-center justify-between gap-2 border-x border-b border-border/20">
         <Time today={today} />
 
-        <PreviewEvent
-          preview={preview}
-          day={day}
-          title={activeEvent?.title ?? ""}
-        />
+        {preview && (
+          <PreviewEvent
+            preview={preview}
+            day={day}
+            title={activeEvent?.title ?? ""}
+          />
+        )}
 
-        {children}
+        <div className="flex w-full items-start">
+          {bucket.map((item) => (
+            <Event
+              key={item.event.id}
+              event={item.event}
+              render={item.render}
+              active={activeEvent?.id === item.event.id}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
-}
+});

@@ -1,5 +1,4 @@
 import dayjs from "@/lib/dayjs";
-import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
 import { EventSchema } from "@/lib/validators";
@@ -27,8 +26,9 @@ import {
 } from "@/components/ui/select";
 import { SIDEBAR_WIDTH } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
+import { useInteractionStore } from "@/lib/stores/interactions";
 import { Event, Repeated } from "@/lib/types";
-import { cn, formatTime } from "@/lib/utils";
+import { cn, formatTime, getPixelOffsetFromTime } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -46,7 +46,7 @@ export default function Sidebar() {
   const [endTimes, setEndTimes] = useState<string[]>([]);
 
   const { addEvent, editEvent, removeEvent, getEventById } = useEventStore();
-  const { activeEvent, setActiveEvent, setPreviewing } = useContextStore();
+  const { activeEvent, setPreview } = useInteractionStore();
   const { settings } = useSettingStore();
   const { times } = useDataStore();
 
@@ -69,7 +69,6 @@ export default function Sidebar() {
 
   const onSubmit = useCallback(
     (values: z.infer<typeof EventSchema>) => {
-      setPreviewing(false);
       if (!activeEvent) return;
 
       const event = getEventById(activeEvent.id);
@@ -92,8 +91,11 @@ export default function Sidebar() {
       };
 
       event ? editEvent(newEvent) : addEvent(newEvent);
+
+      // Reset preview after event is saved
+      setPreview(null);
     },
-    [activeEvent, addEvent, editEvent, getEventById, setPreviewing, timeFormat],
+    [activeEvent, addEvent, editEvent, getEventById, setPreview, timeFormat],
   );
 
   useEffect(() => {
@@ -209,15 +211,32 @@ export default function Sidebar() {
                                 key={time}
                                 value={time}
                                 onMouseOver={() => {
-                                  setPreviewing(true);
-                                  setActiveEvent({
-                                    ...activeEvent,
-                                    start_time: dayjs(
-                                      form.getValues().startDate,
-                                    )
-                                      .hour(dayjs(time, timeFormat).hour())
-                                      .minute(dayjs(time, timeFormat).minute())
-                                      .toDate(),
+                                  setPreview({
+                                    start: {
+                                      quarter: getPixelOffsetFromTime(
+                                        dayjs(form.getValues().startDate)
+                                          .hour(dayjs(time, timeFormat).hour())
+                                          .minute(
+                                            dayjs(time, timeFormat).minute(),
+                                          )
+                                          .toDate(),
+                                        form.getValues().startDate,
+                                      ),
+                                      day: form.getValues().startDate,
+                                    },
+                                    end: {
+                                      quarter: getPixelOffsetFromTime(
+                                        dayjs(form.getValues().end, timeFormat)
+                                          .day(
+                                            dayjs(
+                                              form.getValues().endDate,
+                                            ).day(),
+                                          )
+                                          .toDate(),
+                                        form.getValues().endDate,
+                                      ),
+                                      day: form.getValues().endDate,
+                                    },
                                   });
                                 }}>
                                 {time}
@@ -284,13 +303,36 @@ export default function Sidebar() {
                                 key={time}
                                 value={time}
                                 onMouseOver={() => {
-                                  setPreviewing(true);
-                                  setActiveEvent({
-                                    ...activeEvent,
-                                    end_time: dayjs(form.getValues().endDate)
-                                      .hour(dayjs(time, timeFormat).hour())
-                                      .minute(dayjs(time, timeFormat).minute())
-                                      .toDate(),
+                                  setPreview({
+                                    start: {
+                                      quarter: getPixelOffsetFromTime(
+                                        dayjs(
+                                          form.getValues().start,
+                                          timeFormat,
+                                        )
+                                          .day(
+                                            dayjs(
+                                              form.getValues().startDate,
+                                            ).day(),
+                                          )
+                                          .toDate(),
+                                        form.getValues().startDate,
+                                      ),
+                                      day: form.getValues().startDate,
+                                    },
+                                    end: {
+                                      quarter: getPixelOffsetFromTime(
+                                        dayjs(form.getValues().endDate)
+                                          .hour(dayjs(time, timeFormat).hour())
+                                          .minute(
+                                            dayjs(time, timeFormat).minute(),
+                                          )
+                                          .toDate(),
+
+                                        form.getValues().endDate,
+                                      ),
+                                      day: form.getValues().endDate,
+                                    },
                                   });
                                 }}>
                                 {time}
