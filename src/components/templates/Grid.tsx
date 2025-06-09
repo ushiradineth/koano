@@ -48,7 +48,7 @@ export default function Grid({
   const [days, setDays] = useState<Date[]>([]);
   const [dayWidth, setDayWidth] = useState(0);
 
-  // Dragging State from Dndkit
+  // Dragging State from DndContext
   const [dragging, setDragging] = useState(false);
 
   // Initial Click Position and Day for Selection and Extending
@@ -203,7 +203,7 @@ export default function Grid({
     100,
   );
 
-  const handleDragEnd = useCallback(
+  const handleDndContextDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { over, active } = event;
 
@@ -218,29 +218,23 @@ export default function Grid({
         }
 
         const pixelOffset = active.data.current?.y * PIXEL_PER_MINUTE;
+
+        // Calculate the start time based on the Y offset from the initial start time
         const start_time = getTimeFromYOffsetAndTime(
           pixelOffset,
           event.start_time,
           new Date(over.id),
         );
-        const end_time = getTimeFromYOffsetAndTime(
-          pixelOffset,
-          event.end_time,
-          new Date(over.id),
-        );
 
+        // Calculate the end time based on the start time and the event duration
+        const end_time = dayjs(start_time)
+          .add(dayjs(event.end_time).diff(event.start_time, "minute"), "minute")
+          .toDate();
+
+        // No need to update if the event is the same
         if (
           dayjs(start_time).isSame(dayjs(event.start_time)) &&
           dayjs(end_time).isSame(dayjs(event.end_time))
-        ) {
-          setDragging(false);
-          return;
-        }
-
-        if (
-          dayjs(start_time).format("MM/DD/YYYY") !==
-            dayjs(end_time).format("MM/DD/YYYY") &&
-          dayjs(end_time).format("h:mm A") !== "12:00 AM"
         ) {
           setDragging(false);
           return;
@@ -552,7 +546,7 @@ export default function Grid({
   return (
     <DndContext
       onDragStart={() => setDragging(true)}
-      onDragEnd={handleDragEnd}
+      onDragEnd={handleDndContextDragEnd}
       collisionDetection={closestCenter}>
       <div
         className="no-scrollbar flex w-full snap-x snap-mandatory overflow-scroll scroll-smooth"
