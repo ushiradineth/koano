@@ -7,8 +7,9 @@ import {
 } from "@/lib/api/event";
 import { ErrorResponse, Status } from "@/lib/api/types";
 import dayjs from "@/lib/dayjs";
-import { useContextStore } from "@/lib/stores/context";
 import { create } from "zustand";
+import { useGlobalStore } from "./global";
+import { useInteractionStore } from "./interactions";
 
 type EventStore = {
   events: Event[];
@@ -23,7 +24,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
   events: [],
   setEvents: (events: Event[]) => set({ events }),
   addEvent: async (event: Event) => {
-    useContextStore.setState({ activeEvent: event });
+    useInteractionStore.setState({ activeEvent: event });
     set((state) => ({ events: [...state.events, event] }));
 
     const reset = () => {
@@ -41,7 +42,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         end_time: dayjs(event.end_time).utc().format("YYYY-MM-DDTHH:mm:ss[Z]"),
         timezone: event.timezone,
         repeated: event.repeated,
-        access_token: useContextStore.getState().accessToken ?? "",
+        access_token: useGlobalStore.getState().accessToken ?? "",
       });
 
       if (response.status !== Status.Success) {
@@ -49,7 +50,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         return reset();
       }
 
-      useContextStore.getState().setActiveEvent(response.data);
+      useInteractionStore.getState().setActiveEvent(response.data);
 
       return set((state) => ({
         events: state.events.map((e) =>
@@ -65,7 +66,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
     const initialEvent = get().events.find((e) => e.id === event.id);
     if (!initialEvent) return;
 
-    useContextStore.setState({ activeEvent: event });
+    useInteractionStore.setState({ activeEvent: event });
     set((state) => ({
       events: state.events.map((e) => (e.id === event.id ? event : e)),
     }));
@@ -88,7 +89,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         end_time: dayjs(event.end_time).utc().format("YYYY-MM-DDTHH:mm:ss[Z]"),
         timezone: event.timezone,
         repeated: event.repeated,
-        access_token: useContextStore.getState().accessToken ?? "",
+        access_token: useGlobalStore.getState().accessToken ?? "",
       });
 
       if (response.status !== Status.Success) {
@@ -96,7 +97,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         return reset();
       }
 
-      useContextStore.getState().setActiveEvent(response.data);
+      useInteractionStore.getState().setActiveEvent(response.data);
 
       return set((state) => ({
         events: state.events.map((e) =>
@@ -112,11 +113,11 @@ export const useEventStore = create<EventStore>()((set, get) => ({
     const initialEvent = get().events.find((e) => e.id === id);
     if (!initialEvent) return;
 
-    useContextStore.setState({ activeEvent: null });
+    useInteractionStore.setState({ activeEvent: null });
     set((state) => ({ events: state.events.filter((e) => e.id !== id) }));
 
     const reset = () => {
-      useContextStore.setState({ activeEvent: initialEvent });
+      useInteractionStore.setState({ activeEvent: initialEvent });
       set((state) => ({
         events: [...state.events, initialEvent],
       }));
@@ -125,7 +126,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
     try {
       const response = await DeleteEvent({
         id,
-        access_token: useContextStore.getState().accessToken ?? "",
+        access_token: useGlobalStore.getState().accessToken ?? "",
       });
 
       if (response.status !== Status.Success) {

@@ -50,10 +50,15 @@ export type TimeObject = {
 export type Preview = {
   start: {
     quarter: number;
-    day: Date | null;
+    day: Date;
   };
   end: {
     quarter: number;
-    day: Date | null;
+    day: Date;
   };
+};
+
+export type EventRender = {
+  height: number;
+  top: number;
 };

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/lib/consts";
-import { useContextStore } from "@/lib/stores/context";
+import { useGlobalStore } from "@/lib/stores/global";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Clock, View } from "@/lib/types";
 import { LoaderCircle, User } from "lucide-react";
@@ -26,7 +26,7 @@ interface Props {
 export default function Header({ scrollToCurrentDate, month, year }: Props) {
   const { data: session, status } = useSession();
   const { settings, setSettings } = useSettingStore();
-  const { globalLoading } = useContextStore();
+  const { globalLoading } = useGlobalStore();
 
   return (
     <nav

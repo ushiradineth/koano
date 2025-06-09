@@ -10,10 +10,10 @@ import {
   SECONDARY_HEADER_HEIGHT,
   SIDEBAR_WIDTH,
 } from "@/lib/consts";
-import { useContextStore } from "@/lib/stores/context";
 import { useSettingStore } from "@/lib/stores/settings";
 
 import dayjs from "@/lib/dayjs";
+import { useGlobalStore } from "@/lib/stores/global";
 import {
   calculateDaysToPreviousMonday,
   getDayObjectFromId,
@@ -30,7 +30,7 @@ export default function Home() {
 
   const { data: session, status } = useSession();
 
-  const { setAccessToken } = useContextStore();
+  const { setAccessToken } = useGlobalStore();
   const { settings } = useSettingStore();
 
   const timezoneString = useMemo(

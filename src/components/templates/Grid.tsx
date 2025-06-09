@@ -1,4 +1,3 @@
-import Event from "@/components/atoms/Event";
 import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
 import dayjs from "@/lib/dayjs";
@@ -16,8 +15,9 @@ import {
   INITIAL_DATE_RANGE,
   PIXEL_PER_MINUTE,
 } from "@/lib/consts";
-import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
+import { useGlobalStore } from "@/lib/stores/global";
+import { useInteractionStore } from "@/lib/stores/interactions";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Repeated } from "@/lib/types";
 import {
@@ -70,10 +70,8 @@ export default function Grid({
     extending,
     setExtending,
     setPreview,
-    previewing,
-    setPreviewing,
-    setGlobalLoading,
-  } = useContextStore();
+  } = useInteractionStore();
+  const { setGlobalLoading } = useGlobalStore();
 
   const { width: windowWidth } = useWindowSize({
     debounceDelay: 100,
@@ -85,6 +83,7 @@ export default function Grid({
     data,
     isLoading: isLoadingEvents,
     isError,
+    isSuccess,
   } = useQuery({
     queryKey: ["events", session?.user?.access_token], // Unique cache key
     queryFn: () =>
@@ -103,16 +102,7 @@ export default function Grid({
     staleTime: 1000, // Refresh data every 10 second
   });
 
-  useEffect(() => {
-    if (data) {
-      setEvents(data.data);
-      if (prevDayWidth.current === 0) {
-        prevDayWidth.current = dayWidth;
-        scrollToCurrentDate();
-      }
-    }
-  }, [data, setEvents, dayWidth, scrollToCurrentDate]);
-
+  // Set the initial days to display
   useEffect(() => {
     const dateRange = INITIAL_DATE_RANGE / 2;
     const currentDay = dayjs().startOf("day").toDate();
@@ -124,13 +114,68 @@ export default function Grid({
     setDays(initialDays);
   }, []);
 
+  // Set initially fetched events, should only be called when the data is changed or isSuccess is true
+  useEffect(() => {
+    if (isSuccess && data) {
+      setEvents(data.data);
+      if (prevDayWidth.current === 0) {
+        prevDayWidth.current = dayWidth;
+        scrollToCurrentDate();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess, data]);
+
+  // Handle errors with the initial fetch
   useEffect(() => {
     if (status !== "authenticated" || !isError) return;
     toast.error(
       (data as any as ErrorResponse).error ?? "Failed to fetch events",
     );
-  }, [isError, data, status]);
+  }, [status, isError, data]);
 
+  // Dynamically update the day width when the view or windowWidth changes
+  useEffect(() => {
+    if (gridRef.current) {
+      const newDayWidth = gridRef.current.offsetWidth / settings.view;
+      prevDayWidth.current = dayWidth; // Update previous value
+      setDayWidth(newDayWidth);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.view, windowWidth]);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelecting(false);
+        setExtending(false);
+        setPreview(null);
+        setActiveEvent(null);
+      }
+
+      if (event.key === "Backspace") {
+        if (activeEvent) {
+          removeEvent(activeEvent.id);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [
+    activeEvent,
+    setSelecting,
+    setExtending,
+    setPreview,
+    setActiveEvent,
+    removeEvent,
+  ]);
+
+  // Fetch events when the user scrolls beyond the rendered days
   const debouncedHandleScroll = useDebounceCallback(
     useCallback(async () => {
       setGlobalLoading(true);
@@ -203,6 +248,7 @@ export default function Grid({
     100,
   );
 
+  // Handle dragging an event
   const handleDndContextDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { over, active } = event;
@@ -231,7 +277,7 @@ export default function Grid({
           .add(dayjs(event.end_time).diff(event.start_time, "minute"), "minute")
           .toDate();
 
-        // No need to update if the event is the same
+        // Ignore if the event is the same
         if (
           dayjs(start_time).isSame(dayjs(event.start_time)) &&
           dayjs(end_time).isSame(dayjs(event.end_time))
@@ -248,70 +294,20 @@ export default function Grid({
     [getEventById, editEvent, setActiveEvent],
   );
 
-  useEffect(() => {
-    if (gridRef.current) {
-      const newDayWidth = gridRef.current.offsetWidth / settings.view;
-      prevDayWidth.current = dayWidth; // Update previous value
-      setDayWidth(newDayWidth);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.view, windowWidth]);
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setSelecting(false);
-        setExtending(false);
-        setPreviewing(false);
-        setActiveEvent(null);
-      }
-
-      if (event.key === "Backspace") {
-        if (activeEvent) {
-          removeEvent(activeEvent.id);
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [
-    activeEvent,
-    setSelecting,
-    setExtending,
-    setPreviewing,
-    removeEvent,
-    setActiveEvent,
-  ]);
-
-  const resetState = useCallback(() => {
-    setClickDay(null);
-    setClickPosition({ x: -1, y: -1 });
-    setSelecting(false);
-    setExtending(false);
-    setPreviewing(false);
-    setPreview({
-      start: { day: null, quarter: 0 },
-      end: { day: null, quarter: 0 },
-    });
-  }, [
-    setClickDay,
-    setClickPosition,
-    setSelecting,
-    setExtending,
-    setPreviewing,
-    setPreview,
-  ]);
-
+  // Handle on click on a day
   const handleDayMouseDown = useCallback(
     (mouseEvent: React.MouseEvent<HTMLDivElement>, day: Date) => {
+      // Ignore if dragging an event
+      if (dragging) return;
+
       // Reset previous state, in case the user starts a new selection while the previous one is still active
-      if (selecting || previewing) {
-        resetState();
+      if (selecting || extending || preview || activeEvent) {
+        setClickDay(null);
+        setClickPosition({ x: -1, y: -1 });
+        setSelecting(false);
+        setExtending(false);
         setActiveEvent(null);
+        setPreview(null);
       }
 
       // Generate the initial click position
@@ -321,9 +317,12 @@ export default function Grid({
         Math.max(mouseEvent.clientY - rect.top, -1),
         GRID_HEIGHT + 1,
       );
+
+      // Set initial positional data
       setClickPosition({ x: divX, y: divY });
       setClickDay(day);
 
+      // Look for the event id in the target
       const target = mouseEvent.target as MouseEventTarget;
       const eventId = target.offsetParent?.id;
 
@@ -344,31 +343,37 @@ export default function Grid({
         }
 
         return;
+
+        // Not an existing event, reset active event
+      } else {
+        setActiveEvent(null);
       }
 
       // When dragging a range to create a new event
-      setActiveEvent(null);
       setSelecting(dragging ? false : true);
     },
     [
       selecting,
-      previewing,
       dragging,
-      resetState,
+      preview,
       getEventById,
       setActiveEvent,
       setSelecting,
       setExtending,
+      setPreview,
     ],
   );
 
+  // Handle on mouse move on a day
   const handleDayMouseMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>, day: Date) => {
-      // Ignore if dragging and event, or if the preview is active
-      if (dragging || previewing) return;
-
       // Ignore if not selecting or extending
-      if (!selecting && !extending) return;
+      // This function should only be called when selecting or extending
+      if ((!selecting && !extending) || dragging) return;
+
+      // Reset if positional data is not available
+      // This function should not be called without these data
+      if (!clickPosition || !clickDay) return;
 
       // Get the current mouse position
       const rect = event.currentTarget.getBoundingClientRect();
@@ -377,7 +382,7 @@ export default function Grid({
         GRID_HEIGHT + 1,
       );
 
-      // Track selection if selecting or extending
+      // Track selection if selecting
       if (selecting) {
         // If dragging up on the same day
         if (
@@ -395,6 +400,7 @@ export default function Grid({
             },
           });
           return;
+
           // If dragging down on the same day or after the current day
         } else if (
           clickPosition.y < currentMouseY &&
@@ -431,16 +437,25 @@ export default function Grid({
 
       // When extending an existing event
       if (extending && activeEvent) {
+        // The unchanged start and end time
         const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
         const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
+
+        // The current mouse position
         const currentMouseQuarter = getQuarter(currentMouseY);
+
+        // The position of the click that triggered the extending action
         const clickPositionQuarter = getQuarter(clickPosition.y);
+
+        // Where the extending starts, could be either upwards or downwards
         const anchorOffset =
           clickPositionQuarter === startOffset
             ? Math.abs(endOffset - clickPositionQuarter) <= 15
               ? startOffset
               : endOffset
             : startOffset;
+
+        // The height of the preview
         const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
         const top = Math.min(anchorOffset - previewHeight, anchorOffset);
         const height = Math.abs(previewHeight);
@@ -459,34 +474,42 @@ export default function Grid({
         return;
       }
 
-      resetState();
+      console.error("Unhandled case in handleDayMouseMove");
     },
     [
       selecting,
       extending,
-      previewing,
       dragging,
+      activeEvent,
+      clickDay,
       clickPosition,
       setPreview,
-      clickDay,
-      resetState,
     ],
   );
 
+  // Handle on mouse up on a day
   const handleDayMouseUp = useCallback(
     (_event: React.MouseEvent<HTMLDivElement>, _day: Date) => {
-      if (
-        preview.start.quarter === -1 ||
-        preview.end.quarter === -1 ||
-        !preview.start.day ||
-        !preview.end.day
-      ) {
-        resetState();
+      // Ignore if not selecting or extending
+      // This function should only be called when selecting or extending
+      if ((!selecting && !extending) || dragging) return;
+
+      // Reset if preview and active event are not available
+      // This function should not be called without these data
+      if (!preview && !activeEvent) {
+        // Reset state if the preview or active event does not exist
+        setClickDay(null);
+        setClickPosition({ x: -1, y: -1 });
+        setSelecting(false);
+        setExtending(false);
+        setActiveEvent(null);
+        setPreview(null);
+
         return;
       }
 
       // When selecting a range to create a new event
-      if (selecting && !dragging) {
+      if (selecting && preview) {
         // Create Temporary Event, this will be saved when the user enters a title
         setActiveEvent({
           id: String(window.performance.now()),
@@ -503,17 +526,19 @@ export default function Grid({
           timezone: settings.timezone,
         });
 
+        // Partially reset state
         setClickDay(null);
         setClickPosition({ x: -1, y: -1 });
         setSelecting(false);
         setExtending(false);
-        setPreviewing(true);
+        // Preview will be reset after the event is saved
+        // Active event will be reset after the event is saved
 
         return;
       }
 
       // When extending an existing event
-      if (extending && activeEvent) {
+      if (extending && preview && activeEvent) {
         editEvent({
           ...activeEvent,
           start_time: getTimeFromPixelOffset(
@@ -525,20 +550,32 @@ export default function Grid({
             preview.end.day,
           ),
         });
+
+        // Reset state
+        setClickDay(null);
+        setClickPosition({ x: -1, y: -1 });
+        setSelecting(false);
+        setExtending(false);
+        setActiveEvent(null);
+        setPreview(null);
+
+        return;
       }
 
-      resetState();
+      console.error("Unhandled case in handleDayMouseUp");
     },
     [
-      resetState,
       preview,
-      setActiveEvent,
-      setClickPosition,
       dragging,
       selecting,
-      setExtending,
-      setPreviewing,
+      extending,
+      activeEvent,
+      setActiveEvent,
+      setClickPosition,
+      setPreview,
       setSelecting,
+      setExtending,
+      editEvent,
       settings.timezone,
     ],
   );
@@ -568,22 +605,8 @@ export default function Grid({
               day={dayjs(date).startOf("day").toDate()}
               onMouseDown={handleDayMouseDown}
               onMouseMove={handleDayMouseMove}
-              onMouseUp={handleDayMouseUp}>
-              {events.length > 0 &&
-                events
-                  .filter(
-                    (event) =>
-                      dayjs(event.start_time).format("DD/MM/YYYY") ===
-                      dayjs(date).format("DD/MM/YYYY"),
-                  )
-                  .map((event) => (
-                    <Event
-                      key={event.id}
-                      event={event}
-                      active={event.id === activeEvent?.id}
-                    />
-                  ))}
-            </Day>
+              onMouseUp={handleDayMouseUp}
+            />
           ))
         )}
       </div>
