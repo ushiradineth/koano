@@ -20,7 +20,11 @@ import { useContextStore } from "@/lib/stores/context";
 import { useEventStore } from "@/lib/stores/event";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Repeated } from "@/lib/types";
-import { getQuarter, getTimeFromPixelOffset } from "@/lib/utils";
+import {
+  getPixelOffsetFromTime,
+  getQuarter,
+  getTimeFromPixelOffset,
+} from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -431,34 +435,35 @@ export default function Grid({
         return;
       }
 
-      // // When extending an existing event
-      // if (extending && activeEvent) {
-      //   const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
-      //   const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
-      //   const currentMouseQuarter = getQuarter(currentMouseY);
-      //   const clickPositionQuarter = getQuarter(clickPosition.y);
-      //   const anchorOffset =
-      //     clickPositionQuarter === startOffset
-      //       ? Math.abs(endOffset - clickPositionQuarter) <= 15
-      //         ? startOffset
-      //         : endOffset
-      //       : startOffset;
-      //   const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
-      //   const top = Math.min(anchorOffset - previewHeight, anchorOffset);
-      //   const height = Math.abs(previewHeight);
-      //   setPreview({
-      //     start: {
-      //       day: day,
-      //       quarter: getQuarter(top),
-      //     },
-      //     end: {
-      //       day: day,
-      //       quarter: getQuarter(top + height),
-      //     },
-      //   });
-      //
-      //   return;
-      // }
+      // When extending an existing event
+      if (extending && activeEvent) {
+        const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
+        const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
+        const currentMouseQuarter = getQuarter(currentMouseY);
+        const clickPositionQuarter = getQuarter(clickPosition.y);
+        const anchorOffset =
+          clickPositionQuarter === startOffset
+            ? Math.abs(endOffset - clickPositionQuarter) <= 15
+              ? startOffset
+              : endOffset
+            : startOffset;
+        const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
+        const top = Math.min(anchorOffset - previewHeight, anchorOffset);
+        const height = Math.abs(previewHeight);
+
+        setPreview({
+          start: {
+            day: day,
+            quarter: getQuarter(top),
+          },
+          end: {
+            day: day,
+            quarter: getQuarter(top + height),
+          },
+        });
+
+        return;
+      }
 
       resetState();
     },
@@ -513,14 +518,20 @@ export default function Grid({
         return;
       }
 
-      // // When extending an existing event
-      // if (extending && activeEvent) {
-      //   editEvent({
-      //     ...activeEvent,
-      //     start_time: getTimeFromPixelOffset(preview.top, day),
-      //     end_time: getTimeFromPixelOffset(preview.top + preview.height, day),
-      //   });
-      // }
+      // When extending an existing event
+      if (extending && activeEvent) {
+        editEvent({
+          ...activeEvent,
+          start_time: getTimeFromPixelOffset(
+            preview.start.quarter,
+            preview.start.day,
+          ),
+          end_time: getTimeFromPixelOffset(
+            preview.end.quarter,
+            preview.end.day,
+          ),
+        });
+      }
 
       resetState();
     },
