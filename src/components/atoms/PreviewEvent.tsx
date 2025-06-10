@@ -34,14 +34,16 @@ export default function PreviewEvent({ preview, title, day }: Props) {
           ? "p-1"
           : "px-1",
       )}>
-      <p className="truncate text-sm">{title}</p>
-      <p className="text-xs opacity-75">
-        {generateEventTime(
-          getTimeFromPixelOffset(preview.start.quarter, preview.start.day!),
-          getTimeFromPixelOffset(preview.end.quarter, preview.end.day!),
-          settings.clock,
-        )}
-      </p>
+      {!relativePreview.compact && <p className="truncate text-sm">{title}</p>}
+      {!relativePreview.compact && (
+        <p className="text-xs opacity-75">
+          {generateEventTime(
+            getTimeFromPixelOffset(preview.start.quarter, preview.start.day!),
+            getTimeFromPixelOffset(preview.end.quarter, preview.end.day!),
+            settings.clock,
+          )}
+        </p>
+      )}
     </div>
   );
 }
@@ -52,6 +54,7 @@ function generateRelativePreview(
 ): {
   top: number;
   height: number;
+  compact?: boolean;
 } | null {
   const start = dayjs(preview.start.day);
   const end = dayjs(preview.end.day);
@@ -59,6 +62,14 @@ function generateRelativePreview(
 
   // The preview starts and ends on the current day
   if (start.isSame(current, "day") && end.isSame(current, "day")) {
+    if (preview.start.quarter === preview.end.quarter) {
+      return {
+        top: preview.start.quarter,
+        height: 2,
+        compact: true,
+      };
+    }
+
     return {
       top: preview.start.quarter,
       height: Math.max(

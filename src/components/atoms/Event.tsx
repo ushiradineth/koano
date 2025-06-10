@@ -16,7 +16,7 @@ interface Props {
 
 export default function Event({ event, active, render }: Props) {
   const [top, setTop] = useState(0);
-  const [label, setLabel] = useState("");
+  const [eventTime, setEventTime] = useState("");
   const [height, setHeight] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
 
@@ -54,7 +54,7 @@ export default function Event({ event, active, render }: Props) {
   }, [render]);
 
   useEffect(() => {
-    setLabel(
+    setEventTime(
       generateEventTime(event.start_time, event.end_time, settings.clock),
     );
   }, [settings, event]);
@@ -70,9 +70,8 @@ export default function Event({ event, active, render }: Props) {
       id={event.id}
       ref={setNodeRef}
       className={cn(
-        "relative flex w-[80%] flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300 bg-opacity-75",
+        "relative flex w-[80%] flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300",
         active ? "bg-orange-300" : "bg-orange-500",
-        extending ? "bg-opacity-75" : "bg-opacity-100",
       )}
       style={style}>
       <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
@@ -101,11 +100,9 @@ export default function Event({ event, active, render }: Props) {
           )}>
           {event.title}
         </p>
-        {height > 30 * PIXEL_PER_MINUTE && (
-          <p className={cn("text-xs", extending ? "opacity-50" : "opacity-75")}>
-            {label}
-          </p>
-        )}
+        <p className={cn("text-xs", extending ? "opacity-50" : "opacity-75")}>
+          {eventTime}
+        </p>
       </span>
       <Dragger className="bottom-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
     </div>
