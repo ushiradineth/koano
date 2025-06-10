@@ -1,4 +1,4 @@
-import { PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
+import { GRID_HEIGHT, PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
 import { Clock, Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
@@ -204,7 +204,8 @@ export function generateEndTimes(end: string, timezone: string): Picker[] {
 }
 
 export function getQuarter(value: number): number {
-  return Math.floor(value / PIXEL_PER_QUARTER) * PIXEL_PER_QUARTER;
+  const idx = Math.round(value / PIXEL_PER_QUARTER);
+  return Math.min(idx * PIXEL_PER_QUARTER, GRID_HEIGHT);
 }
 
 export function formatTime(
