@@ -238,3 +238,13 @@ export function generateEventTime(start: Date, end: Date, clock: Clock) {
 
   return `${startTime}${conditional} - ${endTime}`;
 }
+
+export function isModifierKey(e: MouseEvent | KeyboardEvent): boolean {
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
+  return isMac
+    ? e.getModifierState("Meta") // Cmd on Mac
+    : e.getModifierState("Control"); // Ctrl on Windows/Linux
+}

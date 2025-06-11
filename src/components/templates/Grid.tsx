@@ -1,7 +1,7 @@
 import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
 import dayjs from "@/lib/dayjs";
-import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
@@ -24,6 +24,7 @@ import {
   getPixelOffsetFromTime,
   getQuarter,
   getTimeFromPixelOffset,
+  isModifierKey,
 } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -58,18 +59,24 @@ export default function Grid({
   const prevDayWidth = useRef(0);
 
   const { data: session, status } = useSession();
-  const { events, setEvents, editEvent, removeEvent, getEventById } =
+  const { events, addEvent, setEvents, editEvent, removeEvent, getEventById } =
     useEventStore();
   const { settings } = useSettingStore();
   const {
-    preview,
     activeEvent,
     setActiveEvent,
     selecting,
     setSelecting,
     extending,
     setExtending,
+    preview,
     setPreview,
+    copiedEvents,
+    setCopiedEvents,
+    selectedEvents,
+    setSelectedEvents,
+    modifierKeyPressed,
+    setModifierKeyPressed,
   } = useInteractionStore();
   const { setGlobalLoading } = useGlobalStore();
 
@@ -147,33 +154,84 @@ export default function Grid({
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      // Get OS modifier key, either Cmd (Mac) or Ctrl (Windows/Linux)
+      const isModKeyPressed = isModifierKey(event);
+
       if (event.key === "Escape") {
         setSelecting(false);
         setExtending(false);
         setPreview(null);
         setActiveEvent(null);
+        setCopiedEvents([]);
+        setSelectedEvents([]);
       }
 
-      if (event.key === "Backspace") {
-        if (activeEvent) {
-          removeEvent(activeEvent.id);
+      // When pressing Ctrl/Cmd
+      if (isModKeyPressed) {
+        setModifierKeyPressed(true);
+      }
+
+      // Copy selected events, or the active event
+      if (modifierKeyPressed && event.key.toLowerCase() === "c") {
+        event.preventDefault();
+        setCopiedEvents(
+          selectedEvents.length > 0
+            ? selectedEvents
+            : activeEvent
+              ? [activeEvent]
+              : [],
+        );
+        setSelectedEvents([]);
+      }
+
+      // Paste copied events
+      if (modifierKeyPressed && event.key.toLowerCase() === "v") {
+        event.preventDefault();
+        for (const event of copiedEvents) {
+          addEvent(event);
         }
+      }
+
+      // Delete selected events
+      if (event.key === "Backspace") {
+        for (const event of selectedEvents) {
+          removeEvent(event.id);
+        }
+        setSelectedEvents([]);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (modifierKeyPressed) {
+        setModifierKeyPressed(false);
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [
+    modifierKeyPressed,
+    selectedEvents,
+    copiedEvents,
     activeEvent,
+    addEvent,
+    removeEvent,
+    setCopiedEvents,
+    setSelectedEvents,
+    setModifierKeyPressed,
     setSelecting,
     setExtending,
     setPreview,
     setActiveEvent,
-    removeEvent,
   ]);
+
+  useEffect(() => console.log(modifierKeyPressed), [modifierKeyPressed]);
+  useEffect(() => console.log(selectedEvents), [selectedEvents]);
 
   // Fetch events when the user scrolls beyond the rendered days
   const debouncedHandleScroll = useDebounceCallback(
@@ -239,9 +297,9 @@ export default function Grid({
       days,
       dayWidth,
       debouncedSetCurrentMonth,
-      gridRef,
       session,
       events,
+      gridRef,
       setEvents,
       setGlobalLoading,
     ]),
@@ -356,6 +414,8 @@ export default function Grid({
       selecting,
       dragging,
       preview,
+      activeEvent,
+      extending,
       getEventById,
       setActiveEvent,
       setSelecting,
@@ -510,6 +570,7 @@ export default function Grid({
         setExtending(false);
         setActiveEvent(null);
         setPreview(null);
+        setSelectedEvents([]);
 
         return;
       }
@@ -576,12 +637,13 @@ export default function Grid({
       selecting,
       extending,
       activeEvent,
+      editEvent,
       setActiveEvent,
       setClickPosition,
       setPreview,
       setSelecting,
       setExtending,
-      editEvent,
+      setSelectedEvents,
       settings.timezone,
     ],
   );

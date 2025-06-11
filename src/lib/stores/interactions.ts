@@ -17,9 +17,20 @@ type InteractionStore = {
   // Preview of the event being selected or extended
   preview: Preview | null;
   setPreview: (preview: Preview | null) => void;
+
+  copiedEvents: Event[];
+  setCopiedEvents: (copiedEvents: Event[]) => void;
+
+  selectedEvents: Event[];
+  setSelectedEvents: (selectedEvents: Event[]) => void;
+  toggleSelectedEvent: (event: Event) => void;
+  isEventSelected: (id: string) => boolean;
+
+  modifierKeyPressed: boolean;
+  setModifierKeyPressed: (metaClicked: boolean) => void;
 };
 
-export const useInteractionStore = create<InteractionStore>()((set) => ({
+export const useInteractionStore = create<InteractionStore>()((set, get) => ({
   selecting: false,
   setSelecting: (selecting: boolean) => set({ selecting }),
 
@@ -31,4 +42,30 @@ export const useInteractionStore = create<InteractionStore>()((set) => ({
 
   preview: null,
   setPreview: (preview: Preview | null) => set({ preview }),
+
+  copiedEvents: [],
+  setCopiedEvents: (copiedEvents: Event[]) => set({ copiedEvents }),
+
+  selectedEvents: [],
+  setSelectedEvents: (selectedEvents: Event[]) => set({ selectedEvents }),
+  toggleSelectedEvent: (event: Event) => {
+    const selectedEvents = get().selectedEvents;
+    if (!selectedEvents.some((e) => e.id === event.id)) {
+      set((state) => ({
+        selectedEvents: [...state.selectedEvents, event],
+      }));
+    } else {
+      set((state) => ({
+        selectedEvents: state.selectedEvents.filter((e) => e.id !== event.id),
+      }));
+    }
+  },
+  isEventSelected: (id: string) => {
+    const selectedEvents = get().selectedEvents;
+    return selectedEvents.some((e) => e.id === id);
+  },
+
+  modifierKeyPressed: false,
+  setModifierKeyPressed: (clicked: boolean) =>
+    set({ modifierKeyPressed: clicked }),
 }));

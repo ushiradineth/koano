@@ -21,7 +21,15 @@ export default function Event({ event, active, render }: Props) {
   const [dragOffset, setDragOffset] = useState(0);
 
   const { settings } = useSettingStore();
-  const { setActiveEvent, extending } = useInteractionStore();
+  const {
+    extending,
+    modifierKeyPressed,
+    selectedEvents,
+    setActiveEvent,
+    setSelectedEvents,
+    isEventSelected,
+    toggleSelectedEvent,
+  } = useInteractionStore();
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -34,6 +42,13 @@ export default function Event({ event, active, render }: Props) {
         end: event.end_time,
       },
     });
+
+  const isSelected = useMemo(
+    () => isEventSelected(event.id),
+    // This memo needs to be updated when selectedEvents changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [event, selectedEvents, isEventSelected],
+  );
 
   const style: CSSProperties = useMemo(() => {
     return {
@@ -71,7 +86,7 @@ export default function Event({ event, active, render }: Props) {
       ref={setNodeRef}
       className={cn(
         "relative flex flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300",
-        active ? "z-10 bg-orange-300" : "bg-orange-500",
+        active || isSelected ? "z-10 bg-orange-300" : "bg-orange-500",
       )}
       style={{ ...style, width: render.width, left: render.left }}>
       <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
@@ -89,7 +104,15 @@ export default function Event({ event, active, render }: Props) {
             : "flex-col",
         )}
         onMouseDown={() => {
-          !active && setActiveEvent(event);
+          // If the user is holding the modifier key, remove the active event and toggle the clicked event
+          if (modifierKeyPressed) {
+            setActiveEvent(null);
+            toggleSelectedEvent(event);
+            // If not, set the active event and set the clicked event as the only selected event
+          } else {
+            setActiveEvent(event);
+            setSelectedEvents([event]);
+          }
         }}
         {...listeners}
         {...attributes}>

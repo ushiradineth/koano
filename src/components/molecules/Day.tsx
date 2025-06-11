@@ -97,7 +97,7 @@ export default memo(function Day({
           };
         })
     );
-  }, [events, startOfCurrentDay, endOfCurrentDay]);
+  }, [day, events]);
 
   // Compute the postional data for the events
   const renderableEvents: RenderableEvent[] = useMemo(() => {
@@ -186,13 +186,13 @@ export default memo(function Day({
       });
 
       // Set an offset to leave space for user to start a selection, or for a user to be able to drag the event without overlapping
-      const offset = PIXEL_PER_QUARTER;
+      const offset = Math.min(PIXEL_PER_QUARTER, containerWidth / cols.length);
       const colWidth = containerWidth - offset;
 
       cols.forEach((col, colIndex) => {
         col.forEach((re) => {
-          re.render.width = colWidth - offset * colIndex;
           re.render.left = offset * colIndex;
+          re.render.width = colWidth - offset * colIndex;
         });
       });
 
@@ -200,7 +200,7 @@ export default memo(function Day({
     });
 
     return positioned;
-  }, [filteredEvents, startOfCurrentDay, endOfCurrentDay, width]);
+  }, [day, filteredEvents, startOfCurrentDay, endOfCurrentDay, width]);
 
   return (
     <div
