@@ -1,5 +1,6 @@
 import { GRID_HEIGHT, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
+import { useInteractionStore } from "@/lib/stores/interactions";
 import { useSettingStore } from "@/lib/stores/settings";
 import { Preview } from "@/lib/types";
 import { cn, generateEventTime, getTimeFromPixelOffset } from "@/lib/utils";
@@ -13,6 +14,7 @@ interface Props {
 
 export default function PreviewEvent({ preview, title, day }: Props) {
   const { settings } = useSettingStore();
+  const { extending } = useInteractionStore();
   const relativePreview = useMemo(
     () => generateRelativePreview(preview, day),
     [preview, day],
@@ -27,9 +29,11 @@ export default function PreviewEvent({ preview, title, day }: Props) {
       style={{
         top: relativePreview.top,
         height: relativePreview.height,
+        zIndex: extending ? 50 : undefined,
+        opacity: extending ? undefined : 0.5,
       }}
       className={cn(
-        "absolute flex h-full w-full flex-col bg-orange-400 bg-opacity-25 font-medium text-foreground",
+        "absolute flex h-full w-full flex-col bg-orange-400 font-medium text-foreground",
         Math.max(relativePreview.height, PIXEL_PER_QUARTER) > 30
           ? "p-1"
           : "px-1",

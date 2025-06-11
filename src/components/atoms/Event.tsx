@@ -70,10 +70,10 @@ export default function Event({ event, active, render }: Props) {
       id={event.id}
       ref={setNodeRef}
       className={cn(
-        "relative flex w-[80%] flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300",
-        active ? "bg-orange-300" : "bg-orange-500",
+        "relative flex flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300",
+        active ? "z-10 bg-orange-300" : "bg-orange-500",
       )}
-      style={style}>
+      style={{ ...style, width: render.width, left: render.left }}>
       <Dragger className="top-0" compact={height <= 30 * PIXEL_PER_MINUTE} />
       <span
         className={cn(
