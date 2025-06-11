@@ -438,8 +438,14 @@ export default function Grid({
       // When extending an existing event
       if (extending && activeEvent) {
         // The unchanged start and end time
-        const startOffset = getPixelOffsetFromTime(activeEvent.start_time, day);
-        const endOffset = getPixelOffsetFromTime(activeEvent.end_time, day);
+        const startOffset = getPixelOffsetFromTime(
+          new Date(activeEvent.start_time),
+          day,
+        );
+        const endOffset = getPixelOffsetFromTime(
+          new Date(activeEvent.end_time),
+          day,
+        );
 
         // The current mouse position
         const currentMouseQuarter = getQuarter(currentMouseY);
