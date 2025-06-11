@@ -159,8 +159,8 @@ export function getTimeFromPixelOffset(offset: number, day: Date): Date {
 }
 
 export function getPixelOffsetFromTime(time: Date, day: Date): number {
-  const dateTime = dayjs(day);
-  const minutes = dayjs(time).diff(dateTime, "minute");
+  const deltaMs = time.getTime() - day.getTime();
+  const minutes = deltaMs / 60_000;
   return getQuarter(minutes);
 }
 

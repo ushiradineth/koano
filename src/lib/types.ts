@@ -61,4 +61,7 @@ export type Preview = {
 export type EventRender = {
   height: number;
   top: number;
+
+  left?: number;
+  width?: number;
 };

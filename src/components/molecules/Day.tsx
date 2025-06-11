@@ -4,6 +4,7 @@ import Time from "@/components/atoms/Time";
 import {
   HEADER_HEIGHT,
   PIXEL_PER_HOUR,
+  PIXEL_PER_QUARTER,
   SECONDARY_HEADER_HEIGHT,
 } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
@@ -26,7 +27,10 @@ interface Props {
   onMouseUp: (event: React.MouseEvent<HTMLDivElement>, day: Date) => void;
 }
 
-type Bucket = Array<{ event: EventType; render: EventRender }>;
+type RenderableEvent = {
+  event: EventType;
+  render: EventRender;
+};
 
 export default memo(function Day({
   id,
@@ -51,49 +55,152 @@ export default memo(function Day({
     id,
   });
 
-  const bucket: Bucket = useMemo(() => {
-    const startOfDay = dayjs(day).startOf("day");
-    const endOfDay = dayjs(day).endOf("day");
+  const startOfCurrentDay = useMemo(() => dayjs(day).startOf("day"), [day]);
+  const endOfCurrentDay = useMemo(() => dayjs(day).endOf("day"), [day]);
+
+  // Filter out events that don't overlap this day and shape into a renderable event array
+  const filteredEvents: RenderableEvent[] = useMemo(() => {
+    const startOfCurrentDay = dayjs(day).startOf("day");
+    const endOfCurrentDay = dayjs(day).endOf("day");
 
     return (
       events
-        // only keep events that overlap this day at all
-        .filter((e: EventType) => {
-          const s0 = dayjs(e.start_time);
-          const t0 = dayjs(e.end_time);
-          return s0.isBefore(endOfDay) && t0.isAfter(startOfDay);
+        .filter((event: EventType) => {
+          return (
+            // Event should start before the end of the current day
+            dayjs(event.start_time).isBefore(endOfCurrentDay) &&
+            // Event should end after the start of the current day
+            dayjs(event.end_time).isAfter(startOfCurrentDay)
+          );
         })
-        .map((e: EventType) => {
-          const origStart = dayjs(e.start_time);
-          const origEnd = dayjs(e.end_time);
+        // Sort events by start time, and then length of the event
+        .sort((a: EventType, b: EventType) => {
+          // Sort based on start time
+          const startA = dayjs(a.start_time).valueOf();
+          const startB = dayjs(b.start_time).valueOf();
+          if (startA !== startB) {
+            return startA - startB; // earlier start → lower index
+          }
 
-          // clamp to this day's window
-          const s = origStart.isBefore(startOfDay) ? startOfDay : origStart;
-          const t = origEnd.isAfter(endOfDay) ? endOfDay : origEnd;
-
-          // compute render offsets in minutes since midnight
-          const top = getPixelOffsetFromTime(s.toDate(), day);
-          const height = getPixelOffsetFromTime(t.toDate(), day) - top;
-
+          // Sort based on duration if start times are equal
+          const durationA = dayjs(a.end_time).valueOf() - startA;
+          const durationB = dayjs(b.end_time).valueOf() - startB;
+          return durationB - durationA; // longer duration → lower index
+        })
+        .map((event: EventType) => {
           return {
-            event: e,
+            event,
             render: {
-              top,
-              height,
+              top: 0,
+              height: 0,
             },
           };
         })
-        .sort((a: EventType, b: EventType) => {
-          const sa = dayjs(a.start_time).valueOf();
-          const sb = dayjs(b.start_time).valueOf();
-          if (sa !== sb) return sa - sb;
-
-          const da = dayjs(a.end_time).diff(dayjs(a.start_time));
-          const db = dayjs(b.end_time).diff(dayjs(b.start_time));
-          return db - da; // longer events underneath
-        })
     );
-  }, [events, day]);
+  }, [events, startOfCurrentDay, endOfCurrentDay]);
+
+  // Compute the postional data for the events
+  const renderableEvents: RenderableEvent[] = useMemo(() => {
+    // The width of the day component, which is the width of the container for events
+    const containerWidth = width;
+
+    // For cluster overlapping events to calculate the left and width of relative previews
+    const clusters: RenderableEvent[][] = [];
+    for (const re of filteredEvents) {
+      // --- Start Generate top and height for the event
+      const eventStart = dayjs(re.event.start_time);
+      const eventEnd = dayjs(re.event.end_time);
+
+      // If the event starts before the current day, set the start to the start of the current day
+      const relativeEventStart = eventStart.isBefore(startOfCurrentDay)
+        ? startOfCurrentDay
+        : eventStart;
+
+      // If the event ends after the current day, set the end to the end of the current day
+      const relativeEventEnd = eventEnd.isAfter(endOfCurrentDay)
+        ? endOfCurrentDay
+        : eventEnd;
+
+      const top = getPixelOffsetFromTime(relativeEventStart.toDate(), day);
+      const height =
+        getPixelOffsetFromTime(relativeEventEnd.toDate(), day) - top;
+
+      re.render.top = top;
+      re.render.height = height;
+      // --- End of generating height and top for the event
+
+      // --- Start cluster the event if an overlapping cluster, create a new cluster if not
+      let overlapped = false;
+
+      for (const cluster of clusters) {
+        // Add to existing cluster if it overlaps
+        if (
+          cluster.some((other) => {
+            const aStart = re.render.top;
+            const aEnd = re.render.top + re.render.height;
+            const bStart = other.render.top;
+            const bEnd = other.render.top + other.render.height;
+            return !(aEnd <= bStart || aStart >= bEnd);
+          })
+        ) {
+          cluster.push(re);
+          overlapped = true;
+          break;
+        }
+      }
+
+      // Add to new cluster if none overlap
+      if (!overlapped) {
+        clusters.push([re]);
+      }
+      // --- End of clustering the event
+    }
+
+    // --- Start of generating left and width for the cluster
+    const positioned: RenderableEvent[] = [];
+    clusters.forEach((cluster) => {
+      // Sort by start (just to be deterministic)
+      cluster.sort((x, y) => x.render.top - y.render.top);
+
+      const cols: RenderableEvent[][] = [];
+
+      // Separate the events in the cluster into columns based on the top of the event
+      cluster.forEach((re) => {
+        let placed = false;
+
+        // Go through each columns to check if the event can be pushed to the end of the column
+        for (const col of cols) {
+          const last = col[col.length - 1];
+          const lastEnd = last.render.top + last.render.height;
+          if (re.render.top >= lastEnd) {
+            col.push(re);
+            placed = true;
+            break;
+          }
+        }
+
+        // If not, create a new column with the event
+        if (!placed) {
+          cols.push([re]);
+        }
+      });
+
+      // Set an offset to leave space for user to start a selection, or for a user to be able to drag the event without overlapping
+      const offset = PIXEL_PER_QUARTER;
+      const colWidth = containerWidth - offset;
+
+      cols.forEach((col, colIndex) => {
+        col.forEach((re) => {
+          re.render.width = colWidth - offset * colIndex;
+          re.render.left = offset * colIndex;
+        });
+      });
+
+      positioned.push(...cluster);
+    });
+
+    return positioned;
+  }, [filteredEvents, startOfCurrentDay, endOfCurrentDay, width]);
 
   return (
     <div
@@ -132,7 +239,7 @@ export default memo(function Day({
         )}
 
         <div className="flex w-full items-start">
-          {bucket.map((item) => (
+          {renderableEvents.map((item) => (
             <Event
               key={item.event.id}
               event={item.event}
