@@ -85,12 +85,11 @@ export default function Home() {
     }
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when status changes
   useEffect(() => {
     if (status === "authenticated") {
       setAccessToken(session?.user?.access_token ?? "");
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   if (status === "loading")
@@ -121,8 +120,8 @@ export default function Home() {
                 {timezoneString}
               </p>
               <div className="flex flex-col">
-                {new Array(24 * 1).fill(0).map((_, index) => (
-                  <TimeBlock key={index} hour={index} />
+                {new Array(24 * 1).fill(0).map((value, index) => (
+                  <TimeBlock key={value} hour={index} />
                 ))}
               </div>
             </div>
@@ -135,7 +134,7 @@ export default function Home() {
         ) : (
           <p
             style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
-            className="flex items-center justify-center text-2xl font-semibold">
+            className="flex items-center justify-center font-semibold text-2xl">
             Month view coming soon
           </p>
         )}

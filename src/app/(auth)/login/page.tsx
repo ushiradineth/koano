@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import Logo from "@/components/atoms/Logo";
 import { Button } from "@/components/ui/button";
@@ -144,7 +144,7 @@ export default function Login() {
                         />
                         <button
                           type="button"
-                          className="absolute right-0 top-0 p-2 text-primary-foreground"
+                          className="absolute top-0 right-0 p-2 text-primary-foreground"
                           onClick={() => setShowPassword(!showPassword)}>
                           {showPassword ? <EyeOff /> : <Eye />}
                         </button>

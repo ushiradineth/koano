@@ -27,18 +27,18 @@ import {
 import { SIDEBAR_WIDTH } from "@/lib/consts";
 import { useDataStore } from "@/lib/stores/data";
 import { useInteractionStore } from "@/lib/stores/interactions";
-import { Event, Repeated } from "@/lib/types";
+import { type Event, Repeated } from "@/lib/types";
 import { cn, formatTime, getPixelOffsetFromTime } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 const ButtonStyle = cn(
-  "w-full text-sm text-foreground font-medium rounded-sm p-2",
-  "appearance-none forced-colors:hidden bg-background",
-  "hover:outline hover:outline-offset-2 hover:outline-1",
-  "aria-expanded:outline-none aria-expanded:bg-foreground-tertiary",
-  "focus:outline-none focus:bg-foreground-tertiary",
+  "w-full rounded-sm p-2 font-medium text-foreground text-sm",
+  "appearance-none bg-background forced-colors:hidden",
+  "hover:outline hover:outline-1 hover:outline-offset-2",
+  "aria-expanded:bg-foreground-tertiary aria-expanded:outline-none",
+  "focus:bg-foreground-tertiary focus:outline-none",
 );
 
 export default function Sidebar() {
@@ -98,6 +98,7 @@ export default function Sidebar() {
     [activeEvent, addEvent, editEvent, getEventById, setPreview, timeFormat],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when activeEvent changes
   useEffect(() => {
     if (!activeEvent) return;
 
@@ -129,8 +130,6 @@ export default function Sidebar() {
         ),
       ),
     );
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEvent]);
 
   return (
@@ -158,6 +157,7 @@ export default function Sidebar() {
                     <FormItem>
                       <FormControl>
                         <input
+                          // biome-ignore lint/a11y/noAutofocus: This behavior is intended
                           autoFocus
                           className={ButtonStyle}
                           placeholder={activeEvent.title || "Title"}
@@ -436,7 +436,7 @@ export default function Sidebar() {
           </Form>
         </>
       ) : (
-        <p className="text-lg flex h-full w-full items-center justify-center font-semibold">
+        <p className="flex h-full w-full items-center justify-center font-semibold text-lg">
           No event selected
         </p>
       )}

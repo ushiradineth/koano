@@ -8,8 +8,8 @@ import {
   SECONDARY_HEADER_HEIGHT,
 } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
-import { useEventStore } from "@/lib/stores/event";
-import { EventRender, Event as EventType } from "@/lib/types";
+import { type EventStore, useEventStore } from "@/lib/stores/event";
+import type { EventRender, Event as EventType } from "@/lib/types";
 import { cn, getDayObjectWithDate, getPixelOffsetFromTime } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { memo, useMemo } from "react";
@@ -42,7 +42,7 @@ export default memo(function Day({
   onMouseUp,
 }: Props) {
   const { activeEvent, preview } = useInteractionStore();
-  const selectEvents = useShallow((state: any) => state.events);
+  const selectEvents = useShallow((state: EventStore) => state.events);
   const events = useEventStore(selectEvents);
 
   const dayObject = useMemo(() => getDayObjectWithDate(day), [day]);
@@ -158,14 +158,14 @@ export default memo(function Day({
 
     // --- Start of generating left and width for the cluster
     const positioned: RenderableEvent[] = [];
-    clusters.forEach((cluster) => {
+    for (const cluster of clusters) {
       // Sort by start (just to be deterministic)
       cluster.sort((x, y) => x.render.top - y.render.top);
 
       const cols: RenderableEvent[][] = [];
 
       // Separate the events in the cluster into columns based on the top of the event
-      cluster.forEach((re) => {
+      for (const re of cluster) {
         let placed = false;
 
         // Go through each columns to check if the event can be pushed to the end of the column
@@ -183,21 +183,21 @@ export default memo(function Day({
         if (!placed) {
           cols.push([re]);
         }
-      });
+      }
 
       // Set an offset to leave space for user to start a selection, or for a user to be able to drag the event without overlapping
       const offset = Math.min(PIXEL_PER_QUARTER, containerWidth / cols.length);
       const colWidth = containerWidth - offset;
 
       cols.forEach((col, colIndex) => {
-        col.forEach((re) => {
+        for (const re of col) {
           re.render.left = offset * colIndex;
           re.render.width = colWidth - offset * colIndex;
-        });
+        }
       });
 
       positioned.push(...cluster);
-    });
+    }
 
     return positioned;
   }, [day, filteredEvents, startOfCurrentDay, endOfCurrentDay, width]);
@@ -208,7 +208,7 @@ export default memo(function Day({
       style={{ marginTop: HEADER_HEIGHT }}>
       <span
         style={{ height: SECONDARY_HEADER_HEIGHT }}
-        className="sticky flex w-full flex-row items-center justify-center gap-1 border-b text-sm font-bold">
+        className="sticky flex w-full flex-row items-center justify-center gap-1 border-b font-bold text-sm">
         <p>{dayObject.day}</p>
         <p className={cn(today && "rounded-sm bg-[#EF4B46] px-1")}>
           {dayObject.date}
@@ -227,7 +227,7 @@ export default memo(function Day({
           backgroundSize: `100% ${PIXEL_PER_HOUR}px`,
           backgroundPosition: `0 ${PIXEL_PER_HOUR}px`,
         }}
-        className="relative flex snap-start flex-col items-center justify-between gap-2 border-x border-b border-border/20">
+        className="relative flex snap-start flex-col items-center justify-between gap-2 border-border/20 border-x border-b">
         <Time today={today} />
 
         {preview && (

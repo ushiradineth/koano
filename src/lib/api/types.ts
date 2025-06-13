@@ -12,14 +12,14 @@ export enum Status {
   Error = "error",
 }
 
-export type SuccessResponse = {
+export type SuccessResponse<T> = {
   code: HttpCode;
   status: Status;
-  data: any;
+  data: T;
 };
 
 export type ErrorResponse = {
   code: HttpCode;
   status: Status;
-  error: any;
+  error: string;
 };

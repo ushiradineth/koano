@@ -2,7 +2,7 @@ import { GRID_HEIGHT, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
 import { useInteractionStore } from "@/lib/stores/interactions";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Preview } from "@/lib/types";
+import type { Preview } from "@/lib/types";
 import { cn, generateEventTime, getTimeFromPixelOffset } from "@/lib/utils";
 import { useMemo } from "react";
 
@@ -42,8 +42,8 @@ export default function PreviewEvent({ preview, title, day }: Props) {
       {!relativePreview.compact && (
         <p className="text-xs opacity-75">
           {generateEventTime(
-            getTimeFromPixelOffset(preview.start.quarter, preview.start.day!),
-            getTimeFromPixelOffset(preview.end.quarter, preview.end.day!),
+            getTimeFromPixelOffset(preview.start.quarter, preview.start.day),
+            getTimeFromPixelOffset(preview.end.quarter, preview.end.day),
             settings.clock,
           )}
         </p>

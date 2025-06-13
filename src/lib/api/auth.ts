@@ -1,8 +1,8 @@
 import { env } from "@/env.mjs";
-import { HttpCode, Status, SuccessResponse } from "@/lib/api/types";
-import { User } from "@/lib/types";
+import type { HttpCode, Status, SuccessResponse } from "@/lib/api/types";
+import type { User } from "@/lib/types";
 
-const BASE_URL = env.NEXT_PUBLIC_API_URL + "/auth";
+const BASE_URL = `${env.NEXT_PUBLIC_API_URL}/auth`;
 
 // ---
 
@@ -11,7 +11,8 @@ interface AuthenticateRequest {
   password: string;
 }
 
-interface AuthenticateResponse extends SuccessResponse {
+interface AuthenticateResponse
+  extends SuccessResponse<Record<string, User | string | number>> {
   code: HttpCode.Success;
   status: Status.Success;
   data: {
@@ -47,7 +48,8 @@ interface RefreshAccessTokenRequest {
   access_token: string;
 }
 
-interface RefreshAccessTokenResponse extends SuccessResponse {
+interface RefreshAccessTokenResponse
+  extends SuccessResponse<Record<string, string | number>> {
   code: HttpCode.Success;
   status: Status.Success;
   data: {

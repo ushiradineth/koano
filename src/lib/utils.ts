@@ -1,6 +1,6 @@
 import { GRID_HEIGHT, PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
-import { Clock, Picker } from "@/lib/types";
+import type { Clock, Picker } from "@/lib/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -54,14 +54,14 @@ export function getDayObjectFromId(id: string): DayObject {
 export function queryParams(
   removeKeys: string[],
   addKeys: string[][],
-  params: any,
+  params: Record<string, string>,
   pathname: string,
 ) {
   const url = new URLSearchParams(params);
   removeKeys.map((key) => url.delete(key));
   addKeys.map((key) => url.set(key[0], key[1]));
 
-  return pathname + (url.toString() ? "?" + url.toString() : "");
+  return pathname + (url.toString() ? `?${url.toString()}` : "");
 }
 
 export function getDateTimePairFromSelection(
@@ -211,8 +211,8 @@ export function getQuarter(value: number): number {
 export function formatTime(
   time: Date,
   clock: Clock,
-  showPeriod: boolean = false,
-  noSpace: boolean = false,
+  showPeriod = false,
+  noSpace = false,
 ) {
   let timeFormat = "";
 

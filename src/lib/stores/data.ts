@@ -1,6 +1,6 @@
 import { repeatValues } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
-import { Clock, TimeObject } from "@/lib/types";
+import type { Clock, TimeObject } from "@/lib/types";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

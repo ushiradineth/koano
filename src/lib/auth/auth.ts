@@ -1,5 +1,5 @@
 import { authenticate, refreshAccessToken } from "@/lib/api/auth";
-import { ErrorResponse, HttpCode } from "@/lib/api/types";
+import { type ErrorResponse, HttpCode } from "@/lib/api/types";
 import { InvalidCredentialsError, ServerError } from "@/lib/auth/errors";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -25,7 +25,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (response.code !== HttpCode.Success) {
-            throw new Error(String((response as any as ErrorResponse).code));
+            throw new Error(
+              String((response as unknown as ErrorResponse).code),
+            );
           }
 
           return {
@@ -37,6 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             expires_at: response.data.expires_at,
             expires_in: response.data.expires_in,
           };
+          // biome-ignore lint/suspicious/noExplicitAny: NextAuth errors are not typed
         } catch (error: any) {
           if (error.message !== "401" && error.message !== "400") {
             throw new ServerError();
@@ -57,35 +60,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           expires_in: user.expires_in,
           refresh_token: user.refresh_token,
         };
-      } else if (Date.now() < (token.expires_at ?? 0) * 1000) {
+      }
+      if (Date.now() < (token.expires_at ?? 0) * 1000) {
         return token;
-      } else {
-        if (!token.refresh_token) throw new TypeError("Missing refresh_token");
-        if (!token.access_token) throw new TypeError("Missing access_token");
+      }
+      if (!token.refresh_token) throw new TypeError("Missing refresh_token");
+      if (!token.access_token) throw new TypeError("Missing access_token");
 
-        try {
-          const response = await refreshAccessToken({
-            refresh_token: token.refresh_token,
-            access_token: token.access_token,
-          });
+      try {
+        const response = await refreshAccessToken({
+          refresh_token: token.refresh_token,
+          access_token: token.access_token,
+        });
 
-          if (response.code !== HttpCode.Success) {
-            throw new Error((response as any as ErrorResponse).error);
-          }
-
-          token.access_token = response.data.access_token;
-          token.expires_at = response.data.expires_at;
-          token.expires_in = response.data.expires_in;
-          token.refresh_token = response.data.refresh_token;
-          token.error = undefined;
-
-          return token;
-        } catch (error) {
-          console.error("Error refreshing access_token", error);
-          token.error = "RefreshTokenError";
-          await signOut();
-          return token;
+        if (response.code !== HttpCode.Success) {
+          throw new Error((response as unknown as ErrorResponse).error);
         }
+
+        token.access_token = response.data.access_token;
+        token.expires_at = response.data.expires_at;
+        token.expires_in = response.data.expires_in;
+        token.refresh_token = response.data.refresh_token;
+        token.error = undefined;
+
+        return token;
+      } catch (error) {
+        console.error("Error refreshing access_token", error);
+        token.error = "RefreshTokenError";
+        await signOut();
+        return token;
       }
     },
     async session({ session, token }) {

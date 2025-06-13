@@ -1,4 +1,4 @@
-import { Event, Preview } from "@/lib/types";
+import type { Event, Preview } from "@/lib/types";
 import { create } from "zustand";
 
 type InteractionStore = {

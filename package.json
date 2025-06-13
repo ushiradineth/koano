@@ -6,8 +6,9 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "format": "prettier --write --ignore-path .gitignore --config .prettierrc.json .",
+    "lint": "pnpm biome lint --write --unsafe ./",
+    "format": "pnpm biome format --write ./",
+    "fmt": "pnpm format",
     "check": "pnpm format && pnpm lint && pnpm build"
   },
   "dependencies": {
@@ -45,18 +46,12 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "^5.62.1",
+    "@biomejs/biome": "1.9.4",
     "@types/node": "22.10.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.1.0",
-    "eslint-config-prettier": "^9.1.0",
     "postcss": "^8.4.49",
-    "prettier": "^3.4.2",
-    "prettier-plugin-organize-imports": "^4.1.0",
-    "prettier-plugin-tailwindcss": "^0.6.9",
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2"
   }

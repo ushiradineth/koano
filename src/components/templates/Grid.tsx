@@ -1,12 +1,13 @@
 import Logo from "@/components/atoms/Logo";
 import Day from "@/components/molecules/Day";
 import dayjs from "@/lib/dayjs";
-import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { DndContext, type DragEndEvent, closestCenter } from "@dnd-kit/core";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceCallback, useWindowSize } from "usehooks-ts";
 
 import { get as GetEvent } from "@/lib/api/event";
-import { ErrorResponse } from "@/lib/api/types";
+import type { ErrorResponse } from "@/lib/api/types";
 import {
   DATE_BUFFER_RANGE,
   DRAGGER_ID,
@@ -122,6 +123,8 @@ export default function Grid({
   }, []);
 
   // Set initially fetched events, should only be called when the data is changed or isSuccess is true
+  //
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when isSuccess or data changes
   useEffect(() => {
     if (isSuccess && data) {
       setEvents(data.data);
@@ -130,25 +133,25 @@ export default function Grid({
         scrollToCurrentDate();
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess, data]);
 
   // Handle errors with the initial fetch
   useEffect(() => {
     if (status !== "authenticated" || !isError) return;
     toast.error(
-      (data as any as ErrorResponse).error ?? "Failed to fetch events",
+      (data as unknown as ErrorResponse).error ?? "Failed to fetch events",
     );
   }, [status, isError, data]);
 
   // Dynamically update the day width when the view or windowWidth changes
+  //
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when settings.view or windowWidth changes
   useEffect(() => {
     if (gridRef.current) {
       const newDayWidth = gridRef.current.offsetWidth / settings.view;
       prevDayWidth.current = dayWidth; // Update previous value
       setDayWidth(newDayWidth);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.view, windowWidth]);
 
   // Handle keyboard shortcuts
@@ -403,12 +406,12 @@ export default function Grid({
         return;
 
         // Not an existing event, reset active event
-      } else {
-        setActiveEvent(null);
       }
 
-      // When dragging a range to create a new event
-      setSelecting(dragging ? false : true);
+      setActiveEvent(null);
+
+      // Enable only if dragging is not active
+      setSelecting(!dragging);
     },
     [
       selecting,
@@ -460,9 +463,10 @@ export default function Grid({
             },
           });
           return;
+        }
 
-          // If dragging down on the same day or after the current day
-        } else if (
+        // If dragging down on the same day or after the current day
+        if (
           clickPosition.y < currentMouseY &&
           (dayjs(clickDay).isSame(day, "day") ||
             dayjs(day).isAfter(clickDay, "day"))
@@ -639,7 +643,6 @@ export default function Grid({
       activeEvent,
       editEvent,
       setActiveEvent,
-      setClickPosition,
       setPreview,
       setSelecting,
       setExtending,

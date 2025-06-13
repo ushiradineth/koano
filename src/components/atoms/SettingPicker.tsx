@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock, View } from "@/lib/types";
+import type { Clock, View } from "@/lib/types";
 
 interface SettingPickerProps {
   defaultValue: Clock | View;

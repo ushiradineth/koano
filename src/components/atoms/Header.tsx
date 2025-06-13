@@ -13,7 +13,7 @@ import {
 import { HEADER_HEIGHT, SIDEBAR_WIDTH } from "@/lib/consts";
 import { useGlobalStore } from "@/lib/stores/global";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Clock, View } from "@/lib/types";
+import type { Clock, View } from "@/lib/types";
 import { LoaderCircle, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 
@@ -34,7 +34,7 @@ export default function Header({ scrollToCurrentDate, month, year }: Props) {
         height: HEADER_HEIGHT,
         width: `calc(100vw - ${SIDEBAR_WIDTH}px)`,
       }}
-      className="fixed left-0 top-0 z-50 flex items-center justify-between gap-4 border-b bg-background px-2">
+      className="fixed top-0 left-0 z-50 flex items-center justify-between gap-4 border-b bg-background px-2">
       <div className="flex flex-row items-center justify-center gap-4">
         <Logo />
         <p className="mt-1 font-semibold">

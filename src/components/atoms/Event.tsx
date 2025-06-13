@@ -3,10 +3,10 @@
 import { DRAGGER_ID, PIXEL_PER_MINUTE, PIXEL_PER_QUARTER } from "@/lib/consts";
 import { useInteractionStore } from "@/lib/stores/interactions";
 import { useSettingStore } from "@/lib/stores/settings";
-import { EventRender, Event as EventType } from "@/lib/types";
+import type { EventRender, Event as EventType } from "@/lib/types";
 import { cn, generateEventTime } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
-import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 
 interface Props {
   event: EventType;
@@ -43,10 +43,9 @@ export default function Event({ event, active, render }: Props) {
       },
     });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This memo should only run when event, selectedEvents or isEventSelected changes
   const isSelected = useMemo(
     () => isEventSelected(event.id),
-    // This memo needs to be updated when selectedEvents changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [event, selectedEvents, isEventSelected],
   );
 
@@ -85,7 +84,7 @@ export default function Event({ event, active, render }: Props) {
       id={event.id}
       ref={setNodeRef}
       className={cn(
-        "relative flex flex-col rounded-sm border-[1px] border-l-4 border-slate-900 border-l-orange-300",
+        "relative flex flex-col rounded-sm border-[1px] border-slate-900 border-l-4 border-l-orange-300",
         active || isSelected ? "z-10 bg-orange-300" : "bg-orange-500",
       )}
       style={{ ...style, width: render.width, left: render.left }}>

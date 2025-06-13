@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import Logo from "@/components/atoms/Logo";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ErrorResponse, Status } from "@/lib/api/types";
+import { type ErrorResponse, Status } from "@/lib/api/types";
 import { post as CreateUser } from "@/lib/api/user";
 import { RegisterSchema } from "@/lib/validators";
 import { useMutation } from "@tanstack/react-query";
@@ -65,7 +65,7 @@ export default function Register() {
         toast.success("You have registered successfully");
         router.push("/login");
       } else {
-        toast.error((res as any as ErrorResponse).error);
+        toast.error((res as unknown as ErrorResponse).error);
       }
     },
     [register, router],
@@ -154,7 +154,7 @@ export default function Register() {
                         />
                         <button
                           type="button"
-                          className="absolute right-0 top-0 p-2 text-primary-foreground"
+                          className="absolute top-0 right-0 p-2 text-primary-foreground"
                           onClick={() => setShowPassword(!showPassword)}>
                           {showPassword ? <EyeOff /> : <Eye />}
                         </button>

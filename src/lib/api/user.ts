@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
-import { HttpCode, Status, SuccessResponse } from "@/lib/api/types";
-import { User } from "@/lib/types";
+import type { HttpCode, Status, SuccessResponse } from "@/lib/api/types";
+import type { User } from "@/lib/types";
 
 const BASE_URL = `${env.NEXT_PUBLIC_API_URL}/users`;
 
@@ -11,7 +11,7 @@ interface GetRequest {
   access_token: string;
 }
 
-interface GetResponse extends SuccessResponse {
+interface GetResponse extends SuccessResponse<User> {
   code: HttpCode.Success;
   status: Status.Success;
   data: User;
@@ -41,7 +41,7 @@ interface PostRequest {
   password: string;
 }
 
-interface PostResponse extends SuccessResponse {
+interface PostResponse extends SuccessResponse<User> {
   code: HttpCode.Success;
   status: Status.Success;
   data: User;
@@ -73,7 +73,7 @@ interface PutRequest {
   access_token: string;
 }
 
-interface PutResponse extends SuccessResponse {
+interface PutResponse extends SuccessResponse<User> {
   code: HttpCode.Success;
   status: Status.Success;
   data: User;
@@ -105,7 +105,7 @@ interface DeleteRequest {
   access_token: string;
 }
 
-interface DeleteResponse extends SuccessResponse {
+interface DeleteResponse extends SuccessResponse<string> {
   code: HttpCode.Success;
   status: Status.Success;
   data: string;

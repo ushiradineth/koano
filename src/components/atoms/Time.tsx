@@ -15,7 +15,7 @@ export default function Time({ today }: Props) {
       style={{
         top: time.hour * PIXEL_PER_HOUR + time.minutes * PIXEL_PER_MINUTE,
       }}>
-      {today && <p className="absolute -left-1 -top-3">•</p>}
+      {today && <p className="-left-1 -top-3 absolute">•</p>}
       <div
         className={cn(
           "h-0.5 w-full bg-orange-400",

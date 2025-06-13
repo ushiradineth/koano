@@ -1,4 +1,4 @@
-import dayjs from "@/lib/dayjs";
+import type dayjs from "@/lib/dayjs";
 
 export type User = {
   id: string;

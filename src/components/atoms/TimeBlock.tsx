@@ -4,7 +4,7 @@ import { PIXEL_PER_HOUR } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
 import { useDataStore } from "@/lib/stores/data";
 import { useSettingStore } from "@/lib/stores/settings";
-import { Clock } from "@/lib/types";
+import type { Clock } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { memo, useEffect, useState } from "react";
 
@@ -19,6 +19,7 @@ export default memo(function TimeBlock({ hour }: Props) {
   const { time, updateTime } = useDataStore();
   const [isClient, setIsClient] = useState(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when setting or hour changes
   useEffect(() => {
     // Set the component as mounted after the first render
     setIsClient(true);
@@ -34,8 +35,6 @@ export default memo(function TimeBlock({ hour }: Props) {
         clearInterval(interval);
       };
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings, hour]);
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export default memo(function TimeBlock({ hour }: Props) {
     <div
       id={`timeblock-${hour + 1}`}
       style={{ height: PIXEL_PER_HOUR }}
-      className="relative flex justify-end px-1 font-mono text-xs font-medium">
+      className="relative flex justify-end px-1 font-medium font-mono text-xs">
       <p
         style={{ top: PIXEL_PER_HOUR - textHeight / 2, height: textHeight }}
         className={cn(

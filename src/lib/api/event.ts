@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
-import { HttpCode, Status, SuccessResponse } from "@/lib/api/types";
-import { Event, Repeated } from "@/lib/types";
+import type { HttpCode, Status, SuccessResponse } from "@/lib/api/types";
+import type { Event, Repeated } from "@/lib/types";
 
 const BASE_URL = `${env.NEXT_PUBLIC_API_URL}/events`;
 
@@ -12,7 +12,7 @@ interface GetRequest {
   access_token: string;
 }
 
-interface GetResponse extends SuccessResponse {
+interface GetResponse extends SuccessResponse<Event[]> {
   code: HttpCode.Success;
   status: Status.Success;
   data: Event[];
@@ -45,7 +45,7 @@ interface GetByEventIdRequest {
   access_token: string;
 }
 
-interface GetByEventIdResponse extends SuccessResponse {
+interface GetByEventIdResponse extends SuccessResponse<Event> {
   code: HttpCode.Success;
   status: Status.Success;
   data: Event;
@@ -78,7 +78,7 @@ interface PostRequest {
   access_token: string;
 }
 
-interface PostResponse extends SuccessResponse {
+interface PostResponse extends SuccessResponse<Event> {
   code: HttpCode.Success;
   status: Status.Success;
   data: Event;
@@ -117,7 +117,7 @@ interface PutRequest {
   access_token: string;
 }
 
-interface PutResponse extends SuccessResponse {
+interface PutResponse extends SuccessResponse<Event> {
   code: HttpCode.Success;
   status: Status.Success;
   data: Event;
@@ -152,7 +152,7 @@ interface DeleteRequest {
   access_token: string;
 }
 
-interface DeleteResponse extends SuccessResponse {
+interface DeleteResponse extends SuccessResponse<string> {
   code: HttpCode.Success;
   status: Status.Success;
   data: string;

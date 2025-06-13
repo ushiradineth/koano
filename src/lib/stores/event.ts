@@ -1,17 +1,17 @@
-import { Event } from "@/lib/types";
+import type { Event } from "@/lib/types";
 
 import {
   post as CreateEvent,
   deleteEvent as DeleteEvent,
   put as PutEvent,
 } from "@/lib/api/event";
-import { ErrorResponse, Status } from "@/lib/api/types";
+import { type ErrorResponse, Status } from "@/lib/api/types";
 import dayjs from "@/lib/dayjs";
 import { create } from "zustand";
 import { useGlobalStore } from "./global";
 import { useInteractionStore } from "./interactions";
 
-type EventStore = {
+export type EventStore = {
   events: Event[];
   setEvents: (events: Event[]) => void;
   addEvent: (event: Event) => void;
@@ -46,7 +46,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
       });
 
       if (response.status !== Status.Success) {
-        console.error((response as any as ErrorResponse).error);
+        console.error((response as unknown as ErrorResponse).error);
         return reset();
       }
 
@@ -93,7 +93,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
       });
 
       if (response.status !== Status.Success) {
-        console.error((response as any as ErrorResponse).error);
+        console.error((response as unknown as ErrorResponse).error);
         return reset();
       }
 
@@ -130,7 +130,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
       });
 
       if (response.status !== Status.Success) {
-        console.error((response as any as ErrorResponse).error);
+        console.error((response as unknown as ErrorResponse).error);
         return reset();
       }
     } catch (error) {
