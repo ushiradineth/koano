@@ -49,6 +49,7 @@ export default function Grid({
 }: Props) {
   const [days, setDays] = useState<Date[]>([]);
   const [dayWidth, setDayWidth] = useState(0);
+  const [gridFocused, setGridFocused] = useState(false);
 
   // Dragging State from DndContext
   const [dragging, setDragging] = useState(false);
@@ -218,6 +219,7 @@ export default function Grid({
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, [
+    gridFocused,
     modifierKeyPressed,
     selectedEvents,
     copiedEvents,
@@ -659,7 +661,9 @@ export default function Grid({
       <div
         className="no-scrollbar flex w-full snap-x snap-mandatory overflow-scroll scroll-smooth"
         ref={gridRef}
-        onScroll={gridRef.current ? debouncedHandleScroll : undefined}>
+        onScroll={gridRef.current ? debouncedHandleScroll : undefined}
+        onFocus={() => setGridFocused(true)}
+        onBlur={() => setGridFocused(false)}>
         {dayWidth === 0 || isLoadingEvents ? (
           <div
             style={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
