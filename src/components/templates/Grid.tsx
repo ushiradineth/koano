@@ -56,7 +56,7 @@ export default function Grid({
 
   // Initial Click Position and Day for Selection and Extending
   const [clickPosition, setClickPosition] = useState({ x: -1, y: -1 });
-  const [clickDay, setClickDay] = useState<Date | null>(null);
+  const [clickDate, setClickDay] = useState<Date | null>(null);
 
   const prevDayWidth = useRef(0);
 
@@ -438,7 +438,7 @@ export default function Grid({
 
       // Reset if positional data is not available
       // This function should not be called without these data
-      if (!clickPosition || !clickDay) return;
+      if (!clickPosition || !clickDate) return;
 
       // Get the current mouse position
       const rect = event.currentTarget.getBoundingClientRect();
@@ -447,13 +447,14 @@ export default function Grid({
         GRID_HEIGHT + 1,
       );
 
+      // Conversion to dayjs
+      const dayDay = dayjs(day);
+      const clickDay = dayjs(clickDate);
+
       // Track selection if selecting
       if (selecting) {
         // If dragging up on the same day
-        if (
-          clickPosition.y > currentMouseY &&
-          dayjs(clickDay).isSame(day, "day")
-        ) {
+        if (clickPosition.y > currentMouseY && clickDay.isSame(day, "day")) {
           setPreview({
             start: {
               quarter: getQuarter(currentMouseY),
@@ -470,13 +471,12 @@ export default function Grid({
         // If dragging down on the same day or after the current day
         if (
           clickPosition.y < currentMouseY &&
-          (dayjs(clickDay).isSame(day, "day") ||
-            dayjs(day).isAfter(clickDay, "day"))
+          (clickDay.isSame(day, "day") || dayDay.isAfter(clickDate, "day"))
         ) {
           setPreview({
             start: {
               quarter: getQuarter(clickPosition.y),
-              day: clickDay,
+              day: clickDate,
             },
             end: {
               quarter: getQuarter(currentMouseY),
@@ -494,7 +494,7 @@ export default function Grid({
           },
           end: {
             quarter: getQuarter(clickPosition.y),
-            day: clickDay,
+            day: clickDate,
           },
         });
 
@@ -504,13 +504,15 @@ export default function Grid({
       // When extending an existing event
       if (extending && activeEvent) {
         // The unchanged start and end time
+        const startDate = dayjs(activeEvent.start_time).startOf("day").toDate();
+        const endDate = dayjs(activeEvent.end_time).startOf("day").toDate();
         const startOffset = getPixelOffsetFromTime(
           new Date(activeEvent.start_time),
-          day,
+          startDate,
         );
         const endOffset = getPixelOffsetFromTime(
           new Date(activeEvent.end_time),
-          day,
+          endDate,
         );
 
         // The current mouse position
@@ -526,20 +528,52 @@ export default function Grid({
               ? startOffset
               : endOffset
             : startOffset;
+        const anchorDay = dayjs(
+          anchorOffset === startOffset ? startDate : endDate,
+        );
+        const anchorDate = anchorDay.toDate();
 
-        // The height of the preview
-        const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
-        const top = Math.min(anchorOffset - previewHeight, anchorOffset);
-        const height = Math.abs(previewHeight);
+        // If dragging up on the same day
+        if (anchorDay.isSame(day, "day")) {
+          const previewHeight = getQuarter(anchorOffset - currentMouseQuarter);
+          const top = Math.min(anchorOffset - previewHeight, anchorOffset);
+          const height = Math.abs(previewHeight);
+
+          setPreview({
+            start: {
+              day: anchorDate === startDate ? day : anchorDate,
+              quarter: getQuarter(top),
+            },
+            end: {
+              day: anchorDate === endDate ? day : anchorDate,
+              quarter: getQuarter(top + height),
+            },
+          });
+          return;
+        }
+
+        if (dayDay.isAfter(anchorDay, "day")) {
+          setPreview({
+            start: {
+              day: anchorDate,
+              quarter: getQuarter(anchorOffset),
+            },
+            end: {
+              day: day,
+              quarter: getQuarter(currentMouseY),
+            },
+          });
+          return;
+        }
 
         setPreview({
           start: {
             day: day,
-            quarter: getQuarter(top),
+            quarter: getQuarter(currentMouseY),
           },
           end: {
-            day: day,
-            quarter: getQuarter(top + height),
+            day: anchorDate,
+            quarter: getQuarter(anchorOffset),
           },
         });
 
@@ -553,7 +587,7 @@ export default function Grid({
       extending,
       dragging,
       activeEvent,
-      clickDay,
+      clickDate,
       clickPosition,
       setPreview,
     ],
@@ -576,7 +610,6 @@ export default function Grid({
         setExtending(false);
         setActiveEvent(null);
         setPreview(null);
-        setSelectedEvents([]);
 
         return;
       }
@@ -648,7 +681,6 @@ export default function Grid({
       setPreview,
       setSelecting,
       setExtending,
-      setSelectedEvents,
       settings.timezone,
     ],
   );
