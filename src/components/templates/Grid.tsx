@@ -332,16 +332,25 @@ export default function Grid({
 
         const pixelOffset = active.data.current?.y * PIXEL_PER_MINUTE;
 
-        // Calculate the start time based on the Y offset from the initial start time
-        const start_time = getTimeFromYOffsetAndTime(
-          pixelOffset,
-          event.start_time,
-          new Date(over.id),
-        );
+        const start_minute = dayjs(event.start_time)
+          .add(getQuarter(pixelOffset), "minute")
+          .toDate();
 
-        // Calculate the end time based on the start time and the event duration
-        const end_time = dayjs(start_time)
-          .add(dayjs(event.end_time).diff(event.start_time, "minute"), "minute")
+        const duration = dayjs(event.end_time).diff(event.start_time, "minute");
+
+        const end_day = new Date(over.id);
+
+        const timeFromStart = dayjs(start_minute).add(duration, "minute");
+
+        const end_time = dayjs(end_day)
+          .set("hour", timeFromStart.hour())
+          .set("minute", timeFromStart.minute())
+          .set("second", 0)
+          .set("millisecond", 0)
+          .toDate();
+
+        const start_time = dayjs(end_time)
+          .subtract(duration, "minute")
           .toDate();
 
         // Ignore if the event is the same
