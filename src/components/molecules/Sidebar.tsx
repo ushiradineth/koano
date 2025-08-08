@@ -137,304 +137,297 @@ export default function Sidebar() {
       style={{ width: SIDEBAR_WIDTH }}
       className={"fixed right-0 flex h-screen flex-col border-l bg-background"}>
       {activeEvent ? (
-        <>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="text-sm">
-              <span className="flex w-full flex-col gap-2 px-2 py-4">
-                <div className="flex items-center gap-2">
-                  <h2 className="px-2 font-semibold">Event</h2>
-                  <button
-                    type="button"
-                    className="ml-auto"
-                    onClick={() => removeEvent(activeEvent.id)}>
-                    <TrashIcon className="h-4 w-4 text-red-500" />
-                  </button>
-                </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="text-sm">
+            <span className="flex w-full flex-col gap-2 px-2 py-4">
+              <div className="flex items-center gap-2">
+                <h2 className="px-2 font-semibold">Event</h2>
+                <button
+                  type="button"
+                  className="ml-auto"
+                  onClick={() => removeEvent(activeEvent.id)}>
+                  <TrashIcon className="h-4 w-4 text-red-500" />
+                </button>
+              </div>
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <input
+                        // biome-ignore lint/a11y/noAutofocus: This behavior is intended
+                        autoFocus
+                        className={ButtonStyle}
+                        placeholder={activeEvent.title || "Title"}
+                        defaultValue={activeEvent.title}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </span>
+            <span className="flex flex-col gap-2 border-t px-2 py-4">
+              <div className="flex items-center justify-around gap-2 font-semibold">
                 <FormField
                   control={form.control}
                   name="start"
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
-                        <input
-                          // biome-ignore lint/a11y/noAutofocus: This behavior is intended
-                          autoFocus
-                          className={ButtonStyle}
-                          placeholder={activeEvent.title || "Title"}
-                          defaultValue={activeEvent.title}
-                          {...field}
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={(time) => {
+                          field.onChange(time);
+                          onSubmit({
+                            ...form.getValues(),
+                            start: time,
+                          });
+                        }}
+                        defaultValue={field.value}>
+                        <FormControl>
+                          <SelectUnstyledTrigger
+                            className={cn(ButtonStyle, "gap-1 p-1 text-sm")}>
+                            <Clock9 className="h-4 w-4 text-foreground-tertiary" />
+                            <p>
+                              {formatTime(
+                                dayjs(form.getValues().startDate)
+                                  .hour(dayjs(field.value, timeFormat).hour())
+                                  .minute(
+                                    dayjs(field.value, timeFormat).minute(),
+                                  )
+                                  .toDate(),
+                                settings.clock,
+                                true,
+                                true,
+                              )}
+                            </p>
+                          </SelectUnstyledTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {startTimes.map((time) => (
+                            <SelectItem
+                              key={time}
+                              value={time}
+                              onMouseOver={() => {
+                                setPreview({
+                                  start: {
+                                    quarter: getPixelOffsetFromTime(
+                                      dayjs(form.getValues().startDate)
+                                        .hour(dayjs(time, timeFormat).hour())
+                                        .minute(
+                                          dayjs(time, timeFormat).minute(),
+                                        )
+                                        .toDate(),
+                                      form.getValues().startDate,
+                                    ),
+                                    day: form.getValues().startDate,
+                                  },
+                                  end: {
+                                    quarter: getPixelOffsetFromTime(
+                                      dayjs(form.getValues().end, timeFormat)
+                                        .day(
+                                          dayjs(form.getValues().endDate).day(),
+                                        )
+                                        .toDate(),
+                                      form.getValues().endDate,
+                                    ),
+                                    day: form.getValues().endDate,
+                                  },
+                                });
+                              }}>
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </span>
-              <span className="flex flex-col gap-2 border-t px-2 py-4">
-                <div className="flex items-center justify-around gap-2 font-semibold">
-                  <FormField
-                    control={form.control}
-                    name="start"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(time) => {
-                            field.onChange(time);
-                            onSubmit({
-                              ...form.getValues(),
-                              start: time,
-                            });
-                          }}
-                          defaultValue={field.value}>
-                          <FormControl>
-                            <SelectUnstyledTrigger
-                              className={cn(ButtonStyle, "gap-1 p-1 text-sm")}>
-                              <Clock9 className="h-4 w-4 text-foreground-tertiary" />
-                              <p>
-                                {formatTime(
-                                  dayjs(form.getValues().startDate)
-                                    .hour(dayjs(field.value, timeFormat).hour())
-                                    .minute(
-                                      dayjs(field.value, timeFormat).minute(),
-                                    )
-                                    .toDate(),
-                                  settings.clock,
-                                  true,
-                                  true,
-                                )}
-                              </p>
-                            </SelectUnstyledTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {startTimes.map((time) => (
-                              <SelectItem
-                                key={time}
-                                value={time}
-                                onMouseOver={() => {
-                                  setPreview({
-                                    start: {
-                                      quarter: getPixelOffsetFromTime(
-                                        dayjs(form.getValues().startDate)
-                                          .hour(dayjs(time, timeFormat).hour())
-                                          .minute(
-                                            dayjs(time, timeFormat).minute(),
-                                          )
-                                          .toDate(),
-                                        form.getValues().startDate,
-                                      ),
-                                      day: form.getValues().startDate,
-                                    },
-                                    end: {
-                                      quarter: getPixelOffsetFromTime(
-                                        dayjs(form.getValues().end, timeFormat)
-                                          .day(
-                                            dayjs(
-                                              form.getValues().endDate,
-                                            ).day(),
-                                          )
-                                          .toDate(),
-                                        form.getValues().endDate,
-                                      ),
-                                      day: form.getValues().endDate,
-                                    },
-                                  });
-                                }}>
-                                {time}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="end"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(time) => {
-                            field.onChange(time);
-                            onSubmit({
-                              ...form.getValues(),
-                              end: time,
-                            });
-                          }}
-                          defaultValue={field.value}>
-                          <FormControl>
-                            <SelectUnstyledTrigger
-                              className={cn(ButtonStyle, "gap-1 p-1 text-sm")}>
-                              <ArrowRight className="h-4 w-4 text-foreground-tertiary" />
-                              <p>
-                                {formatTime(
-                                  dayjs(form.getValues().endDate)
-                                    .hour(dayjs(field.value, timeFormat).hour())
-                                    .minute(
-                                      dayjs(field.value, timeFormat).minute(),
-                                    )
-                                    .toDate(),
-                                  settings.clock,
-                                  true,
-                                  true,
-                                )}
-                              </p>
-                              <p className="text-foreground-tertiary">
-                                {formatDuration(
-                                  dayjs(
-                                    form.getValues().start,
-                                    timeFormat,
-                                    false,
-                                  ).toISOString(),
-                                  dayjs(
-                                    form.getValues().end,
-                                    timeFormat,
-                                    false,
-                                  ).toISOString(),
-                                  dayjs(form.getValues().startDate).toDate(),
-                                  dayjs(form.getValues().endDate).toDate(),
-                                )}
-                              </p>
-                            </SelectUnstyledTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {endTimes.map((time) => (
-                              <SelectItem
-                                key={time}
-                                value={time}
-                                onMouseOver={() => {
-                                  setPreview({
-                                    start: {
-                                      quarter: getPixelOffsetFromTime(
-                                        dayjs(
-                                          form.getValues().start,
-                                          timeFormat,
+                <FormField
+                  control={form.control}
+                  name="end"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        onValueChange={(time) => {
+                          field.onChange(time);
+                          onSubmit({
+                            ...form.getValues(),
+                            end: time,
+                          });
+                        }}
+                        defaultValue={field.value}>
+                        <FormControl>
+                          <SelectUnstyledTrigger
+                            className={cn(ButtonStyle, "gap-1 p-1 text-sm")}>
+                            <ArrowRight className="h-4 w-4 text-foreground-tertiary" />
+                            <p>
+                              {formatTime(
+                                dayjs(form.getValues().endDate)
+                                  .hour(dayjs(field.value, timeFormat).hour())
+                                  .minute(
+                                    dayjs(field.value, timeFormat).minute(),
+                                  )
+                                  .toDate(),
+                                settings.clock,
+                                true,
+                                true,
+                              )}
+                            </p>
+                            <p className="text-foreground-tertiary">
+                              {formatDuration(
+                                dayjs(
+                                  form.getValues().start,
+                                  timeFormat,
+                                  false,
+                                ).toISOString(),
+                                dayjs(
+                                  form.getValues().end,
+                                  timeFormat,
+                                  false,
+                                ).toISOString(),
+                                dayjs(form.getValues().startDate).toDate(),
+                                dayjs(form.getValues().endDate).toDate(),
+                              )}
+                            </p>
+                          </SelectUnstyledTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {endTimes.map((time) => (
+                            <SelectItem
+                              key={time}
+                              value={time}
+                              onMouseOver={() => {
+                                setPreview({
+                                  start: {
+                                    quarter: getPixelOffsetFromTime(
+                                      dayjs(form.getValues().start, timeFormat)
+                                        .day(
+                                          dayjs(
+                                            form.getValues().startDate,
+                                          ).day(),
                                         )
-                                          .day(
-                                            dayjs(
-                                              form.getValues().startDate,
-                                            ).day(),
-                                          )
-                                          .toDate(),
-                                        form.getValues().startDate,
-                                      ),
-                                      day: form.getValues().startDate,
-                                    },
-                                    end: {
-                                      quarter: getPixelOffsetFromTime(
-                                        dayjs(form.getValues().endDate)
-                                          .hour(dayjs(time, timeFormat).hour())
-                                          .minute(
-                                            dayjs(time, timeFormat).minute(),
-                                          )
-                                          .toDate(),
+                                        .toDate(),
+                                      form.getValues().startDate,
+                                    ),
+                                    day: form.getValues().startDate,
+                                  },
+                                  end: {
+                                    quarter: getPixelOffsetFromTime(
+                                      dayjs(form.getValues().endDate)
+                                        .hour(dayjs(time, timeFormat).hour())
+                                        .minute(
+                                          dayjs(time, timeFormat).minute(),
+                                        )
+                                        .toDate(),
 
-                                        form.getValues().endDate,
-                                      ),
-                                      day: form.getValues().endDate,
-                                    },
-                                  });
-                                }}>
-                                {time}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex items-center justify-around gap-2 font-semibold">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <p className={ButtonStyle}>
-                                {dayjs(field.value).format("ddd MMM D")}
-                              </p>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              month={
-                                new Date(
-                                  dayjs(field.value).year(),
-                                  dayjs(field.value).month(),
-                                )
-                              }
-                              onSelect={(startDate) => {
-                                field.onChange(startDate);
-                                startDate &&
-                                  onSubmit({
-                                    ...form.getValues(),
-                                    startDate,
-                                  });
-                              }}
-                              disabled={(date) =>
-                                date > new Date(form.getValues().endDate)
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <p className={ButtonStyle}>
-                                {dayjs(field.value).format("ddd MMM D")}
-                              </p>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="end">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              month={
-                                new Date(
-                                  dayjs(field.value).year(),
-                                  dayjs(field.value).month(),
-                                )
-                              }
-                              onSelect={(endDate) => {
-                                field.onChange(endDate);
-                                endDate &&
-                                  onSubmit({
-                                    ...form.getValues(),
-                                    endDate,
-                                  });
-                              }}
-                              disabled={(date) =>
-                                date < new Date(form.getValues().startDate)
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </span>
-            </form>
-          </Form>
-        </>
+                                      form.getValues().endDate,
+                                    ),
+                                    day: form.getValues().endDate,
+                                  },
+                                });
+                              }}>
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex items-center justify-around gap-2 font-semibold">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <p className={ButtonStyle}>
+                              {dayjs(field.value).format("ddd MMM D")}
+                            </p>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            month={
+                              new Date(
+                                dayjs(field.value).year(),
+                                dayjs(field.value).month(),
+                              )
+                            }
+                            onSelect={(startDate) => {
+                              field.onChange(startDate);
+                              startDate &&
+                                onSubmit({
+                                  ...form.getValues(),
+                                  startDate,
+                                });
+                            }}
+                            disabled={(date) =>
+                              date > new Date(form.getValues().endDate)
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <p className={ButtonStyle}>
+                              {dayjs(field.value).format("ddd MMM D")}
+                            </p>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            month={
+                              new Date(
+                                dayjs(field.value).year(),
+                                dayjs(field.value).month(),
+                              )
+                            }
+                            onSelect={(endDate) => {
+                              field.onChange(endDate);
+                              endDate &&
+                                onSubmit({
+                                  ...form.getValues(),
+                                  endDate,
+                                });
+                            }}
+                            disabled={(date) =>
+                              date < new Date(form.getValues().startDate)
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </span>
+          </form>
+        </Form>
       ) : (
         <p className="flex h-full w-full items-center justify-center font-semibold text-lg">
           No event selected
