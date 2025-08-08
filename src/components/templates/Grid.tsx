@@ -274,7 +274,7 @@ export default function Grid({
             access_token: session?.user?.access_token ?? "",
           });
 
-          setEvents([...events, ...data]);
+          setEvents([...getAllEvents(), ...data]);
         }
 
         // If the user is close to the left end (past dates), add more past days
@@ -298,7 +298,7 @@ export default function Grid({
             access_token: session?.user?.access_token ?? "",
           });
 
-          setEvents([...data, ...events]);
+          setEvents([...data, ...getAllEvents()]);
         }
       }
       setGlobalLoading(false);
@@ -307,8 +307,8 @@ export default function Grid({
       dayWidth,
       debouncedSetCurrentMonth,
       session,
-      events,
       gridRef,
+      getAllEvents,
       setEvents,
       setGlobalLoading,
     ]),

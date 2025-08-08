@@ -43,7 +43,7 @@ export default memo(function Day({
 }: Props) {
   const { activeEvent, preview } = useInteractionStore();
   const selectEvents = useShallow((state: EventStore) => state.events);
-  const events = useEventStore(selectEvents);
+  const events = useEventStore(selectEvents) ?? [];
 
   const dayObject = useMemo(() => getDayObjectWithDate(day), [day]);
   const today = useMemo(

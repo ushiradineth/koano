@@ -10,9 +10,11 @@ import dayjs from "@/lib/dayjs";
 import { create } from "zustand";
 import { useGlobalStore } from "./global";
 import { useInteractionStore } from "./interactions";
+import { toast } from "sonner";
 
 export type EventStore = {
   events: Event[];
+  getAllEvents: () => Event[];
   setEvents: (events: Event[]) => void;
   addEvent: (event: Event) => void;
   editEvent: (event: Event) => void;
@@ -22,6 +24,7 @@ export type EventStore = {
 
 export const useEventStore = create<EventStore>()((set, get) => ({
   events: [],
+  getAllEvents: () => get().events ?? [],
   setEvents: (events: Event[]) => set({ events }),
   addEvent: async (event: Event) => {
     useInteractionStore.setState({ activeEvent: event });
