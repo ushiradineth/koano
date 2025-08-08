@@ -25,6 +25,10 @@
     "rules": {
       "recommended": true,
       "style": { "useBlockStatements": "off" },
+      "a11y": {
+        "useSemanticElements": "off",
+        "noStaticElementInteractions": "off"
+      },
       "nursery": {
         "recommended": true,
         "useSortedClasses": {
@@ -34,7 +38,8 @@
             "attributes": ["className"],
             "functions": ["cn", "tw", "clsx", "twMerge"]
           }
-        }
+        },
+        "noUnknownAtRule": "off"
       }
     }
   },

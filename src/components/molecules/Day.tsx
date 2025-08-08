@@ -215,6 +215,8 @@ export default memo(function Day({
         </p>
       </span>
       <div
+        role="button"
+        tabIndex={0}
         onMouseDown={(event) => onMouseDown(event, day)}
         onMouseMove={(event) => onMouseMove(event, day)}
         onMouseUp={(event) => onMouseUp(event, day)}

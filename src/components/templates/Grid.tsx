@@ -211,7 +211,7 @@ export default function Grid({
       }
     };
 
-    const handleKeyUp = (event: KeyboardEvent) => {
+    const handleKeyUp = (_: KeyboardEvent) => {
       if (modifierKeyPressed) {
         setModifierKeyPressed(false);
       }

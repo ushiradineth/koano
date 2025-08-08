@@ -152,7 +152,7 @@ export default function Sidebar() {
                 </div>
                 <FormField
                   control={form.control}
-                  name="title"
+                  name="start"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
