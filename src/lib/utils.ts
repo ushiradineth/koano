@@ -1,7 +1,7 @@
 import { GRID_HEIGHT, PIXEL_PER_HOUR, PIXEL_PER_QUARTER } from "@/lib/consts";
 import dayjs from "@/lib/dayjs";
 import type { Clock, Picker } from "@/lib/types";
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {

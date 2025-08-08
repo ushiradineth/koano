@@ -61,8 +61,14 @@ export default function Grid({
   const prevDayWidth = useRef(0);
 
   const { data: session, status } = useSession();
-  const { events, addEvent, setEvents, editEvent, removeEvent, getEventById } =
-    useEventStore();
+  const {
+    getAllEvents,
+    addEvent,
+    setEvents,
+    editEvent,
+    removeEvent,
+    getEventById,
+  } = useEventStore();
   const { settings } = useSettingStore();
   const {
     activeEvent,

@@ -1,5 +1,7 @@
 "use client";
 
+import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Header from "@/components/atoms/Header";
 import Logo from "@/components/atoms/Logo";
 import TimeBlock from "@/components/atoms/TimeBlock";
@@ -10,17 +12,14 @@ import {
   SECONDARY_HEADER_HEIGHT,
   SIDEBAR_WIDTH,
 } from "@/lib/consts";
-import { useSettingStore } from "@/lib/stores/settings";
-
 import dayjs from "@/lib/dayjs";
 import { useGlobalStore } from "@/lib/stores/global";
+import { useSettingStore } from "@/lib/stores/settings";
 import {
   calculateDaysToPreviousMonday,
   getDayObjectFromId,
   getDayObjectWithDate,
 } from "@/lib/utils";
-import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export default function Home() {
   const [month, setMonth] = useState(dayjs(new Date()).format("MMMM"));
