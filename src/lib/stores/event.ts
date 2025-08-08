@@ -59,6 +59,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
       }));
     } catch (error) {
       console.error(error);
+      toast.error("Failed to create event", { description: event.title });
       return reset();
     }
   },
@@ -106,6 +107,7 @@ export const useEventStore = create<EventStore>()((set, get) => ({
       }));
     } catch (error) {
       console.error(error);
+      toast.error("Failed to edit event", { description: event.title });
       return reset();
     }
   },
@@ -133,8 +135,11 @@ export const useEventStore = create<EventStore>()((set, get) => ({
         console.error((response as unknown as ErrorResponse).error);
         return reset();
       }
+
+      toast.info("Event deleted", { description: `"${initialEvent.title}"` });
     } catch (error) {
       console.error(error);
+      toast.error("Failed to delete event");
       return reset();
     }
   },
