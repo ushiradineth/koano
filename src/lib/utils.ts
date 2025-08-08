@@ -239,11 +239,17 @@ export function generateEventTime(start: Date, end: Date, clock: Clock) {
   return `${startTime}${conditional} - ${endTime}`;
 }
 
-export function isModifierKey(e: MouseEvent | KeyboardEvent): boolean {
+export function isModifierKey(e: KeyboardEvent): boolean {
   const isMac =
     typeof navigator !== "undefined" &&
     /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
+  // Check for Shift key on any platform
+  if (e.getModifierState("Shift")) {
+    return true;
+  }
+
+  // Check for platform-specific modifier keys
   return isMac
     ? e.getModifierState("Meta") // Cmd on Mac
     : e.getModifierState("Control"); // Ctrl on Windows/Linux
