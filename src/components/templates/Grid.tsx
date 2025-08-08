@@ -197,7 +197,10 @@ export default function Grid({
       if (modifierKeyPressed && event.key.toLowerCase() === "v") {
         event.preventDefault();
         for (const event of copiedEvents) {
-          addEvent(event);
+          addEvent({
+            ...event,
+            id: String(window.performance.now()),
+          });
         }
       }
 
